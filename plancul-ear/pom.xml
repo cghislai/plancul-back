@@ -30,6 +30,7 @@
                         </webModule>
                     </modules>
                     <unpackTypes>ejb,war</unpackTypes>
+                    <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <!--suppress MavenModelInspection -->
                     <outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@
                     </outputFileNameMapping>

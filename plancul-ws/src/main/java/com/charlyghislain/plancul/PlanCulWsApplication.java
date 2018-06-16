@@ -11,4 +11,5 @@ public class PlanCulWsApplication extends ResourceConfig {
     public PlanCulWsApplication() {
         packages(getClass().getPackage().getName());
     }
+
 }

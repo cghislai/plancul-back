@@ -1,0 +1,77 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+    <changeSet id="0-sequence" author="cghislai">
+        <createTable tableName="SEQUENCE">
+            <column name="SEQ_NAME" type="VARCHAR"/>
+            <column name="SEQ_COUNT" type="BIGINT(19)"/>
+        </createTable>
+        <insert tableName="SEQUENCE">
+            <column name="SEQ_NAME" value="SEQ_GEN"/>
+            <column name="SEQ_COUNT" value="0"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="1-tenant-table" author="cghisli">
+        <createTable tableName="TENANT">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2-plot-table" author="cghisli">
+        <createTable tableName="PLOT">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TENANT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="PLOT" baseColumnNames="TENANT_ID"
+                                 referencedTableName="TENANT" referencedColumnNames="ID"
+                                 constraintName="PLOT_TENANT_ID"/>
+    </changeSet>
+
+    <changeSet id="3-caller" author="cghislai">
+        <createTable tableName="CALLER">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(400)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="4-caller-groups" author="cghislai">
+        <createTable tableName="CALLERGROUPS">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CALLER_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="GROUP_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="CALLERGROUPS" baseColumnNames="CALLER_ID"
+                                 referencedTableName="CALLER" referencedColumnNames="ID"
+                                 constraintName="CALLERGROUPS_CALLER_ID"/>
+    </changeSet>
+
+</databaseChangeLog>
