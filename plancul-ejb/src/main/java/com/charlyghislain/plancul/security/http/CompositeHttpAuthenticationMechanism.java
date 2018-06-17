@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.security.http;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.security.enterprise.AuthenticationException;
 import javax.security.enterprise.AuthenticationStatus;
 import javax.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
@@ -12,7 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-public class CompositeHttpAuthenticationMechnism implements HttpAuthenticationMechanism {
+@Named
+public class CompositeHttpAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Inject
     private Instance<HttpCredentialProvider> httpCredentialProviders;

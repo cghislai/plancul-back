@@ -13,6 +13,7 @@
         <module>plancul-ws</module>
         <module>plancul-api</module>
         <module>plancul-ear</module>
+        <module>plancul-opendata-client</module>
     </modules>
 
     <dependencyManagement>

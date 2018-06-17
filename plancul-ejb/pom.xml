@@ -22,6 +22,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.charlyghislain</groupId>
+            <artifactId>plancul-opendata-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
