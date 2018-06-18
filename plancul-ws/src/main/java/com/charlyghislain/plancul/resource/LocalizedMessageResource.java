@@ -3,7 +3,7 @@ package com.charlyghislain.plancul.resource;
 import com.charlyghislain.plancul.converter.LocalizedMessageConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
-import com.charlyghislain.plancul.domain.i18n.WsLocalizedMessage;
+import com.charlyghislain.plancul.domain.WsLocalizedMessage;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.service.I18NService;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;

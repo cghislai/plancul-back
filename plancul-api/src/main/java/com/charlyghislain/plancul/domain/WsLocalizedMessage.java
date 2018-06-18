@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.domain.i18n;
+package com.charlyghislain.plancul.domain;
 
 
 import com.charlyghislain.plancul.domain.util.WsDomainEntity;

@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.security.http;
+package com.charlyghislain.plancul.security;
 
 import javax.security.enterprise.credential.Credential;
 import javax.servlet.http.HttpServletRequest;

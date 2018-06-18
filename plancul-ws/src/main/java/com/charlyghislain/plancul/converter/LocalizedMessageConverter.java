@@ -3,7 +3,7 @@ package com.charlyghislain.plancul.converter;
 import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.i18n.Language;
-import com.charlyghislain.plancul.domain.i18n.WsLocalizedMessage;
+import com.charlyghislain.plancul.domain.WsLocalizedMessage;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
