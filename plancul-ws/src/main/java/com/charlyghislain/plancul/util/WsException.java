@@ -15,4 +15,8 @@ public class WsException extends RuntimeException {
         super(message);
         this.statusCode = statusCode;
     }
+
+    public Response.Status getStatusCode() {
+        return statusCode;
+    }
 }

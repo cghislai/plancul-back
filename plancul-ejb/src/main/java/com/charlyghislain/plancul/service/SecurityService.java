@@ -5,6 +5,8 @@ import com.charlyghislain.plancul.domain.security.CallerGroups;
 import com.charlyghislain.plancul.domain.security.CallerGroups_;
 import com.charlyghislain.plancul.domain.security.Caller_;
 import com.charlyghislain.plancul.domain.security.Group;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,16 +19,22 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.identitystore.PasswordHash;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 @Stateless
 public class SecurityService {
 
+    private final static Logger LOG = LoggerFactory.getLogger(SecurityService.class);
+
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
-    private static final String DEFAULT_ADMIN_PASSWORD = "admin";
 
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
@@ -66,15 +74,49 @@ public class SecurityService {
 
 
     public boolean isValidCallerPassword(Caller caller, char[] password) {
-        return passwordHash.verify(password, caller.getPassword());
+        String storedCallerPassword = caller.getPassword();
+        if (storedCallerPassword == null || storedCallerPassword.isEmpty()) {
+            return false;
+        }
+        return passwordHash.verify(password, storedCallerPassword);
     }
 
     public void createDefaultAccounts() {
         Optional<Caller> adminCaller = this.findCallerByName(DEFAULT_ADMIN_USERNAME);
         if (!adminCaller.isPresent()) {
-            String hashedPassword = passwordHash.generate(DEFAULT_ADMIN_PASSWORD.toCharArray());
-            this.createCaller(DEFAULT_ADMIN_USERNAME, hashedPassword, Group.ADMIN, Group.USER);
+            String hashedPassword = this.createNewAdminHashedPassword();
+            Caller newAdminCaller = this.createCaller(DEFAULT_ADMIN_USERNAME, hashedPassword, Group.ADMIN, Group.USER);
+            newAdminCaller.setPasswordNeedsChange(true);
         }
+    }
+
+    private String createNewAdminHashedPassword() {
+        byte[] pwBytes = new byte[32];
+        try {
+            SecureRandom.getInstance("SHA1PRNG").nextBytes(pwBytes);
+        } catch (NoSuchAlgorithmException e) {
+            new Random(System.currentTimeMillis())
+                    .nextBytes(pwBytes);
+        }
+        byte[] encodedBytes = Base64.getEncoder().encode(pwBytes);
+        try {
+            String plainPassword = new String(encodedBytes, "UTF-8");
+            this.logDefaultAdminPassword(plainPassword);
+            String hashedPassword = passwordHash.generate(plainPassword.toCharArray());
+            return hashedPassword;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Failed to encode a default admin password", e);
+        }
+    }
+
+    private void logDefaultAdminPassword(String plainPassword) {
+        LOG.info("\n" +
+                "=========== Your admin password ===============\n" +
+                "\n" +
+                plainPassword +
+                "\n" +
+                "===============================================\n" +
+                "Use it to login with the default '" + DEFAULT_ADMIN_USERNAME + "' user.");
     }
 
 

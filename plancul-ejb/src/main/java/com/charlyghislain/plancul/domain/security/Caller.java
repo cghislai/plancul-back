@@ -20,6 +20,7 @@ public class Caller implements DomainEntity {
     @NotNull
     @Size(max = 400)
     private String password;
+    private boolean passwordNeedsChange;
 
     @Override
     public Long getId() {
@@ -46,5 +47,13 @@ public class Caller implements DomainEntity {
 
     public void setPassword(@NotNull String password) {
         this.password = password;
+    }
+
+    public boolean isPasswordNeedsChange() {
+        return passwordNeedsChange;
+    }
+
+    public void setPasswordNeedsChange(boolean passwordExpired) {
+        this.passwordNeedsChange = passwordExpired;
     }
 }

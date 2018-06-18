@@ -54,6 +54,9 @@
             <column name="PASSWORD" type="VARCHAR(400)">
                 <constraints nullable="false"/>
             </column>
+            <column name="PASSWORDNEEDSCHANGE" type="BIT">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -179,7 +182,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="CULTIVAR" type="VARCHAR(255)"/>
-            <column name="TENANT_ID" type="BIGINT(19)" />
+            <column name="TENANT_ID" type="BIGINT(19)"/>
         </createTable>
         <addForeignKeyConstraint constraintName="CROP_PLANTID"
                                  baseTableName="CROP" baseColumnNames="AGROVOCPLANT_ID"
