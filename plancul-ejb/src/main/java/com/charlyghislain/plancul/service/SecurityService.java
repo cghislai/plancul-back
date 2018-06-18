@@ -1,10 +1,10 @@
 package com.charlyghislain.plancul.service;
 
+import com.charlyghislain.plancul.domain.security.ApplicationGroup;
 import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.security.CallerGroups;
 import com.charlyghislain.plancul.domain.security.CallerGroups_;
 import com.charlyghislain.plancul.domain.security.Caller_;
-import com.charlyghislain.plancul.domain.security.ApplicationGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.security.enterprise.SecurityContext;
 import javax.security.enterprise.identitystore.PasswordHash;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -40,7 +41,18 @@ public class SecurityService {
     private EntityManager entityManager;
     @Inject
     private PasswordHash passwordHash;
+    @Inject
+    private SecurityContext securityContext;
 
+
+    public Optional<Caller> findLoggedCaller() {
+        String callerName = securityContext.getCallerPrincipal().getName();
+        return this.findCallerByName(callerName);
+    }
+
+    public boolean isAdminLogged() {
+        return securityContext.isCallerInRole(ApplicationGroup.ADMIN.name());
+    }
 
     public Optional<Caller> findCallerByName(String name) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -95,6 +107,8 @@ public class SecurityService {
         String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
         return this.createCaller(name, hashedPassword, ApplicationGroup.USER);
     }
+
+
 
     private String createNewAdminHashedPassword() {
         byte[] pwBytes = new byte[32];

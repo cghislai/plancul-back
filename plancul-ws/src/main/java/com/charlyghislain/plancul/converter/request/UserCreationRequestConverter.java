@@ -43,10 +43,8 @@ public class UserCreationRequestConverter {
         String email = wsUserCreationRequest.getEmail();
         String password = wsUserCreationRequest.getPassword();
         WsTenant tenant = wsUserCreationRequest.getTenant();
-        WsTenantRole tenantRole = wsUserCreationRequest.getTenantRole();
 
         Tenant tenantValue = tenantConverter.fromWsEntity(tenant);
-        TenantRole tenantRoleValue = TenantRole.valueOf(tenantRole.name());
 
         UserCreationRequest userCreationRequest = new UserCreationRequest();
         userCreationRequest.setEmail(email);
@@ -54,7 +52,6 @@ public class UserCreationRequestConverter {
         userCreationRequest.setLastName(lastName);
         userCreationRequest.setPassword(password);
         userCreationRequest.setTenant(tenantValue);
-        userCreationRequest.setTenantRole(tenantRoleValue);
         return userCreationRequest;
     }
 }

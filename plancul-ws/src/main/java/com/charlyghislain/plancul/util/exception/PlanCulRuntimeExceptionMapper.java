@@ -2,26 +2,27 @@ package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.util.WsError;
+import com.charlyghislain.plancul.domain.util.exception.PlanCulRuntimeException;
 
 import javax.inject.Inject;
-import javax.ws.rs.ClientErrorException;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 @Provider
-public class ClientErrorExceptionMapper implements ExceptionMapper<ClientErrorException> {
+public class PlanCulRuntimeExceptionMapper implements ExceptionMapper<PlanCulRuntimeException> {
 
     @Inject
     private WsErrorConverter wsErrorConverter;
 
     @Override
-    public Response toResponse(ClientErrorException exception) {
+    public Response toResponse(PlanCulRuntimeException exception) {
+        int httpStatusCode = exception.getHttpStatusCode()
+                .orElse(500);
+
         WsError wsError = wsErrorConverter.toWsError(exception);
 
-        Response response = Response.status(exception.getResponse().getStatus())
-                .type(MediaType.APPLICATION_JSON_TYPE)
+        Response response = Response.status(httpStatusCode)
                 .entity(wsError)
                 .build();
         return response;

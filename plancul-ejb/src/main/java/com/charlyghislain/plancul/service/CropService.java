@@ -33,7 +33,10 @@ public class CropService {
 
     public Optional<Crop> findCropById(long id) {
         Crop found = entityManager.find(Crop.class, id);
-        return Optional.ofNullable(found);
+        Optional<Crop> cropOptional = Optional.ofNullable(found);
+        cropOptional.flatMap(Crop::getTenant)
+                .ifPresent(validationService::validateLoggedUserHasTenantRole);
+        return cropOptional;
     }
 
     public Crop createPlot(CropCreationRequest cropCreationRequest) {
@@ -42,8 +45,11 @@ public class CropService {
         // It is kept here for the moment as it is useful to search crops by their product names (Solanum tuberosum vs potato)
         String agrovocPlantUri = cropCreationRequest.getAgrovocPlantUri();
         String agrovocProductUri = cropCreationRequest.getAgrovocProductUri();
-        String cultivar = cropCreationRequest.getCultivar();
-        Tenant tenantRestriction = cropCreationRequest.getTenantRestriction();
+        Optional<String> cultivar = cropCreationRequest.getCultivar();
+        Optional<Tenant> tenantRestriction = cropCreationRequest.getTenantRestriction();
+
+        tenantRestriction
+                .ifPresent(validationService::validateLoggedUserHasTenantRole);
 
         AgrovocPlant agrovocPlant = this.getOrCreateAgrovocPlant(agrovocPlantUri);
         AgrovocProduct agrovocProduct = this.getOrCreateAgrovocProduct(agrovocProductUri);
@@ -51,8 +57,8 @@ public class CropService {
         Crop crop = new Crop();
         crop.setAgrovocPlant(agrovocPlant);
         crop.setAgrovocProduct(agrovocProduct);
-        crop.setCultivar(cultivar);
-        crop.setTenant(tenantRestriction);
+        crop.setCultivar(cultivar.orElse(null));
+        crop.setTenant(tenantRestriction.orElse(null));
 
         Crop managedCrop = entityManager.merge(crop);
         return managedCrop;

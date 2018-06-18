@@ -1,11 +1,14 @@
 package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.Tenant_;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -29,8 +32,12 @@ public class TenantService {
     private SearchService searchService;
     @Inject
     private ValidationService validationService;
+    @Inject
+    private UserService userService;
+    @Inject
+    private SecurityService securityService;
 
-
+    @RolesAllowed(ApplicationGroupNames.ADMIN)
     public Tenant createTenant(Tenant tenant) {
         validationService.validateNoId(tenant);
 
@@ -42,6 +49,7 @@ public class TenantService {
         if (tenant.getId() == null) {
             return this.createTenant(tenant);
         }
+        validationService.validateLoggedUserHasTenantRole(tenant, TenantRole.ADMIN);
 
         Tenant managedTenant = entityManager.merge(tenant);
         return managedTenant;
@@ -49,7 +57,9 @@ public class TenantService {
 
     public Optional<Tenant> findTenantById(long id) {
         Tenant foundTenant = entityManager.find(Tenant.class, id);
-        return Optional.ofNullable(foundTenant);
+        Optional<Tenant> foundTenantOptional = Optional.ofNullable(foundTenant);
+        foundTenantOptional.ifPresent(validationService::validateLoggedUserHasTenantRole);
+        return foundTenantOptional;
     }
 
     public SearchResult<Tenant> findTenants(TenantFilter tenantFilter, Pagination pagination) {
@@ -64,6 +74,9 @@ public class TenantService {
 
     private List<Predicate> createTenantPredicates(TenantFilter tenantFilter, Root<Tenant> rootTenant) {
         List<Predicate> predicateList = new ArrayList<>();
+
+        searchService.createLoggedUserTenantsPredicate(rootTenant)
+                .ifPresent(predicateList::add);
 
         Path<String> namePath = rootTenant.get(Tenant_.name);
         tenantFilter.getNameContains()

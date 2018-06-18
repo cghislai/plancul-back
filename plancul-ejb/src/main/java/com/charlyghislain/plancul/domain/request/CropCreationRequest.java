@@ -4,6 +4,7 @@ import com.charlyghislain.plancul.domain.Tenant;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
 
 public class CropCreationRequest {
 
@@ -34,16 +35,16 @@ public class CropCreationRequest {
         this.agrovocProductUri = agrovocProductUri;
     }
 
-    public String getCultivar() {
-        return cultivar;
+    public Optional<String> getCultivar() {
+        return Optional.ofNullable(cultivar);
     }
 
     public void setCultivar(String cultivar) {
         this.cultivar = cultivar;
     }
 
-    public Tenant getTenantRestriction() {
-        return tenantRestriction;
+    public Optional<Tenant> getTenantRestriction() {
+        return Optional.ofNullable(tenantRestriction);
     }
 
     public void setTenantRestriction(Tenant tenantRestriction) {

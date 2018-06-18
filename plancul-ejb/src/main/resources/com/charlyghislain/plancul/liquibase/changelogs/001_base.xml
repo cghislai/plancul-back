@@ -201,7 +201,7 @@
                 <constraints primaryKey="true"/>
             </column>
             <column name="CALLER_ID" type="BIGINT(19)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
             <column name="FIRSTNAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
@@ -210,7 +210,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="EMAIL" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
         <addForeignKeyConstraint constraintName="PLANCULUSER_CALLER"

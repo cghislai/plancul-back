@@ -34,6 +34,7 @@ public class PlotService {
 
     public Plot createPlot(Plot plot) {
         validationService.validateNoId(plot);
+        validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
         Plot managedPlot = entityManager.merge(plot);
         return managedPlot;
@@ -41,6 +42,7 @@ public class PlotService {
 
     public Plot savePlot(Plot plot) {
         validationService.validateNonNullId(plot);
+        validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
         Plot managedPlot = entityManager.merge(plot);
         return managedPlot;
@@ -48,13 +50,17 @@ public class PlotService {
 
     public void deletePlot(Plot plot) {
         validationService.validateNonNullId(plot);
+        validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
         entityManager.remove(plot);
     }
 
     public Optional<Plot> findPlotById(long id) {
         Plot foundPlot = entityManager.find(Plot.class, id);
-        return Optional.ofNullable(foundPlot);
+        Optional<Plot> foundPlotOptional = Optional.ofNullable(foundPlot);
+        foundPlotOptional.map(Plot::getTenant)
+                .ifPresent(validationService::validateLoggedUserHasTenantRole);
+        return foundPlotOptional;
     }
 
     public SearchResult<Plot> findPlots(PlotFilter plotFilter, Pagination pagination) {
@@ -71,8 +77,11 @@ public class PlotService {
         CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
         List<Predicate> predicateList = new ArrayList<>();
 
+        Tenant tenant = plotFilter.getTenant();
+        validationService.validateLoggedUserHasTenantRole(tenant);
+
         Path<Tenant> tenantPath = rootPlot.get(Plot_.tenant);
-        Predicate tenantPredicate = criteriaBuilder.equal(tenantPath, plotFilter.getTenant());
+        Predicate tenantPredicate = criteriaBuilder.equal(tenantPath, tenant);
         predicateList.add(tenantPredicate);
 
         Path<String> namePath = rootPlot.get(Plot_.name);

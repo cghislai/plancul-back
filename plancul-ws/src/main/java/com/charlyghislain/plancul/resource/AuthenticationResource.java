@@ -8,12 +8,10 @@ import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.security.enterprise.SecurityContext;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.security.Principal;
 
 @Path("/auth")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -32,12 +30,7 @@ public class AuthenticationResource {
     @Path("/token")
     @Produces(MediaType.TEXT_PLAIN)
     public String createJwtToken() {
-        Principal callerPrincipal = securityContext.getCallerPrincipal();
-        if (callerPrincipal == null) {
-            throw new NotAuthorizedException("Not authenticated");
-        }
-        String callerName = callerPrincipal.getName();
-        Caller caller = securityService.findCallerByName(callerName)
+        Caller caller = securityService.findLoggedCaller()
                 .orElseThrow(IllegalStateException::new);
         String jwtToken = jwtService.createJwtForCallerName(caller);
         return jwtToken;

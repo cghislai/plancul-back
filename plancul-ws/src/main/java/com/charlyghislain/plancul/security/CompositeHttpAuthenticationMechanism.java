@@ -30,7 +30,7 @@ public class CompositeHttpAuthenticationMechanism implements HttpAuthenticationM
                 .findFirst()
                 .map(identityStoreHandler::validate)
                 .map(httpMessageContext::notifyContainerAboutLogin)
-                .orElse(AuthenticationStatus.NOT_DONE);
+                .orElse(AuthenticationStatus.SEND_FAILURE);
         sendResponse(response, authenticationStatus);
         return authenticationStatus;
     }

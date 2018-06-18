@@ -2,6 +2,8 @@ package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.LocalizedMessage_;
+import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.TenantUserRole;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.result.SearchResult;
@@ -21,6 +23,7 @@ import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class SearchService {
@@ -29,6 +32,10 @@ public class SearchService {
     private EntityManager entityManager;
     @EJB
     private I18NService i18NService;
+    @EJB
+    private UserService userService;
+    @EJB
+    private SecurityService securityService;
 
     <T extends DomainEntity> SearchResult<T> search(Pagination pagination, CriteriaQuery<T> query, Root<T> root, List<Predicate> predicates) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -70,6 +77,20 @@ public class SearchService {
 
         return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
     }
+
+
+    public Optional<Predicate> createLoggedUserTenantsPredicate(Path<Tenant> rootTenant) {
+        boolean adminLogged = securityService.isAdminLogged();
+        if (!adminLogged) {
+            return Optional.empty();
+        }
+
+        List<Tenant> allowedTenantList = userService.getLoggedUserTenantsRoles().stream()
+                .map(TenantUserRole::getTenant)
+                .collect(Collectors.toList());
+        return Optional.of(rootTenant.in(allowedTenantList));
+    }
+
 
     private Predicate createLanguagePredicate(Path<LocalizedMessage> messagePath, String language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();

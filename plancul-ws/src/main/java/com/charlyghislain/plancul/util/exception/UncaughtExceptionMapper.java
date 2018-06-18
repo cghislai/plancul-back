@@ -1,13 +1,11 @@
 package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
-import com.charlyghislain.plancul.domain.security.ApplicationGroup;
 import com.charlyghislain.plancul.domain.util.WsError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.security.enterprise.SecurityContext;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -19,13 +17,10 @@ public class UncaughtExceptionMapper implements ExceptionMapper<Throwable> {
     private final static Logger LOG = LoggerFactory.getLogger(UncaughtExceptionMapper.class);
     @Inject
     private WsErrorConverter wsErrorConverter;
-    @Inject
-    private SecurityContext securityContext;
 
     @Override
     public Response toResponse(Throwable exception) {
-        boolean isAdmin = securityContext.isCallerInRole(ApplicationGroup.ADMIN.name());
-        WsError wsError = wsErrorConverter.toWsError(exception, isAdmin);
+        WsError wsError = wsErrorConverter.toWsError(exception);
 
         LOG.error("Uncaught exception causing an error 500 response to be sent to the client", exception);
 

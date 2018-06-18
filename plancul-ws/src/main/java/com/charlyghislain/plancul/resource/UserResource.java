@@ -3,6 +3,7 @@ package com.charlyghislain.plancul.resource;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.converter.UserConverter;
 import com.charlyghislain.plancul.converter.request.UserCreationRequestConverter;
+import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.WsUser;
 import com.charlyghislain.plancul.domain.request.Pagination;
@@ -47,6 +48,8 @@ public class UserResource {
     @RolesAllowed(ApplicationGroupNames.ADMIN)
     public WsRef<WsUser> createUser(@NotNull @Valid WsUserTenantCreationRequest wsUserTenantCreationRequest) {
         UserCreationRequest userCreationRequest = userCreationRequestConverter.fromWsUserTenantCreationRequest(wsUserTenantCreationRequest);
+        userCreationRequest.setTenantRole(TenantRole.ADMIN);
+
         User createdUser = userService.createUser(userCreationRequest);
 
         WsRef<WsUser> reference = userConverter.reference(createdUser);

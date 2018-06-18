@@ -1,7 +1,6 @@
 package com.charlyghislain.plancul.domain.request;
 
 import com.charlyghislain.plancul.domain.WsTenant;
-import com.charlyghislain.plancul.domain.WsTenantRole;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -23,8 +22,6 @@ public class WsUserTenantCreationRequest implements Serializable {
     private String password;
     @NotNull
     private WsTenant tenant;
-    @NotNull
-    private WsTenantRole tenantRole;
 
     @NotNull
     public String getFirstName() {
@@ -71,12 +68,4 @@ public class WsUserTenantCreationRequest implements Serializable {
         this.tenant = tenant;
     }
 
-    @NotNull
-    public WsTenantRole getTenantRole() {
-        return tenantRole;
-    }
-
-    public void setTenantRole(@NotNull WsTenantRole tenantRole) {
-        this.tenantRole = tenantRole;
-    }
 }
