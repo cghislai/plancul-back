@@ -1,36 +1,30 @@
 package com.charlyghislain.plancul.domain.i18n;
 
-import com.charlyghislain.plancul.domain.util.DomainEntity;
+import java.util.Arrays;
+import java.util.Optional;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
+public enum Language {
+    FRENCH("fr"),
+    ENGLISH("en");
 
-@Entity
-public class Language implements DomainEntity {
+    public static Optional<Language> fromCode(String code) {
+        return Arrays.stream(Language.values())
+                .filter(language -> language.getCode().equals(code))
+                .findAny();
+    }
 
-    @Id
-    @GeneratedValue
-    private Long id;
-    @NotNull
     private String code;
 
-    @Override
-    public Long getId() {
-        return id;
+    Language(String code) {
+        this.code = code;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    @NotNull
     public String getCode() {
         return code;
     }
 
-    public void setCode(@NotNull String code) {
-        this.code = code;
+    @Override
+    public String toString() {
+        return code;
     }
 }

@@ -3,11 +3,10 @@ package com.charlyghislain.plancul.service;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Plot_;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.filter.PlotFilter;
-import com.charlyghislain.plancul.domain.util.Pagination;
-import com.charlyghislain.plancul.domain.util.SearchResult;
+import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -27,10 +26,10 @@ public class PlotService {
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
 
-    @EJB
-    private SearchService searchService;
     @Inject
     private ValidationService validationService;
+    @Inject
+    private SearchService searchService;
 
 
     public Plot createPlot(Plot plot) {

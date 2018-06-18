@@ -1,13 +1,13 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.converter.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.WsPlot;
 import com.charlyghislain.plancul.domain.WsTenant;
-import com.charlyghislain.plancul.domain.filter.PlotFilter;
-import com.charlyghislain.plancul.domain.filter.WsPlotFilter;
+import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
+import com.charlyghislain.plancul.domain.request.filter.WsPlotFilter;
 import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.PlotService;
 

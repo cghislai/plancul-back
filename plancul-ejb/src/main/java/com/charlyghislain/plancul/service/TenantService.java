@@ -2,11 +2,10 @@ package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.Tenant_;
-import com.charlyghislain.plancul.domain.filter.TenantFilter;
-import com.charlyghislain.plancul.domain.util.Pagination;
-import com.charlyghislain.plancul.domain.util.SearchResult;
+import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -26,7 +25,7 @@ public class TenantService {
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
 
-    @EJB
+    @Inject
     private SearchService searchService;
     @Inject
     private ValidationService validationService;

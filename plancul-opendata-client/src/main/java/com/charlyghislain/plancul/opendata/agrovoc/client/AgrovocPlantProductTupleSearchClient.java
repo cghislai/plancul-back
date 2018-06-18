@@ -169,8 +169,8 @@ public class AgrovocPlantProductTupleSearchClient {
         QueryExecution queryExecution = QueryExecutionFactory.sparqlService(AGROVOC_ENDPOINT_URL, query);
 
         // TODO: ordering
-        String serialized = query.serialize();
-        System.out.println(serialized);
+//        String serialized = query.serialize();
+//        System.out.println(serialized);
 
         ResultSet resultSet = queryExecution.execSelect();
         Iterable<QuerySolution> solutionsIterable = () -> resultSet;

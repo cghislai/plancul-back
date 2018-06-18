@@ -21,6 +21,10 @@
             <artifactId>validation-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

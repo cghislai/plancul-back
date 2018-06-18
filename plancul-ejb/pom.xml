@@ -72,6 +72,11 @@
             <version>0.6.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+        </dependency>
+
     </dependencies>
 
 

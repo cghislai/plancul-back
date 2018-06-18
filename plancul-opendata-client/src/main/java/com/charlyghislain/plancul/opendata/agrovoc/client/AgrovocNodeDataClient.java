@@ -102,8 +102,8 @@ public class AgrovocNodeDataClient {
 
         QueryExecution queryExecution = QueryExecutionFactory.sparqlService(AGROVOC_ENDPOINT_URL, query);
 
-        String serialized = query.serialize();
-        System.out.println(serialized);
+//        String serialized = query.serialize();
+//        System.out.println(serialized);
 
         ResultSet resultSet = queryExecution.execSelect();
         Iterable<QuerySolution> solutionsIterable = () -> resultSet;
@@ -120,7 +120,7 @@ public class AgrovocNodeDataClient {
 
     private void appendResults(AgrovocNodeData nodeData, QuerySolution result) {
         Resource predicate = result.getResource(PREDICATE_VAR_NAME);
-        System.out.println(result.toString());
+//        System.out.println(result.toString());
 
         if (this.isPredicate(predicate, OpenDataConstants.SKOS_PREF_LABEL_PREDICATE_NODE)) {
             Literal label = result.getLiteral(OBJECT_VAR_NAME);

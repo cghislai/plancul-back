@@ -2,10 +2,10 @@ package com.charlyghislain.plancul.resource;
 
 
 import com.charlyghislain.plancul.converter.PlantProductTupleConverter;
-import com.charlyghislain.plancul.domain.WsPlantProductResult;
-import com.charlyghislain.plancul.domain.agrovoc.PlantProductTupleResult;
-import com.charlyghislain.plancul.domain.filter.PlantProductTupleFilter;
-import com.charlyghislain.plancul.domain.filter.WsPlantProductTupleFilter;
+import com.charlyghislain.plancul.domain.result.WsPlantProductResult;
+import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
+import com.charlyghislain.plancul.domain.request.filter.WsPlantProductTupleFilter;
+import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
 import com.charlyghislain.plancul.service.AgrovocService;
 
 import javax.ejb.EJB;

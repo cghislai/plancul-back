@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.TenantConverter;
-import com.charlyghislain.plancul.converter.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.WsTenant;
 import com.charlyghislain.plancul.domain.util.WsRef;

@@ -1,16 +1,16 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.PlotConverter;
-import com.charlyghislain.plancul.converter.util.ReferenceNotFoundException;
-import com.charlyghislain.plancul.converter.util.SearchResultConverter;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.WsPlot;
-import com.charlyghislain.plancul.domain.filter.PlotFilter;
-import com.charlyghislain.plancul.domain.filter.WsPlotFilter;
-import com.charlyghislain.plancul.domain.util.Pagination;
-import com.charlyghislain.plancul.domain.util.SearchResult;
+import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
+import com.charlyghislain.plancul.domain.request.filter.WsPlotFilter;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.util.WsRef;
-import com.charlyghislain.plancul.domain.util.WsSearchResult;
+import com.charlyghislain.plancul.domain.result.WsSearchResult;
 import com.charlyghislain.plancul.service.PlotService;
 
 import javax.ejb.EJB;

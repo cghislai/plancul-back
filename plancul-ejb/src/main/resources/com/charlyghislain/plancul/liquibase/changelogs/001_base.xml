@@ -74,4 +74,122 @@
                                  constraintName="CALLERGROUPS_CALLER_ID"/>
     </changeSet>
 
+    <changeSet id="5-localized-messages" author="cghislai">
+        <createTable tableName="LOCALIZEDMESSAGE">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="LANGUAGE" type="VARCHAR(8)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LABEL" type="VARCHAR(2048)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="6-agrovoc-plant" author="cghislai">
+        <createTable tableName="AGROVOCPLANT">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="AGROVOCNODEID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="AGROVOCPLANT_PREFLABEL">
+            <column name="AGROVOCPLANT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOCALIZEDMESSAGE_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="AGROVOCPLANT_ALTLABEL">
+            <column name="AGROVOCPLANT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOCALIZEDMESSAGE_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="AGROVOCPLANT_PREFLABEL_PLANTID"
+                                 baseTableName="AGROVOCPLANT_PREFLABEL" baseColumnNames="AGROVOCPLANT_ID"
+                                 referencedTableName="AGROVOCPLANT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="AGROVOCPLANT_PREFLABEL_MESSAGEID"
+                                 baseTableName="AGROVOCPLANT_PREFLABEL" baseColumnNames="LOCALIZEDMESSAGE_ID"
+                                 referencedTableName="LOCALIZEDMESSAGE" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="AGROVOCPLANT_ALTLABEL_PLANTID"
+                                 baseTableName="AGROVOCPLANT_ALTLABEL" baseColumnNames="AGROVOCPLANT_ID"
+                                 referencedTableName="AGROVOCPLANT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="AGROVOCPLANT_ALTLABEL_MESSAGEID"
+                                 baseTableName="AGROVOCPLANT_ALTLABEL" baseColumnNames="LOCALIZEDMESSAGE_ID"
+                                 referencedTableName="LOCALIZEDMESSAGE" referencedColumnNames="ID"/>
+    </changeSet>
+
+    <changeSet id="6-agrovoc-product" author="cghislai">
+        <createTable tableName="AGROVOCPRODUCT">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="AGROVOCNODEID" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="AGROVOCPRODUCT_PREFLABEL">
+            <column name="AGROVOCPRODUCT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOCALIZEDMESSAGE_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="AGROVOCPRODUCT_ALTLABEL">
+            <column name="AGROVOCPRODUCT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOCALIZEDMESSAGE_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="AGROVOCPRODUCT_PREFLABEL_PRODUCTID"
+                                 baseTableName="AGROVOCPRODUCT_PREFLABEL" baseColumnNames="AGROVOCPRODUCT_ID"
+                                 referencedTableName="AGROVOCPRODUCT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="AGROVOCPRODUCT_PREFLABEL_MESSAGEID"
+                                 baseTableName="AGROVOCPRODUCT_PREFLABEL" baseColumnNames="LOCALIZEDMESSAGE_ID"
+                                 referencedTableName="LOCALIZEDMESSAGE" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="AGROVOCPRODUCT_ALTLABEL_PRODUCTID"
+                                 baseTableName="AGROVOCPRODUCT_ALTLABEL" baseColumnNames="AGROVOCPRODUCT_ID"
+                                 referencedTableName="AGROVOCPRODUCT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="AGROVOCPRODUCT_ALTLABEL_MESSAGEID"
+                                 baseTableName="AGROVOCPRODUCT_ALTLABEL" baseColumnNames="LOCALIZEDMESSAGE_ID"
+                                 referencedTableName="LOCALIZEDMESSAGE" referencedColumnNames="ID"/>
+    </changeSet>
+
+
+    <changeSet id="7-crop" author="cghislai">
+        <createTable tableName="CROP">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="AGROVOCPLANT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AGROVOCPRODUCT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CULTIVAR" type="VARCHAR(255)"/>
+            <column name="TENANT_ID" type="BIGINT(19)" />
+        </createTable>
+        <addForeignKeyConstraint constraintName="CROP_PLANTID"
+                                 baseTableName="CROP" baseColumnNames="AGROVOCPLANT_ID"
+                                 referencedTableName="AGROVOCPLANT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="CROP_PRODUCTID"
+                                 baseTableName="CROP" baseColumnNames="AGROVOCPRODUCT_ID"
+                                 referencedTableName="AGROVOCPRODUCT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="CROP_TENANTID"
+                                 baseTableName="CROP" baseColumnNames="TENANT_ID"
+                                 referencedTableName="TENANT" referencedColumnNames="ID"/>
+    </changeSet>
+
 </databaseChangeLog>
