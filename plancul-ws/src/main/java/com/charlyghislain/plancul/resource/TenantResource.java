@@ -1,11 +1,18 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.TenantConverter;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.converter.UserConverter;
+import com.charlyghislain.plancul.converter.request.UserCreationRequestConverter;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.WsTenant;
+import com.charlyghislain.plancul.domain.WsUser;
+import com.charlyghislain.plancul.domain.request.UserCreationRequest;
+import com.charlyghislain.plancul.domain.request.WsUserCreationRequest;
 import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.TenantService;
+import com.charlyghislain.plancul.service.UserService;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -27,17 +34,14 @@ public class TenantResource {
 
     @EJB
     private TenantService tenantService;
+    @EJB
+    private UserService userService;
     @Inject
     private TenantConverter tenantConverter;
-
-
-    @POST
-    public WsRef<WsTenant> createTenant(@NotNull @Valid WsTenant wsTenant) {
-        Tenant tenant = tenantConverter.fromWsEntity(wsTenant);
-        Tenant createdTenant = tenantService.createTenant(tenant);
-        WsRef<WsTenant> reference = tenantConverter.reference(createdTenant);
-        return reference;
-    }
+    @Inject
+    private UserCreationRequestConverter userCreationRequestConverter;
+    @Inject
+    private UserConverter userConverter;
 
     @GET
     @Path("/{id}")
@@ -56,6 +60,19 @@ public class TenantResource {
         Tenant savedTenant = tenantService.saveTenant(tenant);
         WsRef<WsTenant> reference = tenantConverter.reference(savedTenant);
         return reference;
+    }
+
+    @POST
+    @Path("/{id}/user")
+    public WsRef<WsUser> addTenantUser(@PathParam("id") long id, @NotNull @Valid WsUserCreationRequest wsUserCreationRequest) {
+        Tenant tenant = tenantService.findTenantById(id)
+                .orElseThrow(ReferenceNotFoundException::new);
+
+        UserCreationRequest userCreationRequest = userCreationRequestConverter.fromWsUserCreationRequest(wsUserCreationRequest, tenant);
+        User user = userService.createUser(userCreationRequest);
+
+        WsRef<WsUser> userWsRef = userConverter.reference(user);
+        return userWsRef;
     }
 
 

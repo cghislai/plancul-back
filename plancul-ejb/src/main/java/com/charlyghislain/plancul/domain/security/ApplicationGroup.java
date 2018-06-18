@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.domain.security;
 
-public enum Group {
+public enum ApplicationGroup {
     ADMIN,
     USER,
-    ANONYMOUS
+    ANONYMOUS;
 }

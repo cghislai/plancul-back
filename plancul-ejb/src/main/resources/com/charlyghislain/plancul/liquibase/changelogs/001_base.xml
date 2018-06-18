@@ -195,4 +195,49 @@
                                  referencedTableName="TENANT" referencedColumnNames="ID"/>
     </changeSet>
 
+    <changeSet id="8-user" author="cghislai">
+        <createTable tableName="PLANCULUSER">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="CALLER_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FIRSTNAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LASTNAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EMAIL" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="PLANCULUSER_CALLER"
+                                 baseTableName="PLANCULUSER" baseColumnNames="CALLER_ID"
+                                 referencedTableName="CALLER" referencedColumnNames="ID"/>
+    </changeSet>
+
+    <changeSet id="9-user-tenant-roles" author="cghilai">
+        <createTable tableName="TENANTUSERROLE">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TENANT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TENANTROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="TENANTUSERROLE_TENANT"
+                                 baseTableName="TENANTUSERROLE" baseColumnNames="TENANT_ID"
+                                 referencedTableName="TENANT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="TENANTUSERROLE_USER"
+                                 baseTableName="TENANTUSERROLE" baseColumnNames="USER_ID"
+                                 referencedTableName="PLANCULUSER" referencedColumnNames="ID"/>
+    </changeSet>
 </databaseChangeLog>

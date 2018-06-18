@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
-import com.charlyghislain.plancul.domain.security.Group;
+import com.charlyghislain.plancul.domain.security.ApplicationGroup;
 import com.charlyghislain.plancul.domain.util.WsError;
 import com.charlyghislain.plancul.util.WsException;
 
@@ -23,7 +23,7 @@ public class WsExceptionMapper implements ExceptionMapper<WsException> {
     public Response toResponse(WsException exception) {
         Response.Status statusCode = exception.getStatusCode();
 
-        boolean isAdmin = securityContext.isCallerInRole(Group.ADMIN.name());
+        boolean isAdmin = securityContext.isCallerInRole(ApplicationGroup.ADMIN.name());
         WsError wsError = wsErrorConverter.toWsError(exception, isAdmin);
 
         Response response = Response.status(statusCode)

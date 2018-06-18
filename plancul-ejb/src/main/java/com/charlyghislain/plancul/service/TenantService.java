@@ -39,7 +39,9 @@ public class TenantService {
     }
 
     public Tenant saveTenant(Tenant tenant) {
-        validationService.validateNonNullId(tenant);
+        if (tenant.getId() == null) {
+            return this.createTenant(tenant);
+        }
 
         Tenant managedTenant = entityManager.merge(tenant);
         return managedTenant;

@@ -1,5 +1,6 @@
 package com.charlyghislain.plancul.security;
 
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.security.enterprise.AuthenticationException;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
+@Default
 public class CompositeHttpAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     @Inject

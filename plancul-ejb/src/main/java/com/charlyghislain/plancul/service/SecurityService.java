@@ -4,7 +4,7 @@ import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.security.CallerGroups;
 import com.charlyghislain.plancul.domain.security.CallerGroups_;
 import com.charlyghislain.plancul.domain.security.Caller_;
-import com.charlyghislain.plancul.domain.security.Group;
+import com.charlyghislain.plancul.domain.security.ApplicationGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,19 +56,19 @@ public class SecurityService {
         return typedQuery.getResultList().stream().findFirst();
     }
 
-    public Set<Group> findCallerGroups(Caller caller) {
+    public Set<ApplicationGroup> findCallerGroups(Caller caller) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Group> query = criteriaBuilder.createQuery(Group.class);
+        CriteriaQuery<ApplicationGroup> query = criteriaBuilder.createQuery(ApplicationGroup.class);
         Root<CallerGroups> callerGroupsRoot = query.from(CallerGroups.class);
 
         Path<Caller> callerPath = callerGroupsRoot.get(CallerGroups_.caller);
         Predicate callerPredicate = criteriaBuilder.equal(callerPath, caller);
-        Path<Group> groupPath = callerGroupsRoot.get(CallerGroups_.group);
+        Path<ApplicationGroup> groupPath = callerGroupsRoot.get(CallerGroups_.group);
 
         query.select(groupPath);
         query.where(callerPredicate);
 
-        TypedQuery<Group> typedQuery = entityManager.createQuery(query);
+        TypedQuery<ApplicationGroup> typedQuery = entityManager.createQuery(query);
         return new HashSet<>(typedQuery.getResultList());
     }
 
@@ -85,9 +85,15 @@ public class SecurityService {
         Optional<Caller> adminCaller = this.findCallerByName(DEFAULT_ADMIN_USERNAME);
         if (!adminCaller.isPresent()) {
             String hashedPassword = this.createNewAdminHashedPassword();
-            Caller newAdminCaller = this.createCaller(DEFAULT_ADMIN_USERNAME, hashedPassword, Group.ADMIN, Group.USER);
+            Caller newAdminCaller = this.createCaller(DEFAULT_ADMIN_USERNAME, hashedPassword, ApplicationGroup.ADMIN, ApplicationGroup.USER);
             newAdminCaller.setPasswordNeedsChange(true);
         }
+    }
+
+
+    public Caller createNewCaller(String name, String clearTextPassword) {
+        String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
+        return this.createCaller(name, hashedPassword, ApplicationGroup.USER);
     }
 
     private String createNewAdminHashedPassword() {
@@ -120,7 +126,7 @@ public class SecurityService {
     }
 
 
-    private Caller createCaller(String name, String hashedPassword, Group... groups) {
+    private Caller createCaller(String name, String hashedPassword, ApplicationGroup... groups) {
         Caller caller = new Caller();
         caller.setName(name);
         caller.setPassword(hashedPassword);
@@ -131,7 +137,7 @@ public class SecurityService {
         return managedCaller;
     }
 
-    private void createCallerGroup(Caller caller, Group group) {
+    private void createCallerGroup(Caller caller, ApplicationGroup group) {
         CallerGroups callerGroups = new CallerGroups();
         callerGroups.setCaller(caller);
         callerGroups.setGroup(group);

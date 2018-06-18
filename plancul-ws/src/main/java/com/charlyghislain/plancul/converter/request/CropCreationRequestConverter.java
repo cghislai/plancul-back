@@ -1,5 +1,6 @@
-package com.charlyghislain.plancul.converter;
+package com.charlyghislain.plancul.converter.request;
 
+import com.charlyghislain.plancul.converter.TenantConverter;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.WsTenant;
 import com.charlyghislain.plancul.domain.request.CropCreationRequest;

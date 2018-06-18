@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.CropConverter;
-import com.charlyghislain.plancul.converter.CropCreationRequestConverter;
+import com.charlyghislain.plancul.converter.request.CropCreationRequestConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.WsCrop;

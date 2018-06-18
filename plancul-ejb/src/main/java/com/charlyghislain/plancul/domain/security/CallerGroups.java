@@ -23,7 +23,7 @@ public class CallerGroups implements DomainEntity {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "GROUP_NAME")
-    private Group group;
+    private ApplicationGroup group;
 
     @Override
     public Long getId() {
@@ -44,11 +44,11 @@ public class CallerGroups implements DomainEntity {
     }
 
     @NotNull
-    public Group getGroup() {
+    public ApplicationGroup getGroup() {
         return group;
     }
 
-    public void setGroup(@NotNull Group group) {
+    public void setGroup(@NotNull ApplicationGroup group) {
         this.group = group;
     }
 }
