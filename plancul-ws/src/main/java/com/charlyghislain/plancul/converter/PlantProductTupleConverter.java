@@ -5,12 +5,18 @@ import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.request.filter.WsPlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
 import com.charlyghislain.plancul.domain.result.WsPlantProductResult;
-import com.charlyghislain.plancul.util.UnsupportedLanguageWsException;
+import com.charlyghislain.plancul.util.ContentLanguage;
+import com.charlyghislain.plancul.util.LanguageContainer;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
 @ApplicationScoped
 public class PlantProductTupleConverter {
+
+    @Inject
+    @ContentLanguage
+    private LanguageContainer contentLanguage;
 
     public WsPlantProductResult toWsPlantProductResult(PlantProductTupleResult tupleResult) {
         String language = tupleResult.getLanguage();
@@ -29,11 +35,9 @@ public class PlantProductTupleConverter {
     }
 
     public PlantProductTupleFilter fromWsPlantProductTupleQueryFilter(WsPlantProductTupleFilter wsFilter) {
-        String languageCode = wsFilter.getLanguage();
         String queryString = wsFilter.getQueryString();
 
-        Language language = Language.fromCode(languageCode)
-                .orElseThrow(UnsupportedLanguageWsException::new);
+        Language language = contentLanguage.getLanguage();
 
         PlantProductTupleFilter tupleFilter = new PlantProductTupleFilter();
         tupleFilter.setLanguage(language);

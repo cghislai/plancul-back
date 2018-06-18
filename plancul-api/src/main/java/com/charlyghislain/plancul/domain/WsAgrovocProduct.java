@@ -1,6 +1,5 @@
 package com.charlyghislain.plancul.domain;
 
-import com.charlyghislain.plancul.domain.i18n.WsLocalizedMessage;
 import com.charlyghislain.plancul.domain.util.WsDomainEntity;
 
 import javax.validation.constraints.NotNull;
@@ -14,9 +13,11 @@ public class WsAgrovocProduct implements WsDomainEntity {
     @NotNull
     private String agrovocNodeId;
     @NotNull
-    private List<WsLocalizedMessage> preferedLabel = new ArrayList<>();
+    private String language;
     @NotNull
-    private List<WsLocalizedMessage> alternativeLabels = new ArrayList<>();
+    private String preferedLabel;
+    @NotNull
+    private List<String> alternativeLabels = new ArrayList<>();
 
     @Override
     @NotNull
@@ -38,20 +39,29 @@ public class WsAgrovocProduct implements WsDomainEntity {
     }
 
     @NotNull
-    public List<WsLocalizedMessage> getPreferedLabel() {
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(@NotNull String language) {
+        this.language = language;
+    }
+
+    @NotNull
+    public String getPreferedLabel() {
         return preferedLabel;
     }
 
-    public void setPreferedLabel(@NotNull List<WsLocalizedMessage> preferedLabel) {
+    public void setPreferedLabel(@NotNull String preferedLabel) {
         this.preferedLabel = preferedLabel;
     }
 
     @NotNull
-    public List<WsLocalizedMessage> getAlternativeLabels() {
+    public List<String> getAlternativeLabels() {
         return alternativeLabels;
     }
 
-    public void setAlternativeLabels(@NotNull List<WsLocalizedMessage> alternativeLabels) {
+    public void setAlternativeLabels(@NotNull List<String> alternativeLabels) {
         this.alternativeLabels = alternativeLabels;
     }
 }
