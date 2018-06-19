@@ -29,7 +29,7 @@
                             <context-root>/plancul-ws</context-root>
                         </webModule>
                     </modules>
-                    <unpackTypes>ejb,war</unpackTypes>
+                    <!--<unpackTypes>ejb,war</unpackTypes>-->
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <!--suppress MavenModelInspection -->
                     <outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@

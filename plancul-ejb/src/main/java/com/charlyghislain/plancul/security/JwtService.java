@@ -25,7 +25,7 @@ public class JwtService {
     private static final String CALLER_ID_CLAIM = "caller_id";
     private static final AlgorithmConstraints JWS_ALGORITHM_CONSTRAINTS = new AlgorithmConstraints(
             AlgorithmConstraints.ConstraintType.WHITELIST,
-            AlgorithmIdentifiers.HMAC_SHA256);
+            AlgorithmIdentifiers.RSA_USING_SHA256);
 
     private RsaJsonWebKey rsaJsonWebKey;
     private JwtConsumer jwtConsumer;

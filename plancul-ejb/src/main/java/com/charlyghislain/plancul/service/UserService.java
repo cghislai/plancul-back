@@ -77,16 +77,18 @@ public class UserService {
         return managedUser;
     }
 
-    public User saveUser(User existingUser) {
-        validationService.validateNonNullId(existingUser);
+    public User saveUser(User user) {
+        validationService.validateNonNullId(user);
         boolean adminLogged = securityService.isAdminLogged();
         if (!adminLogged) {
             this.getLoggedUser()
-                    .map(existingUser::equals)
+                    .map(user::equals)
                     .orElseThrow(OperationNotAllowedException::new);
         }
 
-        User managedUser = entityManager.merge(existingUser);
+        User updatedUser = securityService.updateUserLogin(user);
+        User managedUser = entityManager.merge(updatedUser);
+
         return managedUser;
     }
 

@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.util.WsError;
+import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,8 @@ public class WebApplicationExceptionMapper implements javax.ws.rs.ext.ExceptionM
     private final static Logger LOG = LoggerFactory.getLogger(WebApplicationExceptionMapper.class);
     @Inject
     private WsErrorConverter wsErrorConverter;
+    @Inject
+    private CrossOriginResourceSharingResponseFilter crossOriginResourceSharingResponseFilter;
 
     @Override
     public Response toResponse(WebApplicationException exception) {
@@ -28,6 +31,7 @@ public class WebApplicationExceptionMapper implements javax.ws.rs.ext.ExceptionM
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(wsError)
                 .build();
+        crossOriginResourceSharingResponseFilter.filter(response);
         return response;
     }
 }

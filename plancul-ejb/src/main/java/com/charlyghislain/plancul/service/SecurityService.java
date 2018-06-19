@@ -1,6 +1,8 @@
 package com.charlyghislain.plancul.service;
 
+import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.security.ApplicationGroup;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.security.CallerGroups;
 import com.charlyghislain.plancul.domain.security.CallerGroups_;
@@ -8,6 +10,7 @@ import com.charlyghislain.plancul.domain.security.Caller_;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -26,6 +29,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -45,9 +49,10 @@ public class SecurityService {
     private SecurityContext securityContext;
 
 
-    public Optional<Caller> findLoggedCaller() {
+    public Caller findLoggedCaller() {
         String callerName = securityContext.getCallerPrincipal().getName();
-        return this.findCallerByName(callerName);
+        return this.findCallerByName(callerName)
+                .orElseThrow(IllegalStateException::new);
     }
 
     public boolean isAdminLogged() {
@@ -68,6 +73,42 @@ public class SecurityService {
         return typedQuery.getResultList().stream().findFirst();
     }
 
+    public Caller updateMyPassword(String clearTextPassword) {
+        String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
+        Caller loggedCaller = this.findLoggedCaller();
+
+        loggedCaller.setPassword(hashedPassword);
+        loggedCaller.setPasswordNeedsChange(false);
+
+        Caller mergedCaller = entityManager.merge(loggedCaller);
+        return mergedCaller;
+    }
+
+
+    public boolean doesMyPasswordNeedUpdate() {
+        Caller loggedCaller = this.findLoggedCaller();
+        return loggedCaller.isPasswordNeedsChange();
+    }
+
+    public User updateUserLogin(User user) {
+        Caller caller = user.getCaller();
+        String email = user.getEmail();
+        caller.setName(email);
+        Caller updatedCaller = entityManager.merge(caller);
+        user.setCaller(updatedCaller);
+        return user;
+    }
+
+    @RolesAllowed({ApplicationGroupNames.ADMIN})
+    public Caller updateMyLogin(String userName) {
+        Caller loggedCaller = this.findLoggedCaller();
+
+        loggedCaller.setName(userName);
+
+        Caller mergedCaller = entityManager.merge(loggedCaller);
+        return mergedCaller;
+    }
+
     public Set<ApplicationGroup> findCallerGroups(Caller caller) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<ApplicationGroup> query = criteriaBuilder.createQuery(ApplicationGroup.class);
@@ -81,7 +122,8 @@ public class SecurityService {
         query.where(callerPredicate);
 
         TypedQuery<ApplicationGroup> typedQuery = entityManager.createQuery(query);
-        return new HashSet<>(typedQuery.getResultList());
+        List<ApplicationGroup> resultList = typedQuery.getResultList();
+        return new HashSet<>(resultList);
     }
 
 
@@ -107,7 +149,6 @@ public class SecurityService {
         String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
         return this.createCaller(name, hashedPassword, ApplicationGroup.USER);
     }
-
 
 
     private String createNewAdminHashedPassword() {

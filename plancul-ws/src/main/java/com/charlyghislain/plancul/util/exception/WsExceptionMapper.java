@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.util.WsError;
+import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 import com.charlyghislain.plancul.util.WsException;
 
 import javax.inject.Inject;
@@ -14,6 +15,8 @@ public class WsExceptionMapper implements ExceptionMapper<WsException> {
 
     @Inject
     private WsErrorConverter wsErrorConverter;
+    @Inject
+    private CrossOriginResourceSharingResponseFilter crossOriginResourceSharingResponseFilter;
 
     @Override
     public Response toResponse(WsException exception) {
@@ -24,6 +27,7 @@ public class WsExceptionMapper implements ExceptionMapper<WsException> {
         Response response = Response.status(statusCode)
                 .entity(wsError)
                 .build();
+        crossOriginResourceSharingResponseFilter.filter(response);
         return response;
     }
 }

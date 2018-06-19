@@ -61,7 +61,7 @@ public class TenantService {
         return searchService.search(pagination, query, rootTenant, predicates);
     }
 
-    @RolesAllowed(ApplicationGroupNames.ADMIN)
+    @RolesAllowed({ApplicationGroupNames.ADMIN})
     private Tenant createTenant(Tenant tenant) {
         Tenant managedTenant = entityManager.merge(tenant);
         return managedTenant;

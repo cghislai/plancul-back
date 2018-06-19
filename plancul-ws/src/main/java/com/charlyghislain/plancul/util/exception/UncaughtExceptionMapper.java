@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.util.WsError;
+import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +18,8 @@ public class UncaughtExceptionMapper implements ExceptionMapper<Throwable> {
     private final static Logger LOG = LoggerFactory.getLogger(UncaughtExceptionMapper.class);
     @Inject
     private WsErrorConverter wsErrorConverter;
+    @Inject
+    private CrossOriginResourceSharingResponseFilter crossOriginResourceSharingResponseFilter;
 
     @Override
     public Response toResponse(Throwable exception) {
@@ -28,6 +31,7 @@ public class UncaughtExceptionMapper implements ExceptionMapper<Throwable> {
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(wsError)
                 .build();
+        crossOriginResourceSharingResponseFilter.filter(response);
         return response;
     }
 }

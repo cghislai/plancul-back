@@ -12,10 +12,45 @@
     <artifactId>plancul-ws</artifactId>
     <packaging>war</packaging>
 
+    <properties>
+        <api.version>0.0.1</api.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>cz.habarta.typescript-generator</groupId>
+                <artifactId>typescript-generator-maven-plugin</artifactId>
+                <version>2.5.423</version>
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <classesFromAutomaticJaxrsApplication>true</classesFromAutomaticJaxrsApplication>
+                            <excludeClassPatterns>
+                                <classPattern>java.io.**</classPattern>
+                            </excludeClassPatterns>
+                            <jsonLibrary>jaxb</jsonLibrary>
+                            <outputFile>target/npm/index.d.ts</outputFile>
+                            <outputKind>module</outputKind>
+                            <outputFileType>declarationFile</outputFileType>
+                            <optionalAnnotations>
+                                <annotation>org.checkerframework.checker.nullness.qual.Nullable</annotation>
+                            </optionalAnnotations>
+                            <mapClasses>asInterfaces</mapClasses>
+                            <mapEnum>asEnum</mapEnum>
+                            <generateNpmPackageJson>true</generateNpmPackageJson>
+                            <npmName>@charlyghislain/${project.artifactId}-api</npmName>
+                            <npmVersion>${api.version}</npmVersion>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

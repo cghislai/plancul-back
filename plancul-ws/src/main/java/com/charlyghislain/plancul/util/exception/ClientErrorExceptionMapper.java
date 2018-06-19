@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.util.WsError;
+import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 
 import javax.inject.Inject;
 import javax.ws.rs.ClientErrorException;
@@ -15,6 +16,8 @@ public class ClientErrorExceptionMapper implements ExceptionMapper<ClientErrorEx
 
     @Inject
     private WsErrorConverter wsErrorConverter;
+    @Inject
+    private CrossOriginResourceSharingResponseFilter crossOriginResourceSharingResponseFilter;
 
     @Override
     public Response toResponse(ClientErrorException exception) {
@@ -24,6 +27,7 @@ public class ClientErrorExceptionMapper implements ExceptionMapper<ClientErrorEx
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(wsError)
                 .build();
+        crossOriginResourceSharingResponseFilter.filter(response);
         return response;
     }
 }

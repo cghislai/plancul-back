@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.security;
 
-import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.security.ApplicationGroup;
+import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.security.exception.JwtValidationException;
 import com.charlyghislain.plancul.service.SecurityService;
 import org.jose4j.jwt.JwtClaims;
@@ -10,7 +10,7 @@ import org.jose4j.jwt.MalformedClaimException;
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.security.enterprise.credential.BasicAuthenticationCredential;
+import javax.security.enterprise.credential.Credential;
 import javax.security.enterprise.credential.Password;
 import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.security.enterprise.identitystore.CredentialValidationResult;
@@ -27,13 +27,15 @@ public class PlanCulIdentityStore implements IdentityStore {
     @Inject
     private JwtService jwtService;
 
-
-    public CredentialValidationResult validate(BasicAuthenticationCredential credential) {
-        return this.validateUserNamePassword(credential);
-    }
-
-    public CredentialValidationResult validate(JwtTokenCredential credential) {
-        return this.validateJwtToken(credential);
+    @Override
+    public CredentialValidationResult validate(Credential credential) {
+        if (credential instanceof UsernamePasswordCredential) {
+            return this.validateUserNamePassword((UsernamePasswordCredential) credential);
+        } else if (credential instanceof JwtTokenCredential) {
+            return this.validateJwtToken((JwtTokenCredential) credential);
+        } else {
+            return CredentialValidationResult.NOT_VALIDATED_RESULT;
+        }
     }
 
     @Override
@@ -88,4 +90,5 @@ public class PlanCulIdentityStore implements IdentityStore {
             return CredentialValidationResult.INVALID_RESULT;
         }
     }
+
 }

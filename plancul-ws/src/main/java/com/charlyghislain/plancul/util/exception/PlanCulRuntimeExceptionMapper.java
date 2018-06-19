@@ -3,6 +3,7 @@ package com.charlyghislain.plancul.util.exception;
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.util.WsError;
 import com.charlyghislain.plancul.domain.util.exception.PlanCulRuntimeException;
+import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -14,6 +15,8 @@ public class PlanCulRuntimeExceptionMapper implements ExceptionMapper<PlanCulRun
 
     @Inject
     private WsErrorConverter wsErrorConverter;
+    @Inject
+    private CrossOriginResourceSharingResponseFilter crossOriginResourceSharingResponseFilter;
 
     @Override
     public Response toResponse(PlanCulRuntimeException exception) {
@@ -25,6 +28,7 @@ public class PlanCulRuntimeExceptionMapper implements ExceptionMapper<PlanCulRun
         Response response = Response.status(httpStatusCode)
                 .entity(wsError)
                 .build();
+        crossOriginResourceSharingResponseFilter.filter(response);
         return response;
     }
 }
