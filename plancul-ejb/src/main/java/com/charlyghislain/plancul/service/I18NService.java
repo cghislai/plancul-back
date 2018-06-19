@@ -6,7 +6,6 @@ import com.charlyghislain.plancul.domain.i18n.Language;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.Arrays;
 import java.util.Optional;
 
 @Stateless
@@ -21,12 +20,6 @@ public class I18NService {
         return Optional.ofNullable(found);
     }
 
-
-    public boolean isSupportedLanguage(String language) {
-        return Arrays.stream(Language.values())
-                .map(Language::getCode)
-                .anyMatch(language::equals);
-    }
 
     public LocalizedMessage createLocalizedMessage(Language language, String label) {
         LocalizedMessage localizedMessage = new LocalizedMessage();

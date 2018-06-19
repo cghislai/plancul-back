@@ -1,13 +1,17 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.CropConverter;
-import com.charlyghislain.plancul.converter.request.CropCreationRequestConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
+import com.charlyghislain.plancul.converter.request.CropCreationRequestConverter;
 import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.WsCrop;
 import com.charlyghislain.plancul.domain.request.CropCreationRequest;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.WsCropCreationRequest;
+import com.charlyghislain.plancul.domain.request.filter.CropFilter;
+import com.charlyghislain.plancul.domain.request.filter.WsCropFilter;
+import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.result.WsSearchResult;
 import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.CropService;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
@@ -57,6 +61,16 @@ public class CropResource {
 
         WsCrop wsCrop = cropConverter.toWsEntity(crop);
         return wsCrop;
+    }
+
+
+    @POST
+    @Path("/search")
+    public WsSearchResult<WsCrop> searchCrops(@NotNull @Valid WsCropFilter wsCropFilter) {
+        CropFilter cropFilter = cropConverter.fromWsCropFilter(wsCropFilter);
+        SearchResult<Crop> searchResult = cropService.findCrops(cropFilter, pagination);
+        WsSearchResult<WsCrop> wsSearchResult = searchResultConverter.convertSearchResults(searchResult, cropConverter);
+        return wsSearchResult;
     }
 
 

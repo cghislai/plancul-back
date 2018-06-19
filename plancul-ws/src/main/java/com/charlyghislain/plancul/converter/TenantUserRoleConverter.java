@@ -8,7 +8,7 @@ import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.WsTenant;
 import com.charlyghislain.plancul.domain.WsTenantRole;
 import com.charlyghislain.plancul.domain.WsUser;
-import com.charlyghislain.plancul.domain.request.WsTenantUserRole;
+import com.charlyghislain.plancul.domain.WsTenantUserRole;
 import com.charlyghislain.plancul.domain.util.WsRef;
 
 import javax.inject.Inject;

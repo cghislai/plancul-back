@@ -1,11 +1,11 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
-import com.charlyghislain.plancul.domain.util.DomainEntity;
+import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.util.DomainEntity;
 import com.charlyghislain.plancul.domain.util.WsDomainEntity;
 import com.charlyghislain.plancul.domain.util.WsRef;
-import com.charlyghislain.plancul.domain.result.WsSearchResult;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class SearchResultConverter {
 
     public <A extends DomainEntity, B extends WsDomainEntity> WsSearchResult<B>
-    convertSearchResults(SearchResult<A> searchResults, WsDomainObjectConverter<A, B> converter) {
+    convertSearchResults(SearchResult<A> searchResults, ToWsDomainObjectConverter<A, B> converter) {
         List<WsRef<B>> wsRefList = searchResults.getList().stream()
                 .map(converter::reference)
                 .collect(Collectors.toList());

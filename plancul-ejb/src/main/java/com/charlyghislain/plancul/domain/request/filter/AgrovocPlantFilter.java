@@ -1,12 +1,14 @@
 package com.charlyghislain.plancul.domain.request.filter;
 
+import com.charlyghislain.plancul.domain.i18n.Language;
+
 import java.util.Optional;
 
 public class AgrovocPlantFilter {
 
     private String uri;
     private String namesQuery;
-    private String namesQueryLanguage;
+    private Language namesQueryLanguage;
 
     public Optional<String> getUri() {
         return Optional.ofNullable(uri);
@@ -24,11 +26,11 @@ public class AgrovocPlantFilter {
         this.namesQuery = namesQuery;
     }
 
-    public Optional<String> getNamesQueryLanguage() {
+    public Optional<Language> getNamesQueryLanguage() {
         return Optional.ofNullable(namesQueryLanguage);
     }
 
-    public void setNamesQueryLanguage(String namesQueryLanguage) {
+    public void setNamesQueryLanguage(Language namesQueryLanguage) {
         this.namesQueryLanguage = namesQueryLanguage;
     }
 }

@@ -1,7 +1,6 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.PlotConverter;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.WsPlot;
@@ -9,9 +8,10 @@ import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
 import com.charlyghislain.plancul.domain.request.filter.WsPlotFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.domain.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.PlotService;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -44,7 +44,7 @@ public class PlotResource {
     @POST
     public WsRef<WsPlot> createPlot(@NotNull @Valid WsPlot wsPlot) {
         Plot plot = plotConverter.fromWsEntity(wsPlot);
-        Plot createdPlot = plotService.createPlot(plot);
+        Plot createdPlot = plotService.savePlot(plot);
         WsRef<WsPlot> reference = plotConverter.reference(createdPlot);
         return reference;
     }

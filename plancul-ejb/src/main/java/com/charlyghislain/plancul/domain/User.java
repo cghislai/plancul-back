@@ -3,6 +3,7 @@ package com.charlyghislain.plancul.domain;
 import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -18,8 +19,8 @@ public class User implements DomainEntity {
     @Id
     @GeneratedValue
     private Long id;
-    @OneToOne
     @NotNull
+    @OneToOne(cascade = CascadeType.ALL)
     private Caller caller;
     @NotNull
     @Size(max = 255)

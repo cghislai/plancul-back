@@ -2,9 +2,8 @@ package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
-import com.charlyghislain.plancul.domain.util.exception.NoIdException;
-import com.charlyghislain.plancul.domain.util.exception.UnexpectedIdException;
 import com.charlyghislain.plancul.domain.util.WithId;
+import com.charlyghislain.plancul.domain.util.exception.NoIdException;
 import com.charlyghislain.plancul.security.exception.OperationNotAllowedException;
 
 import javax.ejb.EJB;
@@ -19,13 +18,6 @@ public class ValidationService {
     @EJB
     private SecurityService securityService;
 
-    void validateNoId(WithId entity) {
-        Optional<Long> idOptional = entity.getIdOptional();
-        if (idOptional.isPresent()) {
-            throw new UnexpectedIdException();
-        }
-    }
-
     void validateNonNullId(WithId entity) {
         Optional<Long> idOptional = entity.getIdOptional();
         if (!idOptional.isPresent()) {
@@ -33,25 +25,34 @@ public class ValidationService {
         }
     }
 
-    void validateLoggedUserHasTenantRole(Tenant tenant) {
+    boolean hasLoggedUserTenantRole(Tenant tenant) {
         boolean adminLogged = securityService.isAdminLogged();
-        if (adminLogged) {
-            return;
-        }
-        userService.getLoggedUser()
+        boolean hasTenantRole = userService.getLoggedUser()
                 .flatMap(user -> userService.findUserRoleForTenant(user, tenant))
-                .orElseThrow(OperationNotAllowedException::new);
+                .map(role -> role != null)
+                .orElse(false);
+        return adminLogged || hasTenantRole;
+    }
+
+    boolean hasLoggedUserTenantRole(Tenant tenant, TenantRole role) {
+        boolean adminLogged = securityService.isAdminLogged();
+        boolean hasTenantRole = userService.getLoggedUser()
+                .flatMap(user -> userService.findUserRoleForTenant(user, tenant))
+                .map(tenantRole -> tenantRole == role)
+                .orElse(false);
+        return adminLogged || hasTenantRole;
+    }
+
+    void validateLoggedUserHasTenantRole(Tenant tenant) {
+        if (!this.hasLoggedUserTenantRole(tenant)) {
+            throw new OperationNotAllowedException();
+        }
     }
 
 
     void validateLoggedUserHasTenantRole(Tenant tenant, TenantRole role) {
-        boolean adminLogged = securityService.isAdminLogged();
-        if (adminLogged) {
-            return;
+        if (!this.hasLoggedUserTenantRole(tenant, role)) {
+            throw new OperationNotAllowedException();
         }
-        userService.getLoggedUser()
-                .flatMap(user -> userService.findUserRoleForTenant(user, tenant))
-                .filter(userRole -> userRole == role)
-                .orElseThrow(OperationNotAllowedException::new);
     }
 }

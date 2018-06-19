@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -32,18 +33,7 @@ public class TenantService {
     private SearchService searchService;
     @Inject
     private ValidationService validationService;
-    @Inject
-    private UserService userService;
-    @Inject
-    private SecurityService securityService;
 
-    @RolesAllowed(ApplicationGroupNames.ADMIN)
-    public Tenant createTenant(Tenant tenant) {
-        validationService.validateNoId(tenant);
-
-        Tenant managedTenant = entityManager.merge(tenant);
-        return managedTenant;
-    }
 
     public Tenant saveTenant(Tenant tenant) {
         if (tenant.getId() == null) {
@@ -57,9 +47,8 @@ public class TenantService {
 
     public Optional<Tenant> findTenantById(long id) {
         Tenant foundTenant = entityManager.find(Tenant.class, id);
-        Optional<Tenant> foundTenantOptional = Optional.ofNullable(foundTenant);
-        foundTenantOptional.ifPresent(validationService::validateLoggedUserHasTenantRole);
-        return foundTenantOptional;
+        return Optional.ofNullable(foundTenant)
+                .filter(validationService::hasLoggedUserTenantRole);
     }
 
     public SearchResult<Tenant> findTenants(TenantFilter tenantFilter, Pagination pagination) {
@@ -72,25 +61,29 @@ public class TenantService {
         return searchService.search(pagination, query, rootTenant, predicates);
     }
 
+    @RolesAllowed(ApplicationGroupNames.ADMIN)
+    private Tenant createTenant(Tenant tenant) {
+        Tenant managedTenant = entityManager.merge(tenant);
+        return managedTenant;
+    }
+
     private List<Predicate> createTenantPredicates(TenantFilter tenantFilter, Root<Tenant> rootTenant) {
         List<Predicate> predicateList = new ArrayList<>();
 
         searchService.createLoggedUserTenantsPredicate(rootTenant)
                 .ifPresent(predicateList::add);
 
-        Path<String> namePath = rootTenant.get(Tenant_.name);
         tenantFilter.getNameContains()
-                .map(query -> this.createContainsPredicate(query, namePath))
+                .map(query -> this.createContainsPredicate(query, rootTenant))
                 .ifPresent(predicateList::add);
 
         return predicateList;
     }
 
-    private Predicate createContainsPredicate(String query, Path<String> namePath) {
-        CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
-        String likeMatchString = '%' + query + '%';
-        Predicate likePredicate = criteriaBuilder.like(namePath, likeMatchString);
-        return likePredicate;
+    private Predicate createContainsPredicate(String query, From<?, Tenant> tenantSource) {
+        Path<String> namePath = tenantSource.get(Tenant_.name);
+        Predicate predicate = searchService.createTextMatchPredicate(namePath, query);
+        return predicate;
     }
 
 }

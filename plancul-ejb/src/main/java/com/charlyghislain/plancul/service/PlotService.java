@@ -32,16 +32,10 @@ public class PlotService {
     private SearchService searchService;
 
 
-    public Plot createPlot(Plot plot) {
-        validationService.validateNoId(plot);
-        validationService.validateLoggedUserHasTenantRole(plot.getTenant());
-
-        Plot managedPlot = entityManager.merge(plot);
-        return managedPlot;
-    }
-
     public Plot savePlot(Plot plot) {
-        validationService.validateNonNullId(plot);
+        if (plot.getId() == null) {
+            return this.createPlot(plot);
+        }
         validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
         Plot managedPlot = entityManager.merge(plot);
@@ -57,10 +51,8 @@ public class PlotService {
 
     public Optional<Plot> findPlotById(long id) {
         Plot foundPlot = entityManager.find(Plot.class, id);
-        Optional<Plot> foundPlotOptional = Optional.ofNullable(foundPlot);
-        foundPlotOptional.map(Plot::getTenant)
-                .ifPresent(validationService::validateLoggedUserHasTenantRole);
-        return foundPlotOptional;
+        return Optional.ofNullable(foundPlot)
+                .filter(plot -> validationService.hasLoggedUserTenantRole(plot.getTenant()));
     }
 
     public SearchResult<Plot> findPlots(PlotFilter plotFilter, Pagination pagination) {
@@ -73,30 +65,38 @@ public class PlotService {
         return searchService.search(pagination, query, rootPlot, predicates);
     }
 
+
+    private Plot createPlot(Plot plot) {
+        validationService.validateLoggedUserHasTenantRole(plot.getTenant());
+
+        Plot managedPlot = entityManager.merge(plot);
+        return managedPlot;
+    }
+
+
     private List<Predicate> createPlotPredicates(PlotFilter plotFilter, Root<Plot> rootPlot) {
         CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
         List<Predicate> predicateList = new ArrayList<>();
 
-        Tenant tenant = plotFilter.getTenant();
-        validationService.validateLoggedUserHasTenantRole(tenant);
-
         Path<Tenant> tenantPath = rootPlot.get(Plot_.tenant);
-        Predicate tenantPredicate = criteriaBuilder.equal(tenantPath, tenant);
-        predicateList.add(tenantPredicate);
+        searchService.createLoggedUserTenantsPredicate(tenantPath)
+                .ifPresent(predicateList::add);
 
-        Path<String> namePath = rootPlot.get(Plot_.name);
+        plotFilter.getTenant()
+                .map(tenant -> criteriaBuilder.equal(tenantPath, tenant))
+                .ifPresent(predicateList::add);
+
         plotFilter.getNameContains()
-                .map(query -> this.createContainsPredicate(query, namePath))
+                .map(query -> this.createNamesContainsPredicate(query, rootPlot))
                 .ifPresent(predicateList::add);
 
         return predicateList;
     }
 
-    private Predicate createContainsPredicate(String query, Path<String> namePath) {
-        CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
-        String likeMatchString = '%' + query + '%';
-        Predicate likePredicate = criteriaBuilder.like(namePath, likeMatchString);
-        return likePredicate;
+    private Predicate createNamesContainsPredicate(String query, Root<Plot> plotSource) {
+        Path<String> namePath = plotSource.get(Plot_.name);
+        Predicate predicate = searchService.createTextMatchPredicate(namePath, query);
+        return predicate;
     }
 
 }

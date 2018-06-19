@@ -1,8 +1,5 @@
-package com.charlyghislain.plancul.domain.request;
+package com.charlyghislain.plancul.domain;
 
-import com.charlyghislain.plancul.domain.WsTenant;
-import com.charlyghislain.plancul.domain.WsTenantRole;
-import com.charlyghislain.plancul.domain.WsUser;
 import com.charlyghislain.plancul.domain.util.WsDomainEntity;
 import com.charlyghislain.plancul.domain.util.WsRef;
 

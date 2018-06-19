@@ -9,8 +9,12 @@ import com.charlyghislain.plancul.domain.WsAgrovocPlant;
 import com.charlyghislain.plancul.domain.WsAgrovocProduct;
 import com.charlyghislain.plancul.domain.WsCrop;
 import com.charlyghislain.plancul.domain.WsTenant;
+import com.charlyghislain.plancul.domain.request.filter.CropFilter;
+import com.charlyghislain.plancul.domain.request.filter.WsCropFilter;
 import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.CropService;
+import com.charlyghislain.plancul.util.ContentLanguage;
+import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
@@ -29,6 +33,9 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
     private AgrovocProductConverter agrovocProductConverter;
     @Inject
     private TenantConverter tenantConverter;
+    @Inject
+    @ContentLanguage
+    private LanguageContainer contentLanguage;
 
     public Crop load(WsRef<WsCrop> ref) {
         return cropService.findCropById(ref.getId())
@@ -54,5 +61,36 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
         wsCrop.setId(id);
         wsCrop.setTenantRestriction(tenantWsRef.orElse(null));
         return wsCrop;
+    }
+
+    public CropFilter fromWsCropFilter(WsCropFilter wsCropFilter) {
+        CropFilter cropFilter = new CropFilter();
+        cropFilter.setQueryLanguage(contentLanguage.getLanguage());
+
+        wsCropFilter.getTenantWsRef()
+                .map(tenantConverter::load)
+                .ifPresent(cropFilter::setTenant);
+
+        wsCropFilter.getExactCropWsRef()
+                .map(this::load)
+                .ifPresent(cropFilter::setExactCrop);
+
+        wsCropFilter.getPlantWsRef()
+                .map(agrovocPlantConverter::load)
+                .ifPresent(cropFilter::setPlant);
+
+        wsCropFilter.getNamesQuery()
+                .ifPresent(cropFilter::setNamesQuery);
+
+        wsCropFilter.getPlantQuery()
+                .ifPresent(cropFilter::setPlantQuery);
+
+        wsCropFilter.getCultivarQuery()
+                .ifPresent(cropFilter::setCultivarQuery);
+
+        wsCropFilter.getShared()
+                .ifPresent(cropFilter::setShared);
+
+        return cropFilter;
     }
 }

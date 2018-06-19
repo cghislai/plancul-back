@@ -5,9 +5,13 @@ import com.charlyghislain.plancul.domain.AgrovocPlant;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.WsAgrovocPlant;
 import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.service.AgrovocService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.LanguageContainer;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 
+import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
@@ -15,11 +19,18 @@ import java.util.List;
 @ApplicationScoped
 public class AgrovocPlantConverter implements ToWsDomainObjectConverter<AgrovocPlant, WsAgrovocPlant> {
 
+    @EJB
+    private AgrovocService agrovocService;
     @Inject
     private LocalizedMessageConverter localizedMessageConverter;
     @Inject
     @AcceptedLanguage
     private LanguageContainer acceptedLanguage;
+
+    public AgrovocPlant load(WsRef<WsAgrovocPlant> ref) {
+        return agrovocService.findAgrovocPlantById(ref.getId())
+                .orElseThrow(ReferenceNotFoundException::new);
+    }
 
     @Override
     public WsAgrovocPlant toWsEntity(AgrovocPlant entity) {

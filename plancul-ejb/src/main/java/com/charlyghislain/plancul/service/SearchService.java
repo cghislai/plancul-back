@@ -6,6 +6,7 @@ import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantUserRole;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.DateFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
 
@@ -20,6 +21,7 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +62,15 @@ public class SearchService {
         return result;
     }
 
-    public Predicate createLocalizedTextMatchPredicate(Path<LocalizedMessage> messagePath, String query, Optional<String> language) {
+    public Predicate createTextMatchPredicate(Path<String> messagePath, String query) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        String queryStringToMatch = this.makePartialLikeQuery(query);
+        Expression<String> lowercaseLabelPath = criteriaBuilder.lower(messagePath);
+        Predicate labelPredicate = criteriaBuilder.like(lowercaseLabelPath, queryStringToMatch);
+        return labelPredicate;
+    }
+
+    public Predicate createLocalizedTextMatchPredicate(Path<LocalizedMessage> messagePath, String query, Optional<Language> language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         String queryStringToMatch = this.makePartialLikeQuery(query);
 
@@ -71,8 +81,8 @@ public class SearchService {
         List<Predicate> predicateList = new ArrayList<>();
         predicateList.add(labelPredicate);
 
-        language.filter(i18NService::isSupportedLanguage)
-                .map(lang -> this.createLanguagePredicate(messagePath, lang))
+
+        language.map(lang -> this.createLanguagePredicate(messagePath, lang))
                 .ifPresent(predicateList::add);
 
         return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
@@ -91,8 +101,23 @@ public class SearchService {
         return Optional.of(rootTenant.in(allowedTenantList));
     }
 
+    public Predicate createDateFilterPredicate(Path<LocalDate> datePath, DateFilter dateFilter) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        List<Predicate> predicateList = new ArrayList<>();
 
-    private Predicate createLanguagePredicate(Path<LocalizedMessage> messagePath, String language) {
+        dateFilter.getNotBefore()
+                .map(minDate -> criteriaBuilder.greaterThanOrEqualTo(datePath, minDate))
+                .ifPresent(predicateList::add);
+
+        dateFilter.getNotAfter()
+                .map(minDate -> criteriaBuilder.lessThanOrEqualTo(datePath, minDate))
+                .ifPresent(predicateList::add);
+
+        return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
+    }
+
+
+    private Predicate createLanguagePredicate(Path<LocalizedMessage> messagePath, Language language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         Path<Language> languagePath = messagePath.get(LocalizedMessage_.language);
         return criteriaBuilder.equal(languagePath, language);

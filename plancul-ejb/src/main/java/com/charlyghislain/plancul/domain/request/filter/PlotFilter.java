@@ -2,23 +2,19 @@ package com.charlyghislain.plancul.domain.request.filter;
 
 import com.charlyghislain.plancul.domain.Tenant;
 
-import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 public class PlotFilter {
-    @NotNull
     private Tenant tenant;
     private String nameContains;
 
-    @NotNull
-    public Tenant getTenant() {
-        return tenant;
+    public Optional<Tenant> getTenant() {
+        return Optional.ofNullable(tenant);
     }
 
-    public void setTenant(@NotNull Tenant tenant) {
+    public void setTenant(Tenant tenant) {
         this.tenant = tenant;
     }
-
 
     public Optional<String> getNameContains() {
         return Optional.ofNullable(nameContains);

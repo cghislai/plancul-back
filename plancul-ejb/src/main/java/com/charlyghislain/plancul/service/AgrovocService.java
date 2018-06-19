@@ -26,6 +26,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -128,7 +129,7 @@ public class AgrovocService {
 
 
     private List<Predicate> createPlantPredicates(AgrovocPlantFilter filter, Root<AgrovocPlant> rootPlant) {
-        Optional<String> namesQueryLanguage = filter.getNamesQueryLanguage();
+        Optional<Language> namesQueryLanguage = filter.getNamesQueryLanguage();
         List<Predicate> predicateList = new ArrayList<>();
 
         filter.getNamesQuery()
@@ -149,7 +150,7 @@ public class AgrovocService {
         return criteriaBuilder.equal(nodeUriPath, uri);
     }
 
-    private Predicate createPlantNameQueryPredicate(String query, Optional<String> language, Root<AgrovocPlant> rootPlant) {
+    public Predicate createPlantNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocPlant> rootPlant) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         ListJoin<AgrovocPlant, LocalizedMessage> preferedLabelsJoin = rootPlant.join(AgrovocPlant_.preferedLabel);
         ListJoin<AgrovocPlant, LocalizedMessage> alternativeLabelsJoin = rootPlant.join(AgrovocPlant_.alternativeLabels);
@@ -161,7 +162,7 @@ public class AgrovocService {
     }
 
     private List<Predicate> createProductPredicates(AgrovocProductFilter filter, Root<AgrovocProduct> rootProduct) {
-        Optional<String> namesQueryLanguage = filter.getNamesQueryLanguage();
+        Optional<Language> namesQueryLanguage = filter.getNamesQueryLanguage();
         List<Predicate> predicateList = new ArrayList<>();
 
         filter.getNamesQuery()
@@ -182,7 +183,7 @@ public class AgrovocService {
         return criteriaBuilder.equal(nodeUriPath, uri);
     }
 
-    private Predicate createProductNameQueryPredicate(String query, Optional<String> language, Root<AgrovocProduct> rootProduct) {
+    public Predicate createProductNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocProduct> rootProduct) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         ListJoin<AgrovocProduct, LocalizedMessage> preferedLabelsJoin = rootProduct.join(AgrovocProduct_.preferedLabel);
         ListJoin<AgrovocProduct, LocalizedMessage> alternativeLabelsJoin = rootProduct.join(AgrovocProduct_.alternativeLabels);

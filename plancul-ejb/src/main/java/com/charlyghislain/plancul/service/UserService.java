@@ -46,7 +46,8 @@ public class UserService {
 
     public Optional<User> findUserById(long id) {
         User found = entityManager.find(User.class, id);
-        return Optional.ofNullable(found);
+        return Optional.ofNullable(found)
+                .filter(this::isUserAccessibleToLoggedUser);
     }
 
     public User createUser(UserCreationRequest userCreationRequest) {
@@ -152,4 +153,15 @@ public class UserService {
         return typedQuery.getResultList().stream()
                 .findFirst();
     }
+
+
+    private boolean isUserAccessibleToLoggedUser(User user) {
+        Optional<Tenant> userTenantForWhichLoggedUserIsAdmin = findUserTenantRoles(user)
+                .stream()
+                .map(TenantUserRole::getTenant)
+                .filter(tenant -> validationService.hasLoggedUserTenantRole(tenant, TenantRole.ADMIN))
+                .findAny();
+        return userTenantForWhichLoggedUserIsAdmin.isPresent();
+    }
+
 }
