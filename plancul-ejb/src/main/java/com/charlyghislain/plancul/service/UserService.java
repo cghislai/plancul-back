@@ -10,9 +10,11 @@ import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.mail.RenderedMail;
 import com.charlyghislain.plancul.domain.mail.template.AccountCreationInvitationTemplate;
 import com.charlyghislain.plancul.domain.request.UserCreationRequest;
+import com.charlyghislain.plancul.domain.security.ApplicationGroup;
 import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.util.PlanCulProperties;
 import com.charlyghislain.plancul.domain.util.PlanCulPropertiesProvider;
+import com.charlyghislain.plancul.security.JwtService;
 import com.charlyghislain.plancul.security.exception.OperationNotAllowedException;
 
 import javax.ejb.EJB;
@@ -34,12 +36,13 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Stateless
 public class UserService {
 
 
-    private static final String ACCOUNT_INIT_FRONTEND_PATH = "account/init";
+    private static final String ACCOUNT_INIT_FRONTEND_PATH = "/account/init";
     private static final String ACCOUNT_INIT_CALLER_PARAM = "caller";
     private static final String ACCOUNT_INIT_TOKEN_PARAM = "token";
 
@@ -54,6 +57,8 @@ public class UserService {
     private PlanCulPropertiesProvider planCulPropertiesProvider;
     @Inject
     private MailTemplateService mailTemplateService;
+    @Inject
+    private JwtService jwtService;
 
     @EJB
     private TenantService tenantService;
@@ -179,6 +184,13 @@ public class UserService {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String activateUserAccount(String email, String password, String passwordToken) {
+        Caller caller = securityService.updatePassword(email, password, passwordToken);
+        Set<ApplicationGroup> callerGroups = securityService.findCallerGroups(caller);
+        String jwt = jwtService.createJwt(caller, callerGroups);
+        return jwt;
     }
 
     private Optional<User> findCallerUser(Caller caller) {

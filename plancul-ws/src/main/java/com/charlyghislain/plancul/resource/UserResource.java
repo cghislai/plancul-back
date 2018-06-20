@@ -5,17 +5,13 @@ import com.charlyghislain.plancul.converter.UserConverter;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.WsUser;
 import com.charlyghislain.plancul.domain.request.Pagination;
-import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.UserService;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -28,6 +24,7 @@ public class UserResource {
 
     @EJB
     private UserService userService;
+
     @Inject
     private UserConverter userConverter;
     @Inject
