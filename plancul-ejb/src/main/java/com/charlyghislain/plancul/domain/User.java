@@ -1,10 +1,14 @@
 package com.charlyghislain.plancul.domain;
 
+import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
+import com.charlyghislain.plancul.validation.ValidEmail;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
@@ -30,7 +34,11 @@ public class User implements DomainEntity {
     private String lastName;
     @NotNull
     @Size(max = 255)
+    @ValidEmail
     private String email;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private Language language;
 
     @Override
     public Long getId() {
@@ -71,5 +79,14 @@ public class User implements DomainEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @NotNull
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(@NotNull Language language) {
+        this.language = language;
     }
 }

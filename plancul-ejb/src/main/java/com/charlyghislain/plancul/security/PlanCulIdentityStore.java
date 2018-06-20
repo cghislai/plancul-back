@@ -60,7 +60,7 @@ public class PlanCulIdentityStore implements IdentityStore {
     }
 
     private CredentialValidationResult validateCallerPassword(Caller caller, Password providedPassword) {
-        boolean passwordValid = securityService.isValidCallerPassword(caller, providedPassword.getValue());
+        boolean passwordValid = securityService.isValidCallerPasswordHash(caller, providedPassword.getValue());
         if (passwordValid) {
             return createValidCallerResult(caller);
         } else {

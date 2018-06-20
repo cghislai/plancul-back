@@ -51,12 +51,12 @@
             <column name="NAME" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="PASSWORD" type="VARCHAR(400)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="PASSWORD" type="VARCHAR(400)"/>
             <column name="PASSWORDNEEDSCHANGE" type="BIT">
                 <constraints nullable="false"/>
             </column>
+            <column name="PASSWORDRESETTOKEN" type="VARCHAR(255)"/>
+            <column name="PASSWORDRESETTOKENEXPIRATION" type="DATETIME"/>
         </createTable>
     </changeSet>
 
@@ -212,6 +212,9 @@
             <column name="EMAIL" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
+            <column name="LANGUAGE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
         <addForeignKeyConstraint constraintName="PLANCULUSER_CALLER"
                                  baseTableName="PLANCULUSER" baseColumnNames="CALLER_ID"
@@ -240,4 +243,6 @@
                                  baseTableName="TENANTUSERROLE" baseColumnNames="USER_ID"
                                  referencedTableName="PLANCULUSER" referencedColumnNames="ID"/>
     </changeSet>
+
+
 </databaseChangeLog>

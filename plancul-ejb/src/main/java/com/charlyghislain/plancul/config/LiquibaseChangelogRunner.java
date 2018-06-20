@@ -13,16 +13,19 @@ import liquibase.resource.ResourceAccessor;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class LiquibaseChangelogRunner {
 
     private static final String MAIN_CHANGELOG_FILE = "com/charlyghislain/plancul/liquibase/main.xml";
 
-    @Resource(lookup = "jdbc/__default")
+    @Resource(lookup = "jdbc/plancul-db")
     private DataSource dataSource;
 
     public void runChangeLogs() {

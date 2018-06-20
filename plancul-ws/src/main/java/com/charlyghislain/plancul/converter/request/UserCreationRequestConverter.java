@@ -8,20 +8,25 @@ import com.charlyghislain.plancul.domain.WsTenantRole;
 import com.charlyghislain.plancul.domain.request.UserCreationRequest;
 import com.charlyghislain.plancul.domain.request.WsUserCreationRequest;
 import com.charlyghislain.plancul.domain.request.WsUserTenantCreationRequest;
+import com.charlyghislain.plancul.util.ContentLanguage;
+import com.charlyghislain.plancul.util.LanguageContainer;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 @ApplicationScoped
 public class UserCreationRequestConverter {
+
     @Inject
     private TenantConverter tenantConverter;
+    @Inject
+    @ContentLanguage
+    private LanguageContainer contentLanguage;
 
     public UserCreationRequest fromWsUserCreationRequest(WsUserCreationRequest wsUserCreationRequest, Tenant tenant) {
         String firstName = wsUserCreationRequest.getFirstName();
         String lastName = wsUserCreationRequest.getLastName();
         String email = wsUserCreationRequest.getEmail();
-        String password = wsUserCreationRequest.getPassword();
         WsTenantRole tenantRole = wsUserCreationRequest.getTenantRole();
 
         TenantRole tenantRoleValue = TenantRole.valueOf(tenantRole.name());
@@ -30,7 +35,7 @@ public class UserCreationRequestConverter {
         userCreationRequest.setEmail(email);
         userCreationRequest.setFirstName(firstName);
         userCreationRequest.setLastName(lastName);
-        userCreationRequest.setPassword(password);
+        userCreationRequest.setLanguage(contentLanguage.getLanguage());
         userCreationRequest.setTenant(tenant);
         userCreationRequest.setTenantRole(tenantRoleValue);
         return userCreationRequest;
@@ -41,7 +46,6 @@ public class UserCreationRequestConverter {
         String firstName = wsUserCreationRequest.getFirstName();
         String lastName = wsUserCreationRequest.getLastName();
         String email = wsUserCreationRequest.getEmail();
-        String password = wsUserCreationRequest.getPassword();
         WsTenant tenant = wsUserCreationRequest.getTenant();
 
         Tenant tenantValue = tenantConverter.fromWsEntity(tenant);
@@ -50,7 +54,7 @@ public class UserCreationRequestConverter {
         userCreationRequest.setEmail(email);
         userCreationRequest.setFirstName(firstName);
         userCreationRequest.setLastName(lastName);
-        userCreationRequest.setPassword(password);
+        userCreationRequest.setLanguage(contentLanguage.getLanguage());
         userCreationRequest.setTenant(tenantValue);
         return userCreationRequest;
     }

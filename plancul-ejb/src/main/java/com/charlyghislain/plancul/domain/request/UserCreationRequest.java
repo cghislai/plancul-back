@@ -2,6 +2,8 @@ package com.charlyghislain.plancul.domain.request;
 
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
+import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.validation.ValidEmail;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -15,11 +17,11 @@ public class UserCreationRequest {
     @Size(max = 255)
     private String lastName;
     @NotNull
+    @ValidEmail
     @Size(max = 255)
     private String email;
     @NotNull
-    @Size(max = 255)
-    private String password;
+    private Language language;
     @NotNull
     private Tenant tenant;
     @NotNull
@@ -71,11 +73,11 @@ public class UserCreationRequest {
     }
 
     @NotNull
-    public String getPassword() {
-        return password;
+    public Language getLanguage() {
+        return language;
     }
 
-    public void setPassword(@NotNull String password) {
-        this.password = password;
+    public void setLanguage(@NotNull Language language) {
+        this.language = language;
     }
 }

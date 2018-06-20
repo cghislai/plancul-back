@@ -7,6 +7,10 @@ import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.security.CallerGroups;
 import com.charlyghislain.plancul.domain.security.CallerGroups_;
 import com.charlyghislain.plancul.domain.security.Caller_;
+import com.charlyghislain.plancul.domain.util.exception.PlanCulRuntimeException;
+import com.charlyghislain.plancul.security.exception.OperationNotAllowedException;
+import com.charlyghislain.plancul.validation.ValidPassword;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +27,12 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.SecurityContext;
 import javax.security.enterprise.identitystore.PasswordHash;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
@@ -40,6 +47,7 @@ public class SecurityService {
     private final static Logger LOG = LoggerFactory.getLogger(SecurityService.class);
 
     private static final String DEFAULT_ADMIN_USERNAME = "admin";
+    public static final int PASSWORD_RESET_TOKEN_AVAILABILITY_DAYS = 7;
 
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
@@ -73,24 +81,37 @@ public class SecurityService {
         return typedQuery.getResultList().stream().findFirst();
     }
 
-    public Caller updateMyPassword(String clearTextPassword) {
-        String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
-        Caller loggedCaller = this.findLoggedCaller();
-
-        loggedCaller.setPassword(hashedPassword);
-        loggedCaller.setPasswordNeedsChange(false);
-
-        Caller mergedCaller = entityManager.merge(loggedCaller);
-        return mergedCaller;
-    }
-
 
     public boolean doesMyPasswordNeedUpdate() {
         Caller loggedCaller = this.findLoggedCaller();
         return loggedCaller.isPasswordNeedsChange();
     }
 
-    public User updateUserLogin(User user) {
+    public Caller updateMyPassword(@ValidPassword String clearTextPassword) {
+        Caller loggedCaller = this.findLoggedCaller();
+
+        Caller mergedCaller = updateCallerPassword(clearTextPassword, loggedCaller);
+        return mergedCaller;
+    }
+
+    public Caller updatePassword(@NotNull String callerName, @ValidPassword String clearTextPassword, @NotNull String updateToken) {
+        Caller caller = this.findCallerByName(callerName)
+                .orElseThrow(OperationNotAllowedException::new);
+        String passwordResetToken = caller.getPasswordResetToken();
+        LocalDateTime passwordResetTokenExpiration = caller.getPasswordResetTokenExpiration();
+
+        if (!updateToken.equals(passwordResetToken)) {
+            throw new OperationNotAllowedException();
+        }
+        if (passwordResetTokenExpiration != null && passwordResetTokenExpiration.isBefore(LocalDateTime.now())) {
+            throw new PlanCulRuntimeException("This password reset token has expired", HttpStatus.SC_PRECONDITION_FAILED);
+        }
+
+        Caller mergedCaller = updateCallerPassword(clearTextPassword, caller);
+        return mergedCaller;
+    }
+
+    public User updateUserLogin(@Valid User user) {
         Caller caller = user.getCaller();
         String email = user.getEmail();
         caller.setName(email);
@@ -100,7 +121,7 @@ public class SecurityService {
     }
 
     @RolesAllowed({ApplicationGroupNames.ADMIN})
-    public Caller updateMyLogin(String userName) {
+    public Caller updateMyLogin(@NotNull String userName) {
         Caller loggedCaller = this.findLoggedCaller();
 
         loggedCaller.setName(userName);
@@ -126,8 +147,7 @@ public class SecurityService {
         return new HashSet<>(resultList);
     }
 
-
-    public boolean isValidCallerPassword(Caller caller, char[] password) {
+    public boolean isValidCallerPasswordHash(Caller caller, char[] password) {
         String storedCallerPassword = caller.getPassword();
         if (storedCallerPassword == null || storedCallerPassword.isEmpty()) {
             return false;
@@ -139,19 +159,16 @@ public class SecurityService {
         Optional<Caller> adminCaller = this.findCallerByName(DEFAULT_ADMIN_USERNAME);
         if (!adminCaller.isPresent()) {
             String hashedPassword = this.createNewAdminHashedPassword();
-            Caller newAdminCaller = this.createCaller(DEFAULT_ADMIN_USERNAME, hashedPassword, ApplicationGroup.ADMIN, ApplicationGroup.USER);
+            Caller newAdminCaller = this.createCallerWithPassword(DEFAULT_ADMIN_USERNAME, hashedPassword, ApplicationGroup.ADMIN);
             newAdminCaller.setPasswordNeedsChange(true);
         }
     }
 
-
-    public Caller createNewCaller(String name, String clearTextPassword) {
-        String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
-        return this.createCaller(name, hashedPassword, ApplicationGroup.USER);
+    public Caller createNewCaller(String name) {
+        return this.createCaller(name, ApplicationGroup.USER);
     }
 
-
-    private String createNewAdminHashedPassword() {
+    private String createNewRandomToken() {
         byte[] pwBytes = new byte[32];
         try {
             SecureRandom.getInstance("SHA1PRNG").nextBytes(pwBytes);
@@ -161,13 +178,18 @@ public class SecurityService {
         }
         byte[] encodedBytes = Base64.getEncoder().encode(pwBytes);
         try {
-            String plainPassword = new String(encodedBytes, "UTF-8");
-            this.logDefaultAdminPassword(plainPassword);
-            String hashedPassword = passwordHash.generate(plainPassword.toCharArray());
-            return hashedPassword;
+            String token = new String(encodedBytes, "UTF-8");
+            return token;
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Failed to encode a default admin password", e);
+            throw new RuntimeException("Failed to encode a base64 token", e);
         }
+    }
+
+    private String createNewAdminHashedPassword() {
+        String plainPassword = this.createNewRandomToken();
+        this.logDefaultAdminPassword(plainPassword);
+        String hashedPassword = passwordHash.generate(plainPassword.toCharArray());
+        return hashedPassword;
     }
 
     private void logDefaultAdminPassword(String plainPassword) {
@@ -181,7 +203,7 @@ public class SecurityService {
     }
 
 
-    private Caller createCaller(String name, String hashedPassword, ApplicationGroup... groups) {
+    private Caller createCallerWithPassword(String name, String hashedPassword, ApplicationGroup... groups) {
         Caller caller = new Caller();
         caller.setName(name);
         caller.setPassword(hashedPassword);
@@ -192,11 +214,45 @@ public class SecurityService {
         return managedCaller;
     }
 
+    private Caller createCaller(String name, ApplicationGroup... groups) {
+        String passwordResetToken = this.createNewRandomToken();
+        LocalDateTime passwordResetTokenExpiration = this.getPasswordResetTokenExpiration();
+
+        Caller caller = new Caller();
+        caller.setName(name);
+        caller.setPasswordResetToken(passwordResetToken);
+        caller.setPasswordResetTokenExpiration(passwordResetTokenExpiration);
+        caller.setPasswordNeedsChange(true);
+        Caller managedCaller = entityManager.merge(caller);
+
+        Arrays.stream(groups)
+                .forEach(group -> this.createCallerGroup(managedCaller, group));
+        entityManager.flush();
+        return managedCaller;
+    }
+
+
     private void createCallerGroup(Caller caller, ApplicationGroup group) {
         CallerGroups callerGroups = new CallerGroups();
         callerGroups.setCaller(caller);
         callerGroups.setGroup(group);
         entityManager.merge(callerGroups);
+    }
+
+
+    private Caller updateCallerPassword(String clearTextPassword, Caller loggedCaller) {
+        String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
+        loggedCaller.setPassword(hashedPassword);
+        loggedCaller.setPasswordNeedsChange(false);
+        loggedCaller.setPasswordResetToken(null);
+
+        return entityManager.merge(loggedCaller);
+    }
+
+
+    private LocalDateTime getPasswordResetTokenExpiration() {
+        return LocalDateTime.now()
+                .plusDays(PASSWORD_RESET_TOKEN_AVAILABILITY_DAYS);
     }
 
 }

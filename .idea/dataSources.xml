@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="databases" uuid="ec730405-5342-4035-a05d-95faf36f0b6e">
+    <data-source source="LOCAL" name="plancul-db.mv.db" uuid="ec730405-5342-4035-a05d-95faf36f0b6e">
       <driver-ref>h2.unified</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.h2.Driver</jdbc-driver>
-      <jdbc-url>jdbc:h2:file:$PROJECT_DIR$/../../servers/payara5/glassfish/domains/domain1/lib/databases</jdbc-url>
+      <jdbc-url>jdbc:h2:file:$PROJECT_DIR$/../../servers/payara5/glassfish/domains/domain1/lib/databases/plancul-db.mv.db</jdbc-url>
     </data-source>
   </component>
 </project>

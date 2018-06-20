@@ -1,11 +1,12 @@
 package com.charlyghislain.plancul.domain.i18n;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 
 public enum Language {
-    FRENCH("fr"),
-    ENGLISH("en");
+    ENGLISH("en", ""),
+    FRENCH("fr", ".fr");
 
     public static Optional<Language> fromCode(String code) {
         return Arrays.stream(Language.values())
@@ -14,13 +15,23 @@ public enum Language {
     }
 
     private String code;
+    private String fileSuffix;
 
-    Language(String code) {
+    Language(String code, String fileSuffix) {
         this.code = code;
+        this.fileSuffix = fileSuffix;
     }
 
     public String getCode() {
         return code;
+    }
+
+    public Locale getLocale() {
+        return Locale.forLanguageTag(getCode());
+    }
+
+    public String getFileSuffix() {
+        return fileSuffix;
     }
 
     @Override

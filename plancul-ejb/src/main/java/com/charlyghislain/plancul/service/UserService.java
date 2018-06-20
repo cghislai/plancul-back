@@ -6,8 +6,13 @@ import com.charlyghislain.plancul.domain.TenantUserRole;
 import com.charlyghislain.plancul.domain.TenantUserRole_;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.User_;
+import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.domain.mail.RenderedMail;
+import com.charlyghislain.plancul.domain.mail.template.AccountCreationInvitationTemplate;
 import com.charlyghislain.plancul.domain.request.UserCreationRequest;
 import com.charlyghislain.plancul.domain.security.Caller;
+import com.charlyghislain.plancul.domain.util.PlanCulProperties;
+import com.charlyghislain.plancul.domain.util.PlanCulPropertiesProvider;
 import com.charlyghislain.plancul.security.exception.OperationNotAllowedException;
 
 import javax.ejb.EJB;
@@ -22,6 +27,10 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.SecurityContext;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,19 +39,28 @@ import java.util.Optional;
 public class UserService {
 
 
+    private static final String ACCOUNT_INIT_FRONTEND_PATH = "account/init";
+    private static final String ACCOUNT_INIT_CALLER_PARAM = "caller";
+    private static final String ACCOUNT_INIT_TOKEN_PARAM = "token";
+
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
 
     @Inject
     private SecurityContext securityContext;
     @Inject
-    private SearchService searchService;
-    @Inject
     private ValidationService validationService;
+    @Inject
+    private PlanCulPropertiesProvider planCulPropertiesProvider;
+    @Inject
+    private MailTemplateService mailTemplateService;
+
     @EJB
     private TenantService tenantService;
     @EJB
     private SecurityService securityService;
+    @EJB
+    private MailService mailService;
 
     public Optional<User> findUserById(long id) {
         User found = entityManager.find(User.class, id);
@@ -50,20 +68,22 @@ public class UserService {
                 .filter(this::isUserAccessibleToLoggedUser);
     }
 
-    public User createUser(UserCreationRequest userCreationRequest) {
+    public User createUser(@NotNull @Valid UserCreationRequest userCreationRequest) {
         Tenant tenant = userCreationRequest.getTenant();
         Tenant managedTenant = tenantService.saveTenant(tenant);
 
         String email = userCreationRequest.getEmail();
-        String password = userCreationRequest.getPassword();
-        Caller caller = securityService.createNewCaller(email, password);
+        Caller caller = securityService.createNewCaller(email);
 
         String firstName = userCreationRequest.getFirstName();
         String lastName = userCreationRequest.getLastName();
+        Language language = userCreationRequest.getLanguage();
+
         User user = new User();
         user.setEmail(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
+        user.setLanguage(language);
         user.setCaller(caller);
         User managedUser = entityManager.merge(user);
 
@@ -74,6 +94,8 @@ public class UserService {
         tenantUserRole.setTenantRole(tenantRole);
         TenantUserRole managedRole = entityManager.merge(tenantUserRole);
 
+        entityManager.flush();
+        this.sendAccountInitializationInvitation(user);
         return managedUser;
     }
 
@@ -141,6 +163,24 @@ public class UserService {
                 .orElseGet(ArrayList::new);
     }
 
+    public String getAccountInitializationUrl(User user) {
+        String frontUrl = planCulPropertiesProvider.getValue(PlanCulProperties.APP_FRONT_URL);
+        Caller caller = user.getCaller();
+        String callerName = caller.getName();
+        String passwordResetToken = caller.getPasswordResetToken();
+
+        try {
+            String encodedCallerName = URLEncoder.encode(callerName, "UTF-8");
+            String encodedResetToken = URLEncoder.encode(passwordResetToken, "UTF-8");
+            String url = frontUrl + ACCOUNT_INIT_FRONTEND_PATH
+                    + "?" + ACCOUNT_INIT_CALLER_PARAM + "=" + encodedCallerName
+                    + "&" + ACCOUNT_INIT_TOKEN_PARAM + "=" + encodedResetToken;
+            return url;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private Optional<User> findCallerUser(Caller caller) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
@@ -164,6 +204,13 @@ public class UserService {
                 .filter(tenant -> validationService.hasLoggedUserTenantRole(tenant, TenantRole.ADMIN))
                 .findAny();
         return userTenantForWhichLoggedUserIsAdmin.isPresent();
+    }
+
+
+    private void sendAccountInitializationInvitation(User user) {
+        AccountCreationInvitationTemplate invitationTemplate = this.mailTemplateService.createAccountCreationInvitationTemplate(user);
+        RenderedMail renderedMail = this.mailTemplateService.renderMail(invitationTemplate, user.getLanguage());
+        mailService.sendMail(renderedMail);
     }
 
 }

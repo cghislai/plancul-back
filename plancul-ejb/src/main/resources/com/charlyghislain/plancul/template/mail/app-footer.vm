@@ -1,0 +1,3 @@
+--
+${app.name} is an open source crop management application.
+For more details, check out the project: ${app.projectUrl}.

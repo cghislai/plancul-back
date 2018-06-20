@@ -10,9 +10,11 @@ import com.charlyghislain.plancul.domain.request.UserCreationRequest;
 import com.charlyghislain.plancul.domain.request.WsAdminAccountUpdateRequest;
 import com.charlyghislain.plancul.domain.request.WsUserTenantCreationRequest;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
+import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.SecurityService;
 import com.charlyghislain.plancul.service.UserService;
+import com.charlyghislain.plancul.util.WsException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
@@ -25,6 +27,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @Path("/admin")
 @RolesAllowed({ApplicationGroupNames.ADMIN})
@@ -55,6 +59,12 @@ public class AdminResource {
     public WsRef<WsUser> createTenant(@NotNull @Valid WsUserTenantCreationRequest wsUserTenantCreationRequest) {
         UserCreationRequest userCreationRequest = userCreationRequestConverter.fromWsUserTenantCreationRequest(wsUserTenantCreationRequest);
         userCreationRequest.setTenantRole(TenantRole.ADMIN);
+
+        String email = userCreationRequest.getEmail();
+        Optional<Caller> existingUserWithSameMail = securityService.findCallerByName(email);
+        if (existingUserWithSameMail.isPresent()) {
+            throw new WsException(Response.Status.BAD_REQUEST, "An user with this mail already exists");
+        }
 
         User createdUser = userService.createUser(userCreationRequest);
 

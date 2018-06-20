@@ -8,6 +8,7 @@
             <http-method-omission>OPTIONS</http-method-omission>
         </web-resource-collection>
         <auth-constraint>
+            <role-name>ADMIN</role-name>
             <role-name>USER</role-name>
         </auth-constraint>
         <user-data-constraint>

@@ -1,12 +1,14 @@
 package com.charlyghislain.plancul.domain.security;
 
 import com.charlyghislain.plancul.domain.util.DomainEntity;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Entity
 public class Caller implements DomainEntity {
@@ -17,10 +19,15 @@ public class Caller implements DomainEntity {
     @NotNull
     @Size(max = 255)
     private String name;
-    @NotNull
+    @Nullable
     @Size(max = 400)
     private String password;
     private boolean passwordNeedsChange;
+    @Nullable
+    @Size(max = 255)
+    private String passwordResetToken;
+    @Nullable
+    private LocalDateTime passwordResetTokenExpiration;
 
     @Override
     public Long getId() {
@@ -40,12 +47,11 @@ public class Caller implements DomainEntity {
         this.name = name;
     }
 
-    @NotNull
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(@NotNull String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
@@ -55,5 +61,21 @@ public class Caller implements DomainEntity {
 
     public void setPasswordNeedsChange(boolean passwordExpired) {
         this.passwordNeedsChange = passwordExpired;
+    }
+
+    public String getPasswordResetToken() {
+        return passwordResetToken;
+    }
+
+    public void setPasswordResetToken(String passwordResetToken) {
+        this.passwordResetToken = passwordResetToken;
+    }
+
+    public LocalDateTime getPasswordResetTokenExpiration() {
+        return passwordResetTokenExpiration;
+    }
+
+    public void setPasswordResetTokenExpiration(LocalDateTime passwordResetTokenExpiration) {
+        this.passwordResetTokenExpiration = passwordResetTokenExpiration;
     }
 }

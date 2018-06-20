@@ -18,9 +18,6 @@ public class WsUserCreationRequest implements Serializable {
     @Size(max = 255)
     private String email;
     @NotNull
-    @Size(max = 255)
-    private String password;
-    @NotNull
     private WsTenantRole tenantRole;
 
     @NotNull
@@ -48,15 +45,6 @@ public class WsUserCreationRequest implements Serializable {
 
     public void setEmail(@NotNull String email) {
         this.email = email;
-    }
-
-    @NotNull
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(@NotNull String password) {
-        this.password = password;
     }
 
     @NotNull

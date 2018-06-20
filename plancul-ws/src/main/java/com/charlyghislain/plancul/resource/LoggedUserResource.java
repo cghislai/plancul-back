@@ -27,6 +27,7 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/user/me")
@@ -72,7 +73,8 @@ public class LoggedUserResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response createJwtToken() {
         Caller caller = securityService.findLoggedCaller();
-        String jwtToken = jwtService.createJwtForCallerName(caller);
+        Set<ApplicationGroup> callerGroups = securityService.findCallerGroups(caller);
+        String jwtToken = jwtService.createJwt(caller, callerGroups);
 
         CacheControl cacheControl = new CacheControl();
         cacheControl.setNoCache(true);
