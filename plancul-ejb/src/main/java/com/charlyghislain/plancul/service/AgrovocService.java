@@ -12,6 +12,9 @@ import com.charlyghislain.plancul.domain.request.filter.AgrovocProductFilter;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.request.sort.AgrovocPlantSortField;
+import com.charlyghislain.plancul.domain.request.sort.AgrovocProductSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocNodeDataClient;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocPlantProductTupleSearchClient;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocNodeData;
@@ -34,6 +37,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -66,7 +70,7 @@ public class AgrovocService {
     }
 
     // TODO: pass through a queue to avoid request spamming
-    public List<PlantProductTupleResult> searchPlantProducts(PlantProductTupleFilter filter) {
+    public List<PlantProductTupleResult> searchPlantProductTuples(PlantProductTupleFilter filter) {
         Language language = filter.getLanguage();
         String queryString = filter.getQueryString();
 
@@ -93,17 +97,6 @@ public class AgrovocService {
     }
 
 
-    public SearchResult<AgrovocPlant> findAgrovocPlants(AgrovocPlantFilter filter, Pagination pagination) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<AgrovocPlant> query = criteriaBuilder.createQuery(AgrovocPlant.class);
-        Root<AgrovocPlant> rootPlant = query.from(AgrovocPlant.class);
-
-        List<Predicate> predicates = this.createPlantPredicates(filter, rootPlant);
-
-        return searchService.search(pagination, query, rootPlant, predicates);
-    }
-
-
     public AgrovocProduct createAgrovocProduct(String agrovocUri) {
         List<AgrovocNodeData> localizedNodeData = Arrays.stream(Language.values())
                 .map(lang -> this.agrovocNodeDataClient.fetchNodeData(agrovocUri, lang.getCode()))
@@ -119,15 +112,43 @@ public class AgrovocService {
         return managedProduct;
     }
 
+    public SearchResult<AgrovocPlant> findAgrovocPlants(AgrovocPlantFilter agrovocPlantFilter, Pagination pagination, Language language) {
+        List<Sort<AgrovocPlant>> defaultSorts = this.getDefaultPlantSorts();
+        return this.findAgrovocPlants(agrovocPlantFilter, pagination, defaultSorts, language);
+    }
 
-    public SearchResult<AgrovocProduct> findAgrovocProducts(AgrovocProductFilter filter, Pagination pagination) {
+    public SearchResult<AgrovocPlant> findAgrovocPlants(AgrovocPlantFilter agrovocPlantFilter, Pagination pagination, List<Sort<AgrovocPlant>> sorts, Language language) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<AgrovocPlant> query = criteriaBuilder.createQuery(AgrovocPlant.class);
+        Root<AgrovocPlant> rootAgrovocPlant = query.from(AgrovocPlant.class);
+
+        List<Predicate> predicates = this.createPlantPredicates(agrovocPlantFilter, rootAgrovocPlant);
+
+        return searchService.search(pagination, sorts, language, query, rootAgrovocPlant, predicates);
+    }
+
+
+    public SearchResult<AgrovocProduct> findAgrovocProducts(AgrovocProductFilter agrovocProductFilter, Pagination pagination, Language language) {
+        List<Sort<AgrovocProduct>> defaultSorts = this.getDefaultProductSorts();
+        return this.findAgrovocProducts(agrovocProductFilter, pagination, defaultSorts, language);
+    }
+
+    public SearchResult<AgrovocProduct> findAgrovocProducts(AgrovocProductFilter agrovocProductFilter, Pagination pagination, List<Sort<AgrovocProduct>> sorts, Language language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<AgrovocProduct> query = criteriaBuilder.createQuery(AgrovocProduct.class);
-        Root<AgrovocProduct> rootProduct = query.from(AgrovocProduct.class);
+        Root<AgrovocProduct> rootAgrovocProduct = query.from(AgrovocProduct.class);
 
-        List<Predicate> predicates = this.createProductPredicates(filter, rootProduct);
+        List<Predicate> predicates = this.createProductPredicates(agrovocProductFilter, rootAgrovocProduct);
 
-        return searchService.search(pagination, query, rootProduct, predicates);
+        return searchService.search(pagination, sorts, language, query, rootAgrovocProduct, predicates);
+    }
+
+    private List<Sort<AgrovocPlant>> getDefaultPlantSorts() {
+        return Collections.singletonList(new Sort<>(true, AgrovocPlantSortField.LABEL));
+    }
+
+    private List<Sort<AgrovocProduct>> getDefaultProductSorts() {
+        return Collections.singletonList(new Sort<>(true, AgrovocProductSortField.LABEL));
     }
 
 
@@ -155,10 +176,10 @@ public class AgrovocService {
 
     public Predicate createPlantNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocPlant> rootPlant) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        ListJoin<AgrovocPlant, LocalizedMessage> preferedLabelsJoin = rootPlant.join(AgrovocPlant_.preferedLabel, JoinType.LEFT);
+        ListJoin<AgrovocPlant, LocalizedMessage> preferredLabelsJoin = rootPlant.join(AgrovocPlant_.preferedLabel, JoinType.LEFT);
         ListJoin<AgrovocPlant, LocalizedMessage> alternativeLabelsJoin = rootPlant.join(AgrovocPlant_.alternativeLabels, JoinType.LEFT);
 
-        Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferedLabelsJoin, query, language);
+        Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferredLabelsJoin, query, language);
         Predicate alternativeLabelPredicate = searchService.createLocalizedTextMatchPredicate(alternativeLabelsJoin, query, language);
 
         return criteriaBuilder.or(preferedLabelPredicate, alternativeLabelPredicate);
@@ -188,10 +209,10 @@ public class AgrovocService {
 
     public Predicate createProductNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocProduct> rootProduct) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        ListJoin<AgrovocProduct, LocalizedMessage> preferedLabelsJoin = rootProduct.join(AgrovocProduct_.preferedLabel, JoinType.LEFT);
+        ListJoin<AgrovocProduct, LocalizedMessage> preferredLabelsJoin = rootProduct.join(AgrovocProduct_.preferedLabel, JoinType.LEFT);
         ListJoin<AgrovocProduct, LocalizedMessage> alternativeLabelsJoin = rootProduct.join(AgrovocProduct_.alternativeLabels, JoinType.LEFT);
 
-        Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferedLabelsJoin, query, language);
+        Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferredLabelsJoin, query, language);
         Predicate alternativeLabelPredicate = searchService.createLocalizedTextMatchPredicate(alternativeLabelsJoin, query, language);
 
         return criteriaBuilder.or(preferedLabelPredicate, alternativeLabelPredicate);

@@ -2,11 +2,14 @@ package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
+import com.charlyghislain.plancul.domain.api.WsLocalizedMessage;
 import com.charlyghislain.plancul.domain.i18n.Language;
-import com.charlyghislain.plancul.domain.WsLocalizedMessage;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -25,6 +28,11 @@ public class LocalizedMessageConverter implements ToWsDomainObjectConverter<Loca
         wsLocalizedMessage.setLabel(label);
         wsLocalizedMessage.setLanguageCode(code);
         return wsLocalizedMessage;
+    }
+
+    @Override
+    public Optional<Sort<LocalizedMessage>> mapSort(UntypedSort untypedSort) {
+        return Optional.empty();
     }
 
     public List<String> toLocalizedStrings(List<LocalizedMessage> localizedMessageList, Language language) {

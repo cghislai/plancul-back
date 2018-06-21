@@ -5,14 +5,17 @@ import com.charlyghislain.plancul.converter.UserConverter;
 import com.charlyghislain.plancul.converter.request.UserCreationRequestConverter;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.User;
-import com.charlyghislain.plancul.domain.WsTenant;
-import com.charlyghislain.plancul.domain.WsUser;
+import com.charlyghislain.plancul.domain.api.WsTenant;
+import com.charlyghislain.plancul.domain.api.WsUser;
 import com.charlyghislain.plancul.domain.request.UserCreationRequest;
-import com.charlyghislain.plancul.domain.request.WsUserCreationRequest;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.request.WsUserCreationRequest;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.TenantService;
 import com.charlyghislain.plancul.service.UserService;
+import com.charlyghislain.plancul.util.AcceptedLanguage;
+import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -26,6 +29,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @Path("/tenant")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -42,6 +46,11 @@ public class TenantResource {
     private UserCreationRequestConverter userCreationRequestConverter;
     @Inject
     private UserConverter userConverter;
+    @Inject
+    private List<UntypedSort> sortList;
+    @Inject
+    @AcceptedLanguage
+    private LanguageContainer acceptedLanguage;
 
     @GET
     @Path("/{id}")

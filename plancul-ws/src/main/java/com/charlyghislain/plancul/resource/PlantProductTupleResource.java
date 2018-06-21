@@ -4,9 +4,9 @@ package com.charlyghislain.plancul.resource;
 import com.charlyghislain.plancul.converter.PlantProductTupleConverter;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
-import com.charlyghislain.plancul.domain.request.filter.WsPlantProductTupleFilter;
+import com.charlyghislain.plancul.domain.api.request.filter.WsPlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
-import com.charlyghislain.plancul.domain.result.WsPlantProductResult;
+import com.charlyghislain.plancul.domain.api.result.WsPlantProductResult;
 import com.charlyghislain.plancul.service.AgrovocService;
 
 import javax.ejb.EJB;
@@ -38,7 +38,7 @@ public class PlantProductTupleResource {
     public List<WsPlantProductResult> searchPlantProductTuples(@NotNull @Valid WsPlantProductTupleFilter wsPlantProductTupleFilter) {
         PlantProductTupleFilter tupleFilter = plantProductTupleConverter.fromWsPlantProductTupleQueryFilter(wsPlantProductTupleFilter);
         // TODO: pass pagination + fetch total count
-        List<PlantProductTupleResult> tupleResultList = agrovocService.searchPlantProducts(tupleFilter);
+        List<PlantProductTupleResult> tupleResultList = agrovocService.searchPlantProductTuples(tupleFilter);
         return tupleResultList.stream()
                 .map(plantProductTupleConverter::toWsPlantProductResult)
                 .collect(Collectors.toList());

@@ -1,5 +1,6 @@
 package com.charlyghislain.plancul.util;
 
+import com.charlyghislain.plancul.domain.api.request.WsSearchQueryParams;
 import com.charlyghislain.plancul.domain.request.Pagination;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -20,8 +21,8 @@ public class PaginationProvider {
     @RequestScoped
     public Pagination getPagination() {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        String offsetParam = queryParameters.getFirst("offset");
-        String lengthParam = queryParameters.getFirst("length");
+        String offsetParam = queryParameters.getFirst(WsSearchQueryParams.offset.name());
+        String lengthParam = queryParameters.getFirst(WsSearchQueryParams.length.name());
 
         int offsetValue = Optional.ofNullable(offsetParam)
                 .map(Integer::parseInt)

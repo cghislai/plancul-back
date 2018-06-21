@@ -2,8 +2,8 @@ package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.domain.BedPreparation;
 import com.charlyghislain.plancul.domain.BedPreparationType;
-import com.charlyghislain.plancul.domain.WsBedPreparation;
-import com.charlyghislain.plancul.domain.WsBedPreparationType;
+import com.charlyghislain.plancul.domain.api.WsBedPreparation;
+import com.charlyghislain.plancul.domain.api.WsBedPreparationType;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.LocalDate;

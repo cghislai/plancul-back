@@ -2,9 +2,9 @@ package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
-import com.charlyghislain.plancul.domain.request.filter.WsPlantProductTupleFilter;
+import com.charlyghislain.plancul.domain.api.request.filter.WsPlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
-import com.charlyghislain.plancul.domain.result.WsPlantProductResult;
+import com.charlyghislain.plancul.domain.api.result.WsPlantProductResult;
 import com.charlyghislain.plancul.util.ContentLanguage;
 import com.charlyghislain.plancul.util.LanguageContainer;
 

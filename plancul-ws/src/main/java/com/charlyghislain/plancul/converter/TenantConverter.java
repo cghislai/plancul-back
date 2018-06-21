@@ -1,14 +1,18 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.WsTenant;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.WsTenant;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.request.sort.TenantSortField;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.TenantService;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Optional;
 
 @ApplicationScoped
 public class TenantConverter implements WsDomainObjectConverter<Tenant, WsTenant> {
@@ -49,5 +53,10 @@ public class TenantConverter implements WsDomainObjectConverter<Tenant, WsTenant
         String name = wsEntity.getName();
 
         entity.setName(name);
+    }
+
+    @Override
+    public Optional<Sort<Tenant>> mapSort(UntypedSort untypedSort) {
+        return this.mapSort(untypedSort, TenantSortField::valueOf);
     }
 }

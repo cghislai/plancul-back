@@ -2,10 +2,10 @@ package com.charlyghislain.plancul.converter.request;
 
 import com.charlyghislain.plancul.converter.TenantConverter;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.WsTenant;
+import com.charlyghislain.plancul.domain.api.WsTenant;
 import com.charlyghislain.plancul.domain.request.CropCreationRequest;
-import com.charlyghislain.plancul.domain.request.WsCropCreationRequest;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.request.WsCropCreationRequest;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;

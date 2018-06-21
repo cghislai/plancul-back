@@ -5,9 +5,12 @@ import com.charlyghislain.plancul.domain.Bed_;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Plot_;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.BedFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.request.sort.BedSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -21,6 +24,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,14 +67,19 @@ public class BedService {
                 .filter(bed -> validationService.hasLoggedUserTenantRole(getBedTenant(bed)));
     }
 
-    public SearchResult<Bed> findBeds(BedFilter bedFilter, Pagination pagination) {
+    public SearchResult<Bed> findBeds(BedFilter bedFilter, Pagination pagination, Language language) {
+        List<Sort<Bed>> defaultSorts = this.getDefaultSorts();
+        return this.findBeds(bedFilter, pagination, defaultSorts, language);
+    }
+
+    public SearchResult<Bed> findBeds(BedFilter bedFilter, Pagination pagination, List<Sort<Bed>> sorts, Language language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Bed> query = criteriaBuilder.createQuery(Bed.class);
         Root<Bed> rootBed = query.from(Bed.class);
 
         List<Predicate> predicates = this.createBedPredicates(bedFilter, rootBed);
 
-        return searchService.search(pagination, query, rootBed, predicates);
+        return searchService.search(pagination, sorts, language, query, rootBed, predicates);
     }
 
 
@@ -102,6 +111,9 @@ public class BedService {
         return predicateList;
     }
 
+    private List<Sort<Bed>> getDefaultSorts() {
+        return Collections.singletonList(new Sort<>(true, BedSortField.NAME));
+    }
 
     private Bed createBed(Bed bed) {
         Tenant bedTenant = this.getBedTenant(bed);

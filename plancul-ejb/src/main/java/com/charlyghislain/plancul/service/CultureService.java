@@ -10,10 +10,13 @@ import com.charlyghislain.plancul.domain.CultureNursing;
 import com.charlyghislain.plancul.domain.CultureNursing_;
 import com.charlyghislain.plancul.domain.Culture_;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.request.filter.DateFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.request.sort.CultureSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -29,6 +32,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,16 +81,26 @@ public class CultureService {
     }
 
 
-    public SearchResult<Culture> findCultures(CultureFilter cultureFilter, Pagination pagination) {
+    public SearchResult<Culture> findCultures(CultureFilter cultureFilter, Pagination pagination, Language language) {
+        List<Sort<Culture>> defaultSorts = this.getDefaultSorts();
+        return this.findCultures(cultureFilter, pagination, defaultSorts, language);
+    }
+
+    public SearchResult<Culture> findCultures(CultureFilter cultureFilter, Pagination pagination, List<Sort<Culture>> sorts, Language language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Culture> query = criteriaBuilder.createQuery(Culture.class);
         Root<Culture> rootCulture = query.from(Culture.class);
 
         List<Predicate> predicates = this.createCulturePredicates(cultureFilter, rootCulture);
 
-        return searchService.search(pagination, query, rootCulture, predicates);
+        return searchService.search(pagination, sorts, language, query, rootCulture, predicates);
     }
 
+
+
+    private List<Sort<Culture>> getDefaultSorts() {
+        return Collections.singletonList(new Sort<>(true, CultureSortField.BED_OCCUPANCY_START_DATE));
+    }
 
     private Culture createCulture(Culture culture) {
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());

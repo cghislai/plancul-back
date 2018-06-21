@@ -3,18 +3,22 @@ package com.charlyghislain.plancul.converter;
 import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.AgrovocPlant;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
-import com.charlyghislain.plancul.domain.WsAgrovocPlant;
+import com.charlyghislain.plancul.domain.api.WsAgrovocPlant;
 import com.charlyghislain.plancul.domain.i18n.Language;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.request.sort.AgrovocPlantSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.AgrovocService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class AgrovocPlantConverter implements ToWsDomainObjectConverter<AgrovocPlant, WsAgrovocPlant> {
@@ -54,5 +58,10 @@ public class AgrovocPlantConverter implements ToWsDomainObjectConverter<AgrovocP
         wsAgrovocPlant.setId(id);
 
         return wsAgrovocPlant;
+    }
+
+    @Override
+    public Optional<Sort<AgrovocPlant>> mapSort(UntypedSort untypedSort) {
+        return this.mapSort(untypedSort, AgrovocPlantSortField::valueOf);
     }
 }

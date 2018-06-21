@@ -8,6 +8,8 @@ public enum Language {
     ENGLISH("en", ""),
     FRENCH("fr", ".fr");
 
+    public static Language DEFAULT_LANGUAGE = Language.ENGLISH;
+
     public static Optional<Language> fromCode(String code) {
         return Arrays.stream(Language.values())
                 .filter(language -> language.getCode().equals(code))

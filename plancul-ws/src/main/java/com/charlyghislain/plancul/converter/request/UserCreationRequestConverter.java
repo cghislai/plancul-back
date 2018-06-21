@@ -3,11 +3,11 @@ package com.charlyghislain.plancul.converter.request;
 import com.charlyghislain.plancul.converter.TenantConverter;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
-import com.charlyghislain.plancul.domain.WsTenant;
-import com.charlyghislain.plancul.domain.WsTenantRole;
+import com.charlyghislain.plancul.domain.api.WsTenant;
+import com.charlyghislain.plancul.domain.api.WsTenantRole;
 import com.charlyghislain.plancul.domain.request.UserCreationRequest;
-import com.charlyghislain.plancul.domain.request.WsUserCreationRequest;
-import com.charlyghislain.plancul.domain.request.WsUserTenantCreationRequest;
+import com.charlyghislain.plancul.domain.api.request.WsUserCreationRequest;
+import com.charlyghislain.plancul.domain.api.request.WsUserTenantCreationRequest;
 import com.charlyghislain.plancul.util.ContentLanguage;
 import com.charlyghislain.plancul.util.LanguageContainer;
 

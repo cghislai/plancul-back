@@ -8,17 +8,20 @@ import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.Culture;
 import com.charlyghislain.plancul.domain.CultureNursing;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.WsBed;
-import com.charlyghislain.plancul.domain.WsBedPreparation;
-import com.charlyghislain.plancul.domain.WsCrop;
-import com.charlyghislain.plancul.domain.WsCulture;
-import com.charlyghislain.plancul.domain.WsCultureNursing;
-import com.charlyghislain.plancul.domain.WsTenant;
+import com.charlyghislain.plancul.domain.api.WsBed;
+import com.charlyghislain.plancul.domain.api.WsBedPreparation;
+import com.charlyghislain.plancul.domain.api.WsCrop;
+import com.charlyghislain.plancul.domain.api.WsCulture;
+import com.charlyghislain.plancul.domain.api.WsCultureNursing;
+import com.charlyghislain.plancul.domain.api.WsTenant;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
-import com.charlyghislain.plancul.domain.request.filter.WsCultureFilter;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.request.filter.WsCultureFilter;
+import com.charlyghislain.plancul.domain.request.sort.CultureSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.CultureService;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
@@ -88,6 +91,11 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         wsCultureNursing.ifPresent(wsCulture::setCultureNursing);
         wsBedPreparation.ifPresent(wsCulture::setBedPreparation);
         return wsCulture;
+    }
+
+    @Override
+    public Optional<Sort<Culture>> mapSort(UntypedSort untypedSort) {
+        return this.mapSort(untypedSort, CultureSortField::valueOf);
     }
 
     @Override

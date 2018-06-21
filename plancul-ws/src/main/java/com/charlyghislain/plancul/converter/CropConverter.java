@@ -5,17 +5,20 @@ import com.charlyghislain.plancul.domain.AgrovocPlant;
 import com.charlyghislain.plancul.domain.AgrovocProduct;
 import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.WsAgrovocPlant;
-import com.charlyghislain.plancul.domain.WsAgrovocProduct;
-import com.charlyghislain.plancul.domain.WsCrop;
-import com.charlyghislain.plancul.domain.WsTenant;
+import com.charlyghislain.plancul.domain.api.WsAgrovocPlant;
+import com.charlyghislain.plancul.domain.api.WsAgrovocProduct;
+import com.charlyghislain.plancul.domain.api.WsCrop;
+import com.charlyghislain.plancul.domain.api.WsTenant;
 import com.charlyghislain.plancul.domain.request.filter.CropFilter;
-import com.charlyghislain.plancul.domain.request.filter.WsCropFilter;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.request.filter.WsCropFilter;
+import com.charlyghislain.plancul.domain.request.sort.CropSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.CropService;
 import com.charlyghislain.plancul.util.ContentLanguage;
 import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
@@ -41,6 +44,7 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
         return cropService.findCropById(ref.getId())
                 .orElseThrow(ReferenceNotFoundException::new);
     }
+
 
     @Override
     public WsCrop toWsEntity(Crop entity) {
@@ -92,5 +96,10 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
                 .ifPresent(cropFilter::setShared);
 
         return cropFilter;
+    }
+
+    @Override
+    public Optional<Sort<Crop>> mapSort(UntypedSort untypedSort) {
+        return this.mapSort(untypedSort, CropSortField::valueOf);
     }
 }

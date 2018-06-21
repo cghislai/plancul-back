@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.util.exception;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
-import com.charlyghislain.plancul.domain.util.WsError;
+import com.charlyghislain.plancul.domain.api.util.WsError;
 import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 
 import javax.inject.Inject;

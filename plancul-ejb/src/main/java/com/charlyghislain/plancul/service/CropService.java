@@ -11,6 +11,8 @@ import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.AgrovocPlantFilter;
 import com.charlyghislain.plancul.domain.request.filter.AgrovocProductFilter;
 import com.charlyghislain.plancul.domain.request.filter.CropFilter;
+import com.charlyghislain.plancul.domain.request.sort.CropSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 
 import javax.ejb.EJB;
@@ -27,6 +29,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,23 +79,31 @@ public class CropService {
     }
 
 
-    public SearchResult<Crop> findCrops(CropFilter cropFilter, Pagination pagination) {
+    public SearchResult<Crop> findCrops(CropFilter cropFilter, Pagination pagination, Language language) {
+        List<Sort<Crop>> defaultSorts = this.getDefaultSorts();
+        return this.findCrops(cropFilter, pagination, defaultSorts, language);
+    }
+
+    public SearchResult<Crop> findCrops(CropFilter cropFilter, Pagination pagination, List<Sort<Crop>> sorts, Language language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Crop> query = criteriaBuilder.createQuery(Crop.class);
         Root<Crop> rootCrop = query.from(Crop.class);
 
         List<Predicate> predicates = this.createCropPredicates(cropFilter, rootCrop);
 
-        return searchService.search(pagination, query, rootCrop, predicates);
+        return searchService.search(pagination, sorts, language, query, rootCrop, predicates);
     }
 
+    private List<Sort<Crop>> getDefaultSorts() {
+        return Collections.singletonList(new Sort<>(true, CropSortField.PLANT_NAME));
+    }
 
     public List<Predicate> createCropPredicates(CropFilter cropFilter, From<?, Crop> cropSource) {
         List<Predicate> predicateList = new ArrayList<>();
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 
-        Path<Tenant> tenantPath = cropSource.get(Crop_.tenant);
-        searchService.createLoggedUserTenantsPredicate(tenantPath)
+        Path<Tenant> tenantPath = cropSource.join(Crop_.tenant, JoinType.LEFT);
+        searchService.createLoggedUserTenantsPredicate(tenantPath, true)
                 .ifPresent(predicateList::add);
 
         cropFilter.getTenant()
@@ -131,7 +142,7 @@ public class CropService {
         AgrovocPlantFilter plantFilter = new AgrovocPlantFilter();
         plantFilter.setUri(agrovocPlantUri);
         Pagination pagination = new Pagination(1);
-        SearchResult<AgrovocPlant> plantResults = agrovocService.findAgrovocPlants(plantFilter, pagination);
+        SearchResult<AgrovocPlant> plantResults = agrovocService.findAgrovocPlants(plantFilter, pagination, Language.DEFAULT_LANGUAGE);
 
         if (plantResults.getTotalCount() == 0) {
             return agrovocService.createAgrovocPlant(agrovocPlantUri);
@@ -147,7 +158,7 @@ public class CropService {
         AgrovocProductFilter productFilter = new AgrovocProductFilter();
         productFilter.setUri(agrovocProductUri);
         Pagination pagination = new Pagination(1);
-        SearchResult<AgrovocProduct> productResults = agrovocService.findAgrovocProducts(productFilter, pagination);
+        SearchResult<AgrovocProduct> productResults = agrovocService.findAgrovocProducts(productFilter, pagination, Language.DEFAULT_LANGUAGE);
 
         if (productResults.getTotalCount() == 0) {
             return agrovocService.createAgrovocProduct(agrovocProductUri);

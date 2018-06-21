@@ -3,9 +3,12 @@ package com.charlyghislain.plancul.service;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Plot_;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.request.sort.PlotSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,6 +20,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,14 +60,24 @@ public class PlotService {
                 .filter(plot -> validationService.hasLoggedUserTenantRole(plot.getTenant()));
     }
 
-    public SearchResult<Plot> findPlots(PlotFilter plotFilter, Pagination pagination) {
+
+    public SearchResult<Plot> findPlots(PlotFilter plotFilter, Pagination pagination, Language language) {
+        List<Sort<Plot>> defaultSorts = this.getDefaultSorts();
+        return this.findPlots(plotFilter, pagination, defaultSorts, language);
+    }
+
+    public SearchResult<Plot> findPlots(PlotFilter plotFilter, Pagination pagination, List<Sort<Plot>> sorts, Language language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Plot> query = criteriaBuilder.createQuery(Plot.class);
         Root<Plot> rootPlot = query.from(Plot.class);
 
         List<Predicate> predicates = this.createPlotPredicates(plotFilter, rootPlot);
 
-        return searchService.search(pagination, query, rootPlot, predicates);
+        return searchService.search(pagination, sorts, language, query, rootPlot, predicates);
+    }
+
+    private List<Sort<Plot>> getDefaultSorts() {
+        return Collections.singletonList(new Sort<>(true, PlotSortField.NAME));
     }
 
 

@@ -3,15 +3,20 @@ package com.charlyghislain.plancul.resource;
 import com.charlyghislain.plancul.converter.PlotConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Plot;
-import com.charlyghislain.plancul.domain.WsPlot;
+import com.charlyghislain.plancul.domain.api.WsPlot;
+import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
-import com.charlyghislain.plancul.domain.request.filter.WsPlotFilter;
+import com.charlyghislain.plancul.domain.api.request.filter.WsPlotFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.result.WsSearchResult;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.PlotService;
+import com.charlyghislain.plancul.util.AcceptedLanguage;
+import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -26,6 +31,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @Path("/plot")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -40,6 +46,11 @@ public class PlotResource {
     private SearchResultConverter searchResultConverter;
     @Inject
     private Pagination pagination;
+    @Inject
+    private List<UntypedSort> sortList;
+    @Inject
+    @AcceptedLanguage
+    private LanguageContainer acceptedLanguage;
 
     @POST
     public WsRef<WsPlot> createPlot(@NotNull @Valid WsPlot wsPlot) {
@@ -81,7 +92,10 @@ public class PlotResource {
     @Path("/search")
     public WsSearchResult<WsPlot> searchPlots(@NotNull @Valid WsPlotFilter wsPlotFilter) {
         PlotFilter plotFilter = plotConverter.fromWsPlotFilter(wsPlotFilter);
-        SearchResult<Plot> searchResult = plotService.findPlots(plotFilter, pagination);
+        List<Sort<Plot>> sorts = plotConverter.fromUntypedSorts(sortList);
+        Language language = acceptedLanguage.getLanguage();
+
+        SearchResult<Plot> searchResult = plotService.findPlots(plotFilter, pagination, sorts, language);
         WsSearchResult<WsPlot> wsSearchResult = searchResultConverter.convertSearchResults(searchResult, plotConverter);
         return wsSearchResult;
     }

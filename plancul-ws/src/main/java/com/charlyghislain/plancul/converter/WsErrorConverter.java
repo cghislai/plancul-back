@@ -1,6 +1,6 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.domain.util.WsError;
+import com.charlyghislain.plancul.domain.api.util.WsError;
 
 import javax.enterprise.context.ApplicationScoped;
 

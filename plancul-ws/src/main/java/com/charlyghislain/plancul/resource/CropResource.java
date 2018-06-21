@@ -4,17 +4,22 @@ import com.charlyghislain.plancul.converter.CropConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.converter.request.CropCreationRequestConverter;
 import com.charlyghislain.plancul.domain.Crop;
-import com.charlyghislain.plancul.domain.WsCrop;
+import com.charlyghislain.plancul.domain.api.WsCrop;
+import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.CropCreationRequest;
 import com.charlyghislain.plancul.domain.request.Pagination;
-import com.charlyghislain.plancul.domain.request.WsCropCreationRequest;
+import com.charlyghislain.plancul.domain.api.request.WsCropCreationRequest;
 import com.charlyghislain.plancul.domain.request.filter.CropFilter;
-import com.charlyghislain.plancul.domain.request.filter.WsCropFilter;
+import com.charlyghislain.plancul.domain.api.request.filter.WsCropFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.result.WsSearchResult;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.CropService;
+import com.charlyghislain.plancul.util.AcceptedLanguage;
+import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -27,6 +32,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 @Path("/crop")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -43,6 +49,11 @@ public class CropResource {
     private SearchResultConverter searchResultConverter;
     @Inject
     private Pagination pagination;
+    @Inject
+    private List<UntypedSort> sortList;
+    @Inject
+    @AcceptedLanguage
+    private LanguageContainer acceptedLanguage;
 
     @POST
     public WsRef<WsCrop> createCrop(@NotNull @Valid WsCropCreationRequest wsCropCreationRequest) {
@@ -68,7 +79,10 @@ public class CropResource {
     @Path("/search")
     public WsSearchResult<WsCrop> searchCrops(@NotNull @Valid WsCropFilter wsCropFilter) {
         CropFilter cropFilter = cropConverter.fromWsCropFilter(wsCropFilter);
-        SearchResult<Crop> searchResult = cropService.findCrops(cropFilter, pagination);
+        List<Sort<Crop>> sorts = cropConverter.fromUntypedSorts(sortList);
+        Language language = acceptedLanguage.getLanguage();
+
+        SearchResult<Crop> searchResult = cropService.findCrops(cropFilter, pagination, sorts, language);
         WsSearchResult<WsCrop> wsSearchResult = searchResultConverter.convertSearchResults(searchResult, cropConverter);
         return wsSearchResult;
     }

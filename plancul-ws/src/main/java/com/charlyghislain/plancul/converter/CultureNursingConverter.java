@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.domain.CultureNursing;
-import com.charlyghislain.plancul.domain.WsCultureNursing;
+import com.charlyghislain.plancul.domain.api.WsCultureNursing;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.time.LocalDate;

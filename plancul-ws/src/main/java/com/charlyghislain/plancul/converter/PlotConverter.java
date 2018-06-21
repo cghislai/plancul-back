@@ -3,13 +3,16 @@ package com.charlyghislain.plancul.converter;
 import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.WsPlot;
-import com.charlyghislain.plancul.domain.WsTenant;
+import com.charlyghislain.plancul.domain.api.WsPlot;
+import com.charlyghislain.plancul.domain.api.WsTenant;
 import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
-import com.charlyghislain.plancul.domain.request.filter.WsPlotFilter;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.request.filter.WsPlotFilter;
+import com.charlyghislain.plancul.domain.request.sort.PlotSortField;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.PlotService;
 import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
@@ -44,6 +47,11 @@ public class PlotConverter implements WsDomainObjectConverter<Plot, WsPlot> {
         wsPlot.setName(name);
         wsPlot.setTenantRef(wsTenantWsRef);
         return wsPlot;
+    }
+
+    @Override
+    public Optional<Sort<Plot>> mapSort(UntypedSort untypedSort) {
+        return this.mapSort(untypedSort, PlotSortField::valueOf);
     }
 
     @Override

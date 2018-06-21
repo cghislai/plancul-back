@@ -1,8 +1,8 @@
 package com.charlyghislain.plancul.converter.util;
 
 import com.charlyghislain.plancul.domain.util.DomainEntity;
-import com.charlyghislain.plancul.domain.util.WsDomainEntity;
-import com.charlyghislain.plancul.domain.util.WsRef;
+import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 
 public interface FromWsDomainObjectConverter<D extends DomainEntity, W extends WsDomainEntity> {
 
@@ -11,4 +11,5 @@ public interface FromWsDomainObjectConverter<D extends DomainEntity, W extends W
     D fromWsEntity(W wsEntity);
 
     void updateEntity(D entity, W wsEntity);
+
 }

@@ -1,6 +1,6 @@
 package com.charlyghislain.plancul.resource.unrestricted;
 
-import com.charlyghislain.plancul.domain.request.WsUserAccountInitRequest;
+import com.charlyghislain.plancul.domain.api.request.WsUserAccountInitRequest;
 import com.charlyghislain.plancul.service.UserService;
 
 import javax.annotation.security.PermitAll;
