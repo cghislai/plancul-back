@@ -67,6 +67,7 @@ public class AgrovocPlantProductTupleSearchClient {
     private static final String PRODUCT_LABEL_VAR_NAME = "productLabel";
     private static final String PLANT_VAR_NAME = "plant";
     private static final String PLANT_LABEL_VAR_NAME = "plantLabel";
+    public static final int QUERY_TIMEOUT = 1000;
 
     public List<AgrovocPlantProductResultTuple> findPlantProductTuples(String queryString, String lang) {
         return this.findPlantProductTuples(queryString, lang, DEFAULT_RESULTS_LIMIT);
@@ -166,18 +167,20 @@ public class AgrovocPlantProductTupleSearchClient {
         query.setLimit(limit);
         query.setOffset(offset);
 
-        QueryExecution queryExecution = QueryExecutionFactory.sparqlService(AGROVOC_ENDPOINT_URL, query);
+        try(QueryExecution queryExecution = QueryExecutionFactory.sparqlService(AGROVOC_ENDPOINT_URL, query)) {
+            queryExecution.setTimeout(QUERY_TIMEOUT);
 
-        // TODO: ordering
-//        String serialized = query.serialize();
-//        System.out.println(serialized);
+//             TODO: ordering & pagintion
+//            String serialized = query.serialize();
+//            System.out.println(serialized);
 
-        ResultSet resultSet = queryExecution.execSelect();
-        Iterable<QuerySolution> solutionsIterable = () -> resultSet;
-        List<AgrovocPlantProductResultTuple> resultList = StreamSupport.stream(solutionsIterable.spliterator(), false)
-                .map(this::createTuple)
-                .collect(Collectors.toList());
-        return resultList;
+            ResultSet resultSet = queryExecution.execSelect();
+            Iterable<QuerySolution> solutionsIterable = () -> resultSet;
+            List<AgrovocPlantProductResultTuple> resultList = StreamSupport.stream(solutionsIterable.spliterator(), false)
+                    .map(this::createTuple)
+                    .collect(Collectors.toList());
+            return resultList;
+        }
     }
 
     private AgrovocPlantProductResultTuple createTuple(QuerySolution querySolution) {

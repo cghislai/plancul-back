@@ -42,6 +42,7 @@ public class DbpediaNodeDataClient {
 
     private static final String PREDICATE_VAR_NAME = "predicate";
     private static final String OBJECT_VAR_NAME = "object";
+    public static final int QUERY_TIMEOUT = 1000;
 
     public DbpediaNodeData fetchNodeData(String dbpediaNodeUri, String language) {
         // Nodes & variables. The first ones are hardcoded values of some nodes from http://dbpedia.uniroma2.it/dbpedia/dbpedia
@@ -95,20 +96,22 @@ public class DbpediaNodeDataClient {
         query.setDistinct(true);
         query.setPrefix("skos", OpenDataConstants.SKOS_PREFIX);
 
-        QueryExecution queryExecution = QueryExecutionFactory.sparqlService(DBPEDIA_ENDPOINT_URL, query);
+        try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(DBPEDIA_ENDPOINT_URL, query)) {
+            queryExecution.setTimeout(QUERY_TIMEOUT);
 
 //        String serialized = query.serialize();
 //        System.out.println(serialized);
 
-        ResultSet resultSet = queryExecution.execSelect();
-        Iterable<QuerySolution> solutionsIterable = () -> resultSet;
+            ResultSet resultSet = queryExecution.execSelect();
+            Iterable<QuerySolution> solutionsIterable = () -> resultSet;
 
-        DbpediaNodeData nodeData = new DbpediaNodeData();
-        nodeData.setNodeUri(dbpediaNodeUri);
+            DbpediaNodeData nodeData = new DbpediaNodeData();
+            nodeData.setNodeUri(dbpediaNodeUri);
 
-        StreamSupport.stream(solutionsIterable.spliterator(), false)
-                .forEach(result -> this.appendResults(nodeData, result));
-        return nodeData;
+            StreamSupport.stream(solutionsIterable.spliterator(), false)
+                    .forEach(result -> this.appendResults(nodeData, result));
+            return nodeData;
+        }
     }
 
     private void appendResults(DbpediaNodeData nodeData, QuerySolution result) {

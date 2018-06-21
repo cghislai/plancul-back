@@ -43,7 +43,7 @@ public class SearchService {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
 
-        Expression<Long> count = criteriaBuilder.count(root);
+        Expression<Long> count = criteriaBuilder.countDistinct(root);
         countQuery.select(count);
         countQuery.where(predicates.toArray(new Predicate[0]));
         TypedQuery<Long> countTypedQuery = entityManager.createQuery(countQuery);
@@ -52,6 +52,7 @@ public class SearchService {
 
         query.select(root);
         query.where(predicates.toArray(new Predicate[0]));
+        query.distinct(true);
 
         TypedQuery<T> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult(pagination.getOffset());

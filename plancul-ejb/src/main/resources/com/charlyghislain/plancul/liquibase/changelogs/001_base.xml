@@ -244,5 +244,20 @@
                                  referencedTableName="PLANCULUSER" referencedColumnNames="ID"/>
     </changeSet>
 
-
+    <changeSet id="9-bed" author="cghislai">
+        <createTable tableName="BED">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PLOT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="BED_PLOT"
+                                 baseTableName="BED" baseColumnNames="PLOT_ID"
+                                 referencedTableName="PLOT" referencedColumnNames="ID"/>
+    </changeSet>
 </databaseChangeLog>

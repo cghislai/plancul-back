@@ -27,6 +27,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
@@ -64,6 +65,7 @@ public class AgrovocService {
         return Optional.ofNullable(found);
     }
 
+    // TODO: pass through a queue to avoid request spamming
     public List<PlantProductTupleResult> searchPlantProducts(PlantProductTupleFilter filter) {
         Language language = filter.getLanguage();
         String queryString = filter.getQueryString();
@@ -74,6 +76,7 @@ public class AgrovocService {
                 .map(this::mapToDomain)
                 .collect(Collectors.toList());
     }
+
 
     public AgrovocPlant createAgrovocPlant(String agrovocUri) {
         List<AgrovocNodeData> localizedNodeData = Arrays.stream(Language.values())
@@ -152,8 +155,8 @@ public class AgrovocService {
 
     public Predicate createPlantNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocPlant> rootPlant) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        ListJoin<AgrovocPlant, LocalizedMessage> preferedLabelsJoin = rootPlant.join(AgrovocPlant_.preferedLabel);
-        ListJoin<AgrovocPlant, LocalizedMessage> alternativeLabelsJoin = rootPlant.join(AgrovocPlant_.alternativeLabels);
+        ListJoin<AgrovocPlant, LocalizedMessage> preferedLabelsJoin = rootPlant.join(AgrovocPlant_.preferedLabel, JoinType.LEFT);
+        ListJoin<AgrovocPlant, LocalizedMessage> alternativeLabelsJoin = rootPlant.join(AgrovocPlant_.alternativeLabels, JoinType.LEFT);
 
         Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferedLabelsJoin, query, language);
         Predicate alternativeLabelPredicate = searchService.createLocalizedTextMatchPredicate(alternativeLabelsJoin, query, language);
@@ -185,8 +188,8 @@ public class AgrovocService {
 
     public Predicate createProductNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocProduct> rootProduct) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        ListJoin<AgrovocProduct, LocalizedMessage> preferedLabelsJoin = rootProduct.join(AgrovocProduct_.preferedLabel);
-        ListJoin<AgrovocProduct, LocalizedMessage> alternativeLabelsJoin = rootProduct.join(AgrovocProduct_.alternativeLabels);
+        ListJoin<AgrovocProduct, LocalizedMessage> preferedLabelsJoin = rootProduct.join(AgrovocProduct_.preferedLabel, JoinType.LEFT);
+        ListJoin<AgrovocProduct, LocalizedMessage> alternativeLabelsJoin = rootProduct.join(AgrovocProduct_.alternativeLabels, JoinType.LEFT);
 
         Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferedLabelsJoin, query, language);
         Predicate alternativeLabelPredicate = searchService.createLocalizedTextMatchPredicate(alternativeLabelsJoin, query, language);

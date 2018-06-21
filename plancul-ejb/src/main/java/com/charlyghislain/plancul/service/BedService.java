@@ -53,7 +53,8 @@ public class BedService {
         Tenant tenant = getBedTenant(bed);
         validationService.validateLoggedUserHasTenantRole(tenant);
 
-        entityManager.remove(bed);
+        Bed managedBed = entityManager.merge(bed);
+        entityManager.remove(managedBed);
     }
 
     public Optional<Bed> findBedById(long id) {

@@ -106,21 +106,4 @@ public class LoggedUserResource {
                 .collect(Collectors.toList());
     }
 
-    @GET
-    @Path("/role/admin")
-    public boolean amIAdmin() {
-        return securityContext.isCallerInRole(ApplicationGroup.ADMIN.name());
-    }
-
-    @GET
-    @Path("/role/user")
-    public boolean amIUser() {
-        return securityContext.isCallerInRole(ApplicationGroup.USER.name());
-    }
-
-    @GET
-    @Path("/role/anonymous")
-    public boolean amIAnonymous() {
-        return securityContext.isCallerInRole(ApplicationGroup.ANONYMOUS.name());
-    }
 }

@@ -43,6 +43,7 @@ public class AgrovocNodeDataClient {
 
     private static final String PREDICATE_VAR_NAME = "predicate";
     private static final String OBJECT_VAR_NAME = "object";
+    public static final int QUERY_TIMEOUT = 1000;
 
     public AgrovocNodeData fetchNodeData(String agrovocNodeUri, String lang) {
         // Nodes & variables. The first ones are hardcoded values of some nodes from http://agrovoc.uniroma2.it/agrovoc/agrovoc
@@ -100,22 +101,25 @@ public class AgrovocNodeDataClient {
         query.setDistinct(true);
         query.setPrefix("skos", OpenDataConstants.SKOS_PREFIX);
 
-        QueryExecution queryExecution = QueryExecutionFactory.sparqlService(AGROVOC_ENDPOINT_URL, query);
+        try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(AGROVOC_ENDPOINT_URL, query)) {
+
+            queryExecution.setTimeout(QUERY_TIMEOUT);
 
 //        String serialized = query.serialize();
 //        System.out.println(serialized);
 
-        ResultSet resultSet = queryExecution.execSelect();
-        Iterable<QuerySolution> solutionsIterable = () -> resultSet;
+            ResultSet resultSet = queryExecution.execSelect();
+            Iterable<QuerySolution> solutionsIterable = () -> resultSet;
 
-        AgrovocNodeData nodeData = new AgrovocNodeData();
-        nodeData.setNodeUri(agrovocNodeUri);
-        nodeData.setLanguage(lang);
+            AgrovocNodeData nodeData = new AgrovocNodeData();
+            nodeData.setNodeUri(agrovocNodeUri);
+            nodeData.setLanguage(lang);
 
 
-        StreamSupport.stream(solutionsIterable.spliterator(), false)
-                .forEach(result -> this.appendResults(nodeData, result));
-        return nodeData;
+            StreamSupport.stream(solutionsIterable.spliterator(), false)
+                    .forEach(result -> this.appendResults(nodeData, result));
+            return nodeData;
+        }
     }
 
     private void appendResults(AgrovocNodeData nodeData, QuerySolution result) {

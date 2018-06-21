@@ -1,7 +1,14 @@
 package com.charlyghislain.plancul.domain.util;
 
-public class WsRef<T extends WsDomainEntity> {
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+
+public class WsRef<T extends WsDomainEntity> implements Serializable {
+    @NotNull
     private long id;
+
+    public WsRef() {
+    }
 
     public WsRef(long id) {
         this.id = id;

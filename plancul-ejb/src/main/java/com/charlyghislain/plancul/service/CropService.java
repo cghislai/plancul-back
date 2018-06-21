@@ -22,6 +22,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -174,7 +175,7 @@ public class CropService {
     private Predicate createNamesQueryPredicate(From<?, Crop> cropSource, String query, Optional<Language> queryLanguage) {
         Predicate plantNameQueryPredicate = this.createPlantNamesQueryPredicate(cropSource, query, queryLanguage);
 
-        Join<Crop, AgrovocProduct> productJoin = cropSource.join(Crop_.agrovocProduct);
+        Join<Crop, AgrovocProduct> productJoin = cropSource.join(Crop_.agrovocProduct, JoinType.LEFT);
         Predicate productNamesPredicate = agrovocService.createProductNameQueryPredicate(query, queryLanguage, productJoin);
 
         Predicate cultivarPredicate = this.createCultivarQueryPredicate(cropSource, query);
@@ -185,7 +186,7 @@ public class CropService {
     }
 
     private Predicate createPlantNamesQueryPredicate(From<?, Crop> cropSource, String query, Optional<Language> queryLanguage) {
-        Join<Crop, AgrovocPlant> plantPath = cropSource.join(Crop_.agrovocPlant);
+        Join<Crop, AgrovocPlant> plantPath = cropSource.join(Crop_.agrovocPlant, JoinType.LEFT);
         Predicate plantNameQueryPredicate = agrovocService.createPlantNameQueryPredicate(query, queryLanguage, plantPath);
         return plantNameQueryPredicate;
     }

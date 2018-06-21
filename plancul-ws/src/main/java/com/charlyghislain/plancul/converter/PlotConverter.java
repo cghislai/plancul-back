@@ -1,6 +1,5 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
@@ -10,10 +9,12 @@ import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
 import com.charlyghislain.plancul.domain.request.filter.WsPlotFilter;
 import com.charlyghislain.plancul.domain.util.WsRef;
 import com.charlyghislain.plancul.service.PlotService;
+import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Optional;
 
 @ApplicationScoped
 public class PlotConverter implements WsDomainObjectConverter<Plot, WsPlot> {
@@ -68,14 +69,14 @@ public class PlotConverter implements WsDomainObjectConverter<Plot, WsPlot> {
     }
 
     public PlotFilter fromWsPlotFilter(WsPlotFilter wsPlotFilter) {
-        String nameContains = wsPlotFilter.getNameContains();
-        WsRef<WsTenant> tenantRef = wsPlotFilter.getTenantRef();
+        Optional<String> nameContains = wsPlotFilter.getNameContains();
+        Optional<WsRef<WsTenant>> tenantRef = wsPlotFilter.getTenantRef();
 
-        Tenant tenant = tenantConverter.load(tenantRef);
+        Optional<Tenant> tenant = tenantRef.map(tenantConverter::load);
 
         PlotFilter plotFilter = new PlotFilter();
-        plotFilter.setNameContains(nameContains);
-        plotFilter.setTenant(tenant);
+        nameContains.ifPresent(plotFilter::setNameContains);
+        tenant.ifPresent(plotFilter::setTenant);
         return plotFilter;
     }
 }

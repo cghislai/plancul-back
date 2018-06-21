@@ -1,5 +1,6 @@
 package com.charlyghislain.plancul.service;
 
+import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.Tenant_;
@@ -9,6 +10,7 @@ import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -28,6 +30,9 @@ public class TenantService {
 
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
+
+    @EJB
+    private PlotService plotService;
 
     @Inject
     private SearchService searchService;
@@ -64,8 +69,11 @@ public class TenantService {
     @RolesAllowed({ApplicationGroupNames.ADMIN})
     private Tenant createTenant(Tenant tenant) {
         Tenant managedTenant = entityManager.merge(tenant);
+
+        this.createDefaultPlot(managedTenant);
         return managedTenant;
     }
+
 
     private List<Predicate> createTenantPredicates(TenantFilter tenantFilter, Root<Tenant> rootTenant) {
         List<Predicate> predicateList = new ArrayList<>();
@@ -86,4 +94,11 @@ public class TenantService {
         return predicate;
     }
 
+
+    private void createDefaultPlot(Tenant managedTenant) {
+        Plot plot = new Plot();
+        plot.setTenant(managedTenant);
+        plot.setName("Default");
+        plotService.savePlot(plot);
+    }
 }

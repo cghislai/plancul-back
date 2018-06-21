@@ -46,7 +46,8 @@ public class PlotService {
         validationService.validateNonNullId(plot);
         validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
-        entityManager.remove(plot);
+        Plot managedPlot = entityManager.merge(plot);
+        entityManager.remove(managedPlot);
     }
 
     public Optional<Plot> findPlotById(long id) {

@@ -65,7 +65,8 @@ public class CultureService {
         validationService.validateNonNullId(culture);
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());
 
-        entityManager.remove(culture);
+        Culture managedCulture = entityManager.merge(culture);
+        entityManager.remove(managedCulture);
     }
 
 
