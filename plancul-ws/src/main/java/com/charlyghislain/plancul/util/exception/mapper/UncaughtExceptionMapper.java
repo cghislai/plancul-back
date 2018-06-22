@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.util.exception;
+package com.charlyghislain.plancul.util.exception.mapper;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.api.util.WsError;
@@ -7,27 +7,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 @Provider
-public class WebApplicationExceptionMapper implements javax.ws.rs.ext.ExceptionMapper<WebApplicationException> {
+public class UncaughtExceptionMapper implements ExceptionMapper<Throwable> {
 
-    private final static Logger LOG = LoggerFactory.getLogger(WebApplicationExceptionMapper.class);
+    private final static Logger LOG = LoggerFactory.getLogger(UncaughtExceptionMapper.class);
     @Inject
     private WsErrorConverter wsErrorConverter;
     @Inject
     private CrossOriginResourceSharingResponseFilter crossOriginResourceSharingResponseFilter;
 
     @Override
-    public Response toResponse(WebApplicationException exception) {
-        WsError wsError = wsErrorConverter.toWsError(exception);
+    public Response toResponse(Throwable exception) {
+        WsError wsError = wsErrorConverter.fromThrowable(exception);
 
-        LOG.error("Uncaught web application exception causing an error response to be sent to the client", exception);
+        LOG.error("Uncaught exception causing an error 500 response to be sent to the client", exception);
 
-        Response response = Response.status(exception.getResponse().getStatus())
+        Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .entity(wsError)
                 .build();

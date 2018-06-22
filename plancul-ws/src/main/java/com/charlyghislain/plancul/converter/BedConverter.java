@@ -11,7 +11,7 @@ import com.charlyghislain.plancul.domain.request.sort.BedSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.BedService;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;

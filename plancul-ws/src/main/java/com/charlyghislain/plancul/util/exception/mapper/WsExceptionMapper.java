@@ -1,9 +1,9 @@
-package com.charlyghislain.plancul.util.exception;
+package com.charlyghislain.plancul.util.exception.mapper;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.api.util.WsError;
 import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
-import com.charlyghislain.plancul.util.WsException;
+import com.charlyghislain.plancul.util.exception.WsException;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -22,7 +22,7 @@ public class WsExceptionMapper implements ExceptionMapper<WsException> {
     public Response toResponse(WsException exception) {
         Response.Status statusCode = exception.getStatusCode();
 
-        WsError wsError = wsErrorConverter.toWsError(exception);
+        WsError wsError = wsErrorConverter.fromThrowable(exception);
 
         Response response = Response.status(statusCode)
                 .entity(wsError)

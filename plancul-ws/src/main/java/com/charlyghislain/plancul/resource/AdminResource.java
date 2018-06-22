@@ -14,7 +14,7 @@ import com.charlyghislain.plancul.domain.security.Caller;
 import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.SecurityService;
 import com.charlyghislain.plancul.service.UserService;
-import com.charlyghislain.plancul.util.WsException;
+import com.charlyghislain.plancul.util.exception.WsException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;

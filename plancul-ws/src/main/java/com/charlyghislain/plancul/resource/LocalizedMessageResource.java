@@ -6,7 +6,7 @@ import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.api.WsLocalizedMessage;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.service.I18NService;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;

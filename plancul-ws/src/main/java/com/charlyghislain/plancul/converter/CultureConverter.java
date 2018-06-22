@@ -14,14 +14,14 @@ import com.charlyghislain.plancul.domain.api.WsCrop;
 import com.charlyghislain.plancul.domain.api.WsCulture;
 import com.charlyghislain.plancul.domain.api.WsCultureNursing;
 import com.charlyghislain.plancul.domain.api.WsTenant;
-import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.api.request.filter.WsCultureFilter;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.request.sort.CultureSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.CultureService;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
@@ -66,28 +66,31 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         LocalDate lastHarvestDate = entity.getLastHarvestDate();
         LocalDate bedOccupancyStartDate = entity.getBedOccupancyStartDate();
         LocalDate bedOccupancyEndDate = entity.getBedOccupancyEndDate();
-        String htmlNotes = entity.getHtmlNotes();
+        Optional<String> htmlNotes = entity.getHtmlNotes();
         Optional<CultureNursing> cultureNursing = entity.getCultureNursing();
         Optional<BedPreparation> bedPreparation = entity.getBedPreparation();
 
-        WsRef<WsTenant> tenantWsRef = tenantConverter.reference(tenant);
-        WsRef<WsCrop> cropWsRef = cropConverter.reference(crop);
-        WsRef<WsBed> bedWsRef = bedConverter.reference(bed);
+        Optional<WsRef<WsTenant>> tenantWsRef = Optional.ofNullable(tenant)
+                .map(tenantConverter::reference);
+        Optional<WsRef<WsCrop>> cropWsRef = Optional.ofNullable(crop)
+                .map(cropConverter::reference);
+        Optional<WsRef<WsBed>> bedWsRef = Optional.ofNullable(bed)
+                .map(bedConverter::reference);
         Optional<WsCultureNursing> wsCultureNursing = cultureNursing.map(cultureNursingConverter::toWsEntity);
         Optional<WsBedPreparation> wsBedPreparation = bedPreparation.map(bedPreparationConverter::toWsEntity);
 
         WsCulture wsCulture = new WsCulture();
         wsCulture.setId(id);
-        wsCulture.setTenantWsRef(tenantWsRef);
-        wsCulture.setCropWsRef(cropWsRef);
-        wsCulture.setBedWsRef(bedWsRef);
+        wsCulture.setTenantWsRef(tenantWsRef.orElse(null));
+        wsCulture.setCropWsRef(cropWsRef.orElse(null));
+        wsCulture.setBedWsRef(bedWsRef.orElse(null));
         wsCulture.setSowingDate(sowingDate);
         wsCulture.setGerminationDate(germinationDate);
         wsCulture.setFirstHarvestDate(firstHarvestDate);
         wsCulture.setLastHarvestDate(lastHarvestDate);
         wsCulture.setBedOccupancyStartDate(bedOccupancyStartDate);
         wsCulture.setBedOccupancyEndDate(bedOccupancyEndDate);
-        wsCulture.setHtmlNotes(htmlNotes);
+        wsCulture.setHtmlNotes(htmlNotes.orElse(null));
         wsCultureNursing.ifPresent(wsCulture::setCultureNursing);
         wsBedPreparation.ifPresent(wsCulture::setBedPreparation);
         return wsCulture;
@@ -121,18 +124,23 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
 //        LocalDate bedOccupancyStartDate = wsEntity.getBedOccupancyStartDate();
 //        LocalDate bedOccupancyEndDate = wsEntity.getBedOccupancyEndDate();
         String htmlNotes = wsEntity.getHtmlNotes();
-        Optional<WsCultureNursing> wsCultureNursing = wsEntity.getCultureNursing();
-        Optional<WsBedPreparation> wsBedPreparation = wsEntity.getBedPreparation();
+        WsCultureNursing cultureNursingNullable = wsEntity.getCultureNursing();
+        WsBedPreparation bedPreparationNullable = wsEntity.getBedPreparation();
 
-        Tenant tenant = tenantConverter.load(tenantWsRef);
-        Crop crop = cropConverter.load(cropWsRef);
-        Bed bed = bedConverter.load(bedWsRef);
-        Optional<CultureNursing> cultureNursing = wsCultureNursing.map(cultureNursingConverter::fromWsEntity);
-        Optional<BedPreparation> bedPreparation = wsBedPreparation.map(bedPreparationConverter::fromWsEntity);
+        Optional<Tenant> tenant = Optional.ofNullable(tenantWsRef)
+                .map(tenantConverter::load);
+        Optional<Crop> crop = Optional.ofNullable(cropWsRef)
+                .map(cropConverter::load);
+        Optional<Bed> bed = Optional.ofNullable(bedWsRef)
+                .map(bedConverter::load);
+        Optional<CultureNursing> cultureNursing = Optional.ofNullable(cultureNursingNullable)
+                .map(cultureNursingConverter::fromWsEntity);
+        Optional<BedPreparation> bedPreparation = Optional.ofNullable(bedPreparationNullable)
+                .map(bedPreparationConverter::fromWsEntity);
 
-        entity.setTenant(tenant);
-        entity.setCrop(crop);
-        entity.setBed(bed);
+        entity.setTenant(tenant.orElse(null));
+        entity.setCrop(crop.orElse(null));
+        entity.setBed(bed.orElse(null));
         entity.setSowingDate(sowingDate);
         entity.setGerminationDate(germinationDate);
         entity.setFirstHarvestDate(firstHarvestDate);

@@ -6,7 +6,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.Optional;
 
 public class WsCulture implements WsDomainEntity {
 
@@ -26,9 +25,9 @@ public class WsCulture implements WsDomainEntity {
     private LocalDate firstHarvestDate;
     @NotNull
     private LocalDate lastHarvestDate;
-    @NotNull
+    @Nullable
     private LocalDate bedOccupancyStartDate;
-    @NotNull
+    @Nullable
     private LocalDate bedOccupancyEndDate;
 
     @NotNull
@@ -48,106 +47,104 @@ public class WsCulture implements WsDomainEntity {
         this.id = id;
     }
 
-    @NotNull
+
     public WsRef<WsTenant> getTenantWsRef() {
         return tenantWsRef;
     }
 
-    public void setTenantWsRef(@NotNull WsRef<WsTenant> tenantWsRef) {
+    public void setTenantWsRef( WsRef<WsTenant> tenantWsRef) {
         this.tenantWsRef = tenantWsRef;
     }
 
-    @NotNull
+
     public WsRef<WsCrop> getCropWsRef() {
         return cropWsRef;
     }
 
-    public void setCropWsRef(@NotNull WsRef<WsCrop> cropWsRef) {
+    public void setCropWsRef( WsRef<WsCrop> cropWsRef) {
         this.cropWsRef = cropWsRef;
     }
 
-    @NotNull
+
     public WsRef<WsBed> getBedWsRef() {
         return bedWsRef;
     }
 
-    public void setBedWsRef(@NotNull WsRef<WsBed> bedWsRef) {
+    public void setBedWsRef( WsRef<WsBed> bedWsRef) {
         this.bedWsRef = bedWsRef;
     }
 
-    @NotNull
+
     public LocalDate getSowingDate() {
         return sowingDate;
     }
 
-    public void setSowingDate(@NotNull LocalDate sowingDate) {
+    public void setSowingDate( LocalDate sowingDate) {
         this.sowingDate = sowingDate;
     }
 
-    @NotNull
+
     public LocalDate getGerminationDate() {
         return germinationDate;
     }
 
-    public void setGerminationDate(@NotNull LocalDate germinationDate) {
+    public void setGerminationDate( LocalDate germinationDate) {
         this.germinationDate = germinationDate;
     }
 
-    @NotNull
+
     public LocalDate getFirstHarvestDate() {
         return firstHarvestDate;
     }
 
-    public void setFirstHarvestDate(@NotNull LocalDate firstHarvestDate) {
+    public void setFirstHarvestDate( LocalDate firstHarvestDate) {
         this.firstHarvestDate = firstHarvestDate;
     }
 
-    @NotNull
+
     public LocalDate getLastHarvestDate() {
         return lastHarvestDate;
     }
 
-    public void setLastHarvestDate(@NotNull LocalDate lastHarvestDate) {
+    public void setLastHarvestDate( LocalDate lastHarvestDate) {
         this.lastHarvestDate = lastHarvestDate;
     }
 
-    @NotNull
     public LocalDate getBedOccupancyStartDate() {
         return bedOccupancyStartDate;
     }
 
-    public void setBedOccupancyStartDate(@NotNull LocalDate bedOccupancyStartDate) {
+    public void setBedOccupancyStartDate(LocalDate bedOccupancyStartDate) {
         this.bedOccupancyStartDate = bedOccupancyStartDate;
     }
 
-    @NotNull
     public LocalDate getBedOccupancyEndDate() {
         return bedOccupancyEndDate;
     }
 
-    public void setBedOccupancyEndDate(@NotNull LocalDate bedOccupancyEndDate) {
+    public void setBedOccupancyEndDate(LocalDate bedOccupancyEndDate) {
         this.bedOccupancyEndDate = bedOccupancyEndDate;
     }
 
-    @NotNull
+
     public String getHtmlNotes() {
         return htmlNotes;
     }
 
-    public void setHtmlNotes(@NotNull String htmlNotes) {
+    public void setHtmlNotes( String htmlNotes) {
         this.htmlNotes = htmlNotes;
     }
 
-    public Optional<WsCultureNursing> getCultureNursing() {
-        return Optional.ofNullable(cultureNursing);
+    public WsCultureNursing getCultureNursing() {
+        return cultureNursing;
     }
 
     public void setCultureNursing(WsCultureNursing cultureNursing) {
         this.cultureNursing = cultureNursing;
     }
 
-    public Optional<WsBedPreparation> getBedPreparation() {
-        return Optional.ofNullable(bedPreparation);
+    public WsBedPreparation getBedPreparation() {
+        return bedPreparation;
     }
 
     public void setBedPreparation(WsBedPreparation bedPreparation) {

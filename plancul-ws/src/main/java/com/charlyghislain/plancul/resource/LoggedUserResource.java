@@ -11,7 +11,7 @@ import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.security.JwtService;
 import com.charlyghislain.plancul.service.SecurityService;
 import com.charlyghislain.plancul.service.UserService;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;

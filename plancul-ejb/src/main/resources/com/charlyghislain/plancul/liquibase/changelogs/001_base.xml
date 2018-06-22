@@ -260,4 +260,97 @@
                                  baseTableName="BED" baseColumnNames="PLOT_ID"
                                  referencedTableName="PLOT" referencedColumnNames="ID"/>
     </changeSet>
+
+    <changeSet id="10-culture-nursing" author="cghislai">
+        <createTable tableName="CULTURENURSING">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="DAYDURATION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STARTDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ENDDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="11-bed-preparation" author="cghislai">
+        <createTable tableName="BEDPREPARATION">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="DAYDURATION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STARTDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ENDDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="11-culture" author="cghislai">
+        <createTable tableName="CULTURE">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TENANT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CROP_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BED_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="SOWINGDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="GERMINATIONDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FIRSTHARVESTDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LASTHARVESTDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BEDOCCUPANCYSTARTDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BEDOCCUPANCYENDDATE" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="HTMLNOTES" type="MEDIUMTEXT" />
+
+            <column name="CULTURENURSING_ID" type="BIGINT(19)"/>
+            <column name="BEDPREPARATION_ID" type="BIGINT(19)"/>
+        </createTable>
+        <addForeignKeyConstraint constraintName="CULTURE_TENANT"
+                                 baseTableName="CULTURE" baseColumnNames="TENANT_ID"
+                                 referencedTableName="TENANT" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="CULTURE_CROP"
+                                 baseTableName="CULTURE" baseColumnNames="CROP_ID"
+                                 referencedTableName="CROP" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="CULTURE_BED"
+                                 baseTableName="CULTURE" baseColumnNames="BED_ID"
+                                 referencedTableName="BED" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="CULTURE_NURSING"
+                                 baseTableName="CULTURE" baseColumnNames="CULTURENURSING_ID"
+                                 referencedTableName="CULTURENURSING" referencedColumnNames="ID"/>
+        <addForeignKeyConstraint constraintName="CULTURE_BEDPREPARATION"
+                                 baseTableName="CULTURE" baseColumnNames="BEDPREPARATION_ID"
+                                 referencedTableName="BEDPREPARATION" referencedColumnNames="ID"/>
+    </changeSet>
 </databaseChangeLog>

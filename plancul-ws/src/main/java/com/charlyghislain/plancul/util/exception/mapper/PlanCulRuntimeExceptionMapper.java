@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.util.exception;
+package com.charlyghislain.plancul.util.exception.mapper;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.api.util.WsError;
@@ -23,7 +23,7 @@ public class PlanCulRuntimeExceptionMapper implements ExceptionMapper<PlanCulRun
         int httpStatusCode = exception.getHttpStatusCode()
                 .orElse(500);
 
-        WsError wsError = wsErrorConverter.toWsError(exception);
+        WsError wsError = wsErrorConverter.fromThrowable(exception);
 
         Response response = Response.status(httpStatusCode)
                 .entity(wsError)

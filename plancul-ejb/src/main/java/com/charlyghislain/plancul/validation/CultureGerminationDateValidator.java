@@ -20,8 +20,17 @@ public class CultureGerminationDateValidator implements ConstraintValidator<Vali
         }
         LocalDate sowingDate = culture.getSowingDate();
         LocalDate germinationDate = culture.getGerminationDate();
+        if (sowingDate == null || germinationDate == null) {
+            return false;
+        }
         boolean isAfterSowing = germinationDate.isAfter(sowingDate);
         if (!isAfterSowing) {
+            constraintValidatorContext.buildConstraintViolationWithTemplate("must be before germination")
+                    .addPropertyNode("sowingDate")
+                    .addConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("must be after sowing")
+                    .addPropertyNode("germinationDate")
+                    .addConstraintViolation();
             return false;
         }
 
@@ -31,6 +40,13 @@ public class CultureGerminationDateValidator implements ConstraintValidator<Vali
                 .map(germinationDate::isBefore)
                 .orElse(true);
         if (!isBeforeTransplanting) {
+            constraintValidatorContext.buildConstraintViolationWithTemplate("must last until germination")
+                    .addPropertyNode("cultureNursing")
+                    .addPropertyNode("dayDuration")
+                    .addConstraintViolation();
+            constraintValidatorContext.buildConstraintViolationWithTemplate("must be before transplatation")
+                    .addPropertyNode("germinationDate")
+                    .addConstraintViolation();
             return false;
         }
         return true;

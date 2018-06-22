@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Documented
 public @interface ValidHarvestDates {
-    String message() default "Harvest dates invalid";
+    String message() default "com.charlyghislain.plancul.validation.ValidHarvestDates.message";
 
     Class<?>[] groups() default {};
 

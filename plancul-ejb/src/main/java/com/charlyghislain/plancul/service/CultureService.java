@@ -14,9 +14,9 @@ import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.request.filter.DateFilter;
-import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.request.sort.CultureSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -73,6 +73,10 @@ public class CultureService {
         entityManager.remove(managedCulture);
     }
 
+    public void prepareCultureValidation(Culture culture) {
+        adjustCultureDates(culture);
+    }
+
 
     public Optional<Culture> findCultureById(long id) {
         Culture foundCulture = entityManager.find(Culture.class, id);
@@ -97,7 +101,6 @@ public class CultureService {
     }
 
 
-
     private List<Sort<Culture>> getDefaultSorts() {
         return Collections.singletonList(new Sort<>(true, CultureSortField.BED_OCCUPANCY_START_DATE));
     }
@@ -112,6 +115,9 @@ public class CultureService {
 
     private void adjustCultureDates(Culture culture) {
         LocalDate sowingDate = culture.getSowingDate();
+        if (sowingDate == null) {
+            return;
+        }
 
         Optional<LocalDate> transplantingDate = culture.getCultureNursing()
                 .map(CultureNursing::getDayDuration)

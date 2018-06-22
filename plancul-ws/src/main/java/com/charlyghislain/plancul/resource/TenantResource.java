@@ -14,7 +14,7 @@ import com.charlyghislain.plancul.service.TenantService;
 import com.charlyghislain.plancul.service.UserService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.LanguageContainer;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;

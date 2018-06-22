@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.util;
+package com.charlyghislain.plancul.util.exception;
 
 import javax.ws.rs.core.Response;
 

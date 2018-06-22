@@ -48,6 +48,7 @@
                             </optionalAnnotations>
                             <mapClasses>asInterfaces</mapClasses>
                             <mapEnum>asEnum</mapEnum>
+                            <mapDate>asString</mapDate>
                             <generateNpmPackageJson>true</generateNpmPackageJson>
                             <npmName>@charlyghislain/${project.artifactId}-api</npmName>
                             <npmVersion>${api.version}</npmVersion>

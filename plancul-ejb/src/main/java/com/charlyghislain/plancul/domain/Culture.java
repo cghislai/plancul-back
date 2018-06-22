@@ -49,7 +49,7 @@ public class Culture implements DomainEntity {
     @ServiceManaged
     private LocalDate bedOccupancyEndDate;
 
-    @NotNull
+    @Nullable
     private String htmlNotes = "";
 
     @Nullable
@@ -166,12 +166,11 @@ public class Culture implements DomainEntity {
         this.bedPreparation = bedPreparation;
     }
 
-    @NotNull
-    public String getHtmlNotes() {
-        return htmlNotes;
+    public Optional<String> getHtmlNotes() {
+        return Optional.ofNullable(htmlNotes);
     }
 
-    public void setHtmlNotes(@NotNull String htmlNotes) {
+    public void setHtmlNotes(String htmlNotes) {
         this.htmlNotes = htmlNotes;
     }
 }

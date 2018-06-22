@@ -15,7 +15,7 @@ import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.PlotService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.LanguageContainer;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;

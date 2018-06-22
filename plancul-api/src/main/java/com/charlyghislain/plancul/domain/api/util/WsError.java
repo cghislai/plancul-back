@@ -2,7 +2,6 @@ package com.charlyghislain.plancul.domain.api.util;
 
 public class WsError {
     private String message;
-    private String stackTrace;
 
     public String getMessage() {
         return message;
@@ -12,11 +11,4 @@ public class WsError {
         this.message = message;
     }
 
-    public String getStackTrace() {
-        return stackTrace;
-    }
-
-    public void setStackTrace(String stackTrace) {
-        this.stackTrace = stackTrace;
-    }
 }

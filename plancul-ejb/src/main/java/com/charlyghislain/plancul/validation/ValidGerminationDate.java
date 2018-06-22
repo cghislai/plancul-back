@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Documented
 public @interface ValidGerminationDate {
-    String message() default "Germination date invalid";
+    String message() default "com.charlyghislain.plancul.validation.ValidGerminationDate.message";
 
     Class<?>[] groups() default {};
 

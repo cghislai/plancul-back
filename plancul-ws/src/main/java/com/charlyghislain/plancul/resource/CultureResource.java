@@ -4,19 +4,20 @@ import com.charlyghislain.plancul.converter.CultureConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Culture;
 import com.charlyghislain.plancul.domain.api.WsCulture;
+import com.charlyghislain.plancul.domain.api.request.filter.WsCultureFilter;
+import com.charlyghislain.plancul.domain.api.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
-import com.charlyghislain.plancul.domain.api.request.filter.WsCultureFilter;
-import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.api.result.WsSearchResult;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.service.CultureService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
+import com.charlyghislain.plancul.util.EntityValidator;
 import com.charlyghislain.plancul.util.LanguageContainer;
-import com.charlyghislain.plancul.util.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -45,6 +46,8 @@ public class CultureResource {
     @Inject
     private SearchResultConverter searchResultConverter;
     @Inject
+    private EntityValidator entityValidator;
+    @Inject
     private Pagination pagination;
     @Inject
     private List<UntypedSort> sortList;
@@ -58,6 +61,17 @@ public class CultureResource {
         Culture createdCulture = cultureService.saveCulture(culture);
         WsRef<WsCulture> reference = cultureConverter.reference(createdCulture);
         return reference;
+    }
+
+    @PUT
+    @Path("/validate")
+    public WsCulture validateCulture(@NotNull WsCulture wsCulture) {
+        Culture culture = cultureConverter.fromWsEntity(wsCulture);
+        cultureService.prepareCultureValidation(culture);
+        WsCulture adaptedCulture = cultureConverter.toWsEntity(culture);
+
+        entityValidator.validate(adaptedCulture, culture);
+        return adaptedCulture;
     }
 
     @GET

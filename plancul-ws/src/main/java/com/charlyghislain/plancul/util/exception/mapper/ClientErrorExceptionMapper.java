@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.util.exception;
+package com.charlyghislain.plancul.util.exception.mapper;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
 import com.charlyghislain.plancul.domain.api.util.WsError;
@@ -21,7 +21,7 @@ public class ClientErrorExceptionMapper implements ExceptionMapper<ClientErrorEx
 
     @Override
     public Response toResponse(ClientErrorException exception) {
-        WsError wsError = wsErrorConverter.toWsError(exception);
+        WsError wsError = wsErrorConverter.fromThrowable(exception);
 
         Response response = Response.status(exception.getResponse().getStatus())
                 .type(MediaType.APPLICATION_JSON_TYPE)

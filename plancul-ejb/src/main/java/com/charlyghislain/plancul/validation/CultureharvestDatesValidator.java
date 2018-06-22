@@ -21,9 +21,30 @@ public class CultureharvestDatesValidator implements ConstraintValidator<ValidHa
         LocalDate germinationDate = culture.getGerminationDate();
         LocalDate firstHarvestDate = culture.getFirstHarvestDate();
         LocalDate lastHarvestDate = culture.getLastHarvestDate();
-
-        return firstHarvestDate.isAfter(germinationDate)
-                && firstHarvestDate.isAfter(sowingDate)
-                && firstHarvestDate.isBefore(lastHarvestDate);
+        if (sowingDate == null
+                || germinationDate == null
+                || firstHarvestDate == null
+                || lastHarvestDate == null) {
+            return false;
+        }
+        if (!firstHarvestDate.isAfter(germinationDate)) {
+            constraintValidatorContext.buildConstraintViolationWithTemplate("must start after germination")
+                    .addPropertyNode("firstHarvestDate")
+                    .addConstraintViolation();
+            return false;
+        }
+        if (!firstHarvestDate.isAfter(sowingDate)) {
+            constraintValidatorContext.buildConstraintViolationWithTemplate("must start after sowing")
+                    .addPropertyNode("firstHarvestDate")
+                    .addConstraintViolation();
+            return false;
+        }
+        if (firstHarvestDate.isAfter(lastHarvestDate)) {
+            constraintValidatorContext.buildConstraintViolationWithTemplate("must start before end date")
+                    .addPropertyNode("firstHarvestDate")
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;
     }
 }

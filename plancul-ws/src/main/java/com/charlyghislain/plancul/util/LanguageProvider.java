@@ -7,6 +7,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -49,8 +50,13 @@ public class LanguageProvider {
 
 
     private Optional<Language> getSupportedLanguage(String headerValue) {
-        Locale locale = Locale.forLanguageTag(headerValue);
-        String language = locale.getLanguage();
-        return Language.fromCode(language);
+        String[] splitted = headerValue.split(",");
+        return Arrays.stream(splitted)
+                .map(Locale::forLanguageTag)
+                .map(Locale::getLanguage)
+                .map(Language::fromCode)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 }

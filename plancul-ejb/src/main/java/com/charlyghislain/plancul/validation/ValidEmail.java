@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.PARAMETER, ElementType.FIELD})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface ValidEmail {
-    String message() default "Invalid email address";
+    String message() default "com.charlyghislain.plancul.validation.ValidEmail.message";
 
     Class<?>[] groups() default {};
 
