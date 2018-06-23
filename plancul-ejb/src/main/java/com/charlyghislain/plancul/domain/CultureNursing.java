@@ -20,7 +20,7 @@ public class CultureNursing implements DomainEntity {
     private int dayDuration;
     @NotNull
     @ServiceManaged
-    private LocalDate startdate;
+    private LocalDate startDate;
     @NotNull
     @ServiceManaged
     private LocalDate endDate;
@@ -43,12 +43,12 @@ public class CultureNursing implements DomainEntity {
     }
 
     @NotNull
-    public LocalDate getStartdate() {
-        return startdate;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setStartdate(@NotNull LocalDate startdate) {
-        this.startdate = startdate;
+    public void setStartDate(@NotNull LocalDate startdate) {
+        this.startDate = startdate;
     }
 
     @NotNull

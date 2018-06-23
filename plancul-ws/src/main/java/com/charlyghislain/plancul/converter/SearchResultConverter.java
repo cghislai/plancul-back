@@ -2,7 +2,7 @@ package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.api.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.api.response.WsSearchResult;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
 import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
 import com.charlyghislain.plancul.domain.api.util.WsRef;

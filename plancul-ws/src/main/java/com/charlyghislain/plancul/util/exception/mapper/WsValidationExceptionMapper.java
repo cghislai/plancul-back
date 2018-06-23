@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.util.exception.mapper;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
-import com.charlyghislain.plancul.domain.api.result.WsValidationError;
+import com.charlyghislain.plancul.domain.api.response.WsValidationError;
 import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 import com.charlyghislain.plancul.util.exception.WsValidationException;
 

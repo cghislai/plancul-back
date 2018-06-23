@@ -8,16 +8,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = {CultureGerminationDateValidator.class})
+@Constraint(validatedBy = {CultureHarvestDurationsValidator.class})
 @Target({ElementType.TYPE, ElementType.PARAMETER})
 @Retention(value = RetentionPolicy.RUNTIME)
 @Documented
-public @interface ValidGerminationDate {
-    String message() default "com.charlyghislain.plancul.validation.ValidGerminationDate.message";
+public @interface ValidHarvestDurations {
+    String message() default "com.charlyghislain.plancul.validation.ValidHarvestDurations.message";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 
 }

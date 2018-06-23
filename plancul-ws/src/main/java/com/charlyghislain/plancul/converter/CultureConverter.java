@@ -61,6 +61,9 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         Crop crop = entity.getCrop();
         Bed bed = entity.getBed();
         LocalDate sowingDate = entity.getSowingDate();
+        int daysUntilFirstHarvest = entity.getDaysUntilFirstHarvest();
+        int harvestDaysDuration = entity.getHarvestDaysDuration();
+        int daysUntilGermination = entity.getDaysUntilGermination();
         LocalDate germinationDate = entity.getGerminationDate();
         LocalDate firstHarvestDate = entity.getFirstHarvestDate();
         LocalDate lastHarvestDate = entity.getLastHarvestDate();
@@ -85,6 +88,9 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         wsCulture.setCropWsRef(cropWsRef.orElse(null));
         wsCulture.setBedWsRef(bedWsRef.orElse(null));
         wsCulture.setSowingDate(sowingDate);
+        wsCulture.setDaysUntilGermination(daysUntilGermination);
+        wsCulture.setDaysUntilFirstHarvest(daysUntilFirstHarvest);
+        wsCulture.setHarvestDaysDuration(harvestDaysDuration);
         wsCulture.setGerminationDate(germinationDate);
         wsCulture.setFirstHarvestDate(firstHarvestDate);
         wsCulture.setLastHarvestDate(lastHarvestDate);
@@ -118,9 +124,12 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         WsRef<WsCrop> cropWsRef = wsEntity.getCropWsRef();
         WsRef<WsBed> bedWsRef = wsEntity.getBedWsRef();
         LocalDate sowingDate = wsEntity.getSowingDate();
-        LocalDate germinationDate = wsEntity.getGerminationDate();
-        LocalDate firstHarvestDate = wsEntity.getFirstHarvestDate();
-        LocalDate lastHarvestDate = wsEntity.getLastHarvestDate();
+        int daysUntilGermination = wsEntity.getDaysUntilGermination();
+        int daysUntilFirstHarvest = wsEntity.getDaysUntilFirstHarvest();
+        int harvestDaysDuration = wsEntity.getHarvestDaysDuration();
+//        LocalDate germinationDate = wsEntity.getGerminationDate();
+//        LocalDate firstHarvestDate = wsEntity.getFirstHarvestDate();
+//        LocalDate lastHarvestDate = wsEntity.getLastHarvestDate();
 //        LocalDate bedOccupancyStartDate = wsEntity.getBedOccupancyStartDate();
 //        LocalDate bedOccupancyEndDate = wsEntity.getBedOccupancyEndDate();
         String htmlNotes = wsEntity.getHtmlNotes();
@@ -142,9 +151,9 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         entity.setCrop(crop.orElse(null));
         entity.setBed(bed.orElse(null));
         entity.setSowingDate(sowingDate);
-        entity.setGerminationDate(germinationDate);
-        entity.setFirstHarvestDate(firstHarvestDate);
-        entity.setLastHarvestDate(lastHarvestDate);
+        entity.setDaysUntilGermination(daysUntilGermination);
+        entity.setDaysUntilFirstHarvest(daysUntilFirstHarvest);
+        entity.setHarvestDaysDuration(harvestDaysDuration);
         entity.setHtmlNotes(htmlNotes);
         entity.setCultureNursing(cultureNursing.orElse(null));
         entity.setBedPreparation(bedPreparation.orElse(null));

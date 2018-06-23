@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.domain.api.result;
+package com.charlyghislain.plancul.domain.api.response;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
 

@@ -12,13 +12,13 @@ public class CultureNursingConverter {
     public WsCultureNursing toWsEntity(CultureNursing entity) {
         Long id = entity.getId();
         int dayDuration = entity.getDayDuration();
-        LocalDate startdate = entity.getStartdate();
+        LocalDate startdate = entity.getStartDate();
         LocalDate endDate = entity.getEndDate();
 
         WsCultureNursing wsCultureNursing = new WsCultureNursing();
         wsCultureNursing.setId(id);
         wsCultureNursing.setDayDuration(dayDuration);
-        wsCultureNursing.setStartdate(startdate);
+        wsCultureNursing.setStartDate(startdate);
         wsCultureNursing.setEndDate(endDate);
         return wsCultureNursing;
     }
@@ -35,12 +35,12 @@ public class CultureNursingConverter {
 
     public void updateEntity(CultureNursing entity, WsCultureNursing wsEntity) {
         int dayDuration = wsEntity.getDayDuration();
-        LocalDate startdate = wsEntity.getStartdate();
+        LocalDate startdate = wsEntity.getStartDate();
         LocalDate endDate = wsEntity.getEndDate();
 
 
         entity.setDayDuration(dayDuration);
-        entity.setStartdate(startdate);
+        entity.setStartDate(startdate);
         entity.setEndDate(endDate);
     }
 

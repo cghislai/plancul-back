@@ -2,8 +2,8 @@ package com.charlyghislain.plancul.domain;
 
 import com.charlyghislain.plancul.domain.util.DomainEntity;
 import com.charlyghislain.plancul.domain.util.ServiceManaged;
-import com.charlyghislain.plancul.validation.ValidGerminationDate;
-import com.charlyghislain.plancul.validation.ValidHarvestDates;
+import com.charlyghislain.plancul.validation.ValidHarvestDurations;
+import com.charlyghislain.plancul.validation.ValidNursingDuration;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.persistence.CascadeType;
@@ -12,13 +12,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Optional;
 
 @Entity
-@ValidGerminationDate
-@ValidHarvestDates
+@ValidNursingDuration
+@ValidHarvestDurations
 public class Culture implements DomainEntity {
 
     @Id
@@ -36,12 +37,23 @@ public class Culture implements DomainEntity {
 
     @NotNull
     private LocalDate sowingDate;
+    @Min(1)
+    private int daysUntilGermination;
+    @Min(1)
+    private int daysUntilFirstHarvest;
+    @Min(1)
+    private int harvestDaysDuration;
+
     @NotNull
-    private LocalDate germinationDate;
-    @NotNull
+    @ServiceManaged
     private LocalDate firstHarvestDate;
     @NotNull
+    @ServiceManaged
     private LocalDate lastHarvestDate;
+
+    @NotNull
+    @ServiceManaged
+    private LocalDate germinationDate;
     @NotNull
     @ServiceManaged
     private LocalDate bedOccupancyStartDate;
@@ -172,5 +184,29 @@ public class Culture implements DomainEntity {
 
     public void setHtmlNotes(String htmlNotes) {
         this.htmlNotes = htmlNotes;
+    }
+
+    public int getDaysUntilGermination() {
+        return daysUntilGermination;
+    }
+
+    public void setDaysUntilGermination(int timeUntilGermination) {
+        this.daysUntilGermination = timeUntilGermination;
+    }
+
+    public int getDaysUntilFirstHarvest() {
+        return daysUntilFirstHarvest;
+    }
+
+    public void setDaysUntilFirstHarvest(int daysUntilFirstHarvest) {
+        this.daysUntilFirstHarvest = daysUntilFirstHarvest;
+    }
+
+    public int getHarvestDaysDuration() {
+        return harvestDaysDuration;
+    }
+
+    public void setHarvestDaysDuration(int harvestDaysDuration) {
+        this.harvestDaysDuration = harvestDaysDuration;
     }
 }

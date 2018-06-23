@@ -1,4 +1,4 @@
-package com.charlyghislain.plancul.domain.api.result;
+package com.charlyghislain.plancul.domain.api.response;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;

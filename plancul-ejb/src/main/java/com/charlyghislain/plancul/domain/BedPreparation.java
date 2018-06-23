@@ -4,6 +4,8 @@ import com.charlyghislain.plancul.domain.util.DomainEntity;
 import com.charlyghislain.plancul.domain.util.ServiceManaged;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.Min;
@@ -19,6 +21,7 @@ public class BedPreparation implements DomainEntity {
     @Min(1)
     private int dayDuration;
     @NotNull
+    @Enumerated(EnumType.STRING)
     private BedPreparationType type;
     @NotNull
     @ServiceManaged

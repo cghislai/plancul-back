@@ -63,7 +63,7 @@ class CultureSortMappings {
 
     static SortMapping<Culture, LocalDate> NURSING_START_DATE = (culture, context) -> {
         Join<Culture, CultureNursing> nursingJoin = culture.join(Culture_.cultureNursing, JoinType.LEFT);
-        return new SortMappingResult<>(nursingJoin.get(CultureNursing_.startdate));
+        return new SortMappingResult<>(nursingJoin.get(CultureNursing_.startDate));
     };
 
     static SortMapping<Culture, Integer> CULTURE_PREPARATION_DURATION = (culture, context) -> {

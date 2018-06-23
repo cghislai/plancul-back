@@ -17,6 +17,9 @@ import com.charlyghislain.plancul.domain.request.filter.DateFilter;
 import com.charlyghislain.plancul.domain.request.sort.CultureSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.util.CulturePhase;
+import com.charlyghislain.plancul.domain.util.CulturePhaseType;
+import com.charlyghislain.plancul.domain.util.exception.PlanCulRuntimeException;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -31,6 +34,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +63,7 @@ public class CultureService {
         }
 
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());
-        adjustCultureDates(culture);
+        computeCultureDates(culture);
 
         Culture managedCulture = entityManager.merge(culture);
         return managedCulture;
@@ -74,7 +78,7 @@ public class CultureService {
     }
 
     public void prepareCultureValidation(Culture culture) {
-        adjustCultureDates(culture);
+        computeCultureDates(culture);
     }
 
 
@@ -100,6 +104,201 @@ public class CultureService {
         return searchService.search(pagination, sorts, language, query, rootCulture, predicates);
     }
 
+    public List<CulturePhase> getCulturePhases(Culture culture) {
+        List<CulturePhase> phases = new ArrayList<>();
+        LocalDate sowingDate = culture.getSowingDate();
+        int daysUntilGermination = culture.getDaysUntilGermination();
+        LocalDate germinationDate = sowingDate.plusDays(daysUntilGermination);
+
+        LocalDate growthOnBedStartDate = culture.getCultureNursing()
+                .map(CultureNursing::getEndDate)
+                .orElse(sowingDate);
+        LocalDate firstHarvestDate = culture.getFirstHarvestDate();
+        LocalDate lastHarvestDate = culture.getLastHarvestDate();
+
+        culture.getBedPreparation()
+                .map(preparation -> this.createPreparationPhase(culture, preparation))
+                .ifPresent(phases::add);
+
+        culture.getCultureNursing()
+                .map(nursing -> this.createNursingPhase(culture, nursing))
+                .ifPresent(phases::add);
+
+        CulturePhase germinationPhase = new CulturePhase();
+        germinationPhase.setCulture(culture);
+        germinationPhase.setPhaseType(CulturePhaseType.GERMINATION);
+        germinationPhase.setStartDate(sowingDate);
+        germinationPhase.setEndDate(germinationDate);
+        phases.add(germinationPhase);
+
+        CulturePhase growthPhase = new CulturePhase();
+        growthPhase.setCulture(culture);
+        growthPhase.setPhaseType(CulturePhaseType.GROWTH);
+        growthPhase.setStartDate(growthOnBedStartDate);
+        growthPhase.setEndDate(firstHarvestDate);
+        phases.add(growthPhase);
+
+        CulturePhase harvestPhase = new CulturePhase();
+        harvestPhase.setCulture(culture);
+        harvestPhase.setPhaseType(CulturePhaseType.HARVEST);
+        harvestPhase.setStartDate(firstHarvestDate);
+        harvestPhase.setEndDate(lastHarvestDate);
+        phases.add(harvestPhase);
+
+        return phases;
+    }
+
+    public Culture updateBedPreparationDates(Culture culture, LocalDate start, LocalDate end) {
+        BedPreparation bedPreparation = culture.getBedPreparation()
+                .orElseThrow(() -> new PlanCulRuntimeException("No bed prepartaion for this culture", 400));
+
+        int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
+        bedPreparation.setStartDate(start);
+        bedPreparation.setEndDate(end);
+        bedPreparation.setDayDuration(dayDuration);
+
+        LocalDate sowingDate = culture.getCultureNursing()
+                .map(CultureNursing::getDayDuration)
+                .map(end::minusDays)
+                .orElse(end);
+        culture.setSowingDate(sowingDate);
+
+        int daysUntilGermination = culture.getDaysUntilGermination();
+        LocalDate germinationDate = sowingDate.plusDays(daysUntilGermination);
+        culture.setGerminationDate(germinationDate);
+
+        culture.getCultureNursing()
+                .ifPresent(nursing -> this.shiftNursingEndDate(nursing, culture, end));
+
+        this.shiftHarvestDates(culture, sowingDate);
+
+        return saveCulture(culture);
+    }
+
+
+    public Culture updateNursingDates(Culture culture, LocalDate start, LocalDate end) {
+        CultureNursing nursing = culture.getCultureNursing()
+                .orElseThrow(() -> new PlanCulRuntimeException("No nursing for this culture", 400));
+
+        int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
+
+        nursing.setStartDate(start);
+        nursing.setEndDate(end);
+        nursing.setDayDuration(dayDuration);
+        culture.setSowingDate(start);
+
+        int daysUntilGermination = culture.getDaysUntilGermination();
+        LocalDate germinationDate = start.plusDays(daysUntilGermination);
+        culture.setGerminationDate(germinationDate);
+
+        culture.getBedPreparation()
+                .ifPresent(prep -> this.shiftBedPreparationEndDate(prep, culture, end));
+
+        shiftHarvestDates(culture, start);
+
+        return saveCulture(culture);
+    }
+
+    public Culture updateGerminationDates(Culture culture, LocalDate start, LocalDate end) {
+        int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
+        culture.setSowingDate(start);
+        culture.setGerminationDate(end);
+        culture.setDaysUntilGermination(dayDuration);
+
+        LocalDate growthOnBedStartDate = culture.getCultureNursing()
+                .map(CultureNursing::getDayDuration)
+                .map(start::plusDays)
+                .orElse(start);
+
+        culture.getBedPreparation()
+                .ifPresent(prep -> this.shiftBedPreparationEndDate(prep, culture, growthOnBedStartDate));
+
+        culture.getCultureNursing()
+                .ifPresent(nursing -> this.shiftNursingEndDate(nursing, culture, growthOnBedStartDate));
+
+        shiftHarvestDates(culture, start);
+
+        return saveCulture(culture);
+    }
+
+    public Culture updateGrowthDates(Culture culture, LocalDate start, LocalDate end) {
+        culture.getCultureNursing()
+                .ifPresent(nursing -> shiftNursingEndDate(nursing, culture, start));
+
+        culture.getBedPreparation()
+                .ifPresent(prep -> shiftBedPreparationEndDate(prep, culture, start));
+
+        LocalDate sowingDate = culture.getCultureNursing()
+                .map(CultureNursing::getStartDate)
+                .orElse(start);
+        culture.setSowingDate(sowingDate);
+
+        int daysUntilGermination = culture.getDaysUntilGermination();
+        LocalDate germinationDate = sowingDate.plusDays(daysUntilGermination);
+        culture.setGerminationDate(germinationDate);
+
+        int daysUntilFirstHarvest = (int) sowingDate.until(end, ChronoUnit.DAYS);
+        culture.setDaysUntilFirstHarvest(daysUntilFirstHarvest);
+
+        shiftHarvestDates(culture, sowingDate);
+
+        return saveCulture(culture);
+    }
+
+    public Culture updateHarvestDates(Culture culture, LocalDate start, LocalDate end) {
+        int daysUntilFirstHarvest = culture.getDaysUntilFirstHarvest();
+        LocalDate sowingDate = start.minusDays(daysUntilFirstHarvest);
+        culture.setSowingDate(sowingDate);
+
+        int daysUntilGermination = culture.getDaysUntilGermination();
+        LocalDate germinationDate = sowingDate.plusDays(daysUntilGermination);
+        culture.setGerminationDate(germinationDate);
+
+        LocalDate growthOnBedStartDate = culture.getCultureNursing()
+                .map(CultureNursing::getDayDuration)
+                .map(sowingDate::plusDays)
+                .orElse(sowingDate);
+
+        culture.getCultureNursing()
+                .ifPresent(nursing -> this.shiftNursingEndDate(nursing, culture, growthOnBedStartDate));
+
+        culture.getBedPreparation()
+                .ifPresent(prep -> this.shiftBedPreparationEndDate(prep, culture, growthOnBedStartDate));
+
+        int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
+        culture.setHarvestDaysDuration(dayDuration);
+        culture.setFirstHarvestDate(start);
+        culture.setLastHarvestDate(end);
+
+        return saveCulture(culture);
+    }
+
+    private void shiftBedPreparationEndDate(BedPreparation bedPreparation, Culture culture, LocalDate growthOnBedStartDate) {
+        int dayDuration = bedPreparation.getDayDuration();
+        LocalDate startDate = growthOnBedStartDate.minusDays(dayDuration);
+        bedPreparation.setStartDate(startDate);
+        bedPreparation.setEndDate(growthOnBedStartDate);
+    }
+
+    private void shiftNursingEndDate(CultureNursing nursing, Culture culture, LocalDate growthOnBedStartDate) {
+        int dayDuration = nursing.getDayDuration();
+        LocalDate startDate = growthOnBedStartDate.minusDays(dayDuration);
+        nursing.setStartDate(startDate);
+        nursing.setEndDate(growthOnBedStartDate);
+
+        culture.setSowingDate(startDate);
+    }
+
+    private void shiftHarvestDates(Culture culture, LocalDate sowingDate) {
+        int harvestDaysDuration = culture.getHarvestDaysDuration();
+        int daysUntilFirstHarvest = culture.getDaysUntilFirstHarvest();
+        LocalDate harvestStart = sowingDate.plusDays(daysUntilFirstHarvest);
+        LocalDate harvestEnd = harvestStart.plusDays(harvestDaysDuration);
+
+        culture.setFirstHarvestDate(harvestStart);
+        culture.setLastHarvestDate(harvestEnd);
+    }
+
 
     private List<Sort<Culture>> getDefaultSorts() {
         return Collections.singletonList(new Sort<>(true, CultureSortField.BED_OCCUPANCY_START_DATE));
@@ -107,17 +306,21 @@ public class CultureService {
 
     private Culture createCulture(Culture culture) {
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());
-        adjustCultureDates(culture);
+        computeCultureDates(culture);
 
         Culture managedCulture = entityManager.merge(culture);
         return managedCulture;
     }
 
-    private void adjustCultureDates(Culture culture) {
+    private void computeCultureDates(Culture culture) {
         LocalDate sowingDate = culture.getSowingDate();
         if (sowingDate == null) {
             return;
         }
+
+        int daysUntilGermination = culture.getDaysUntilGermination();
+        LocalDate germinationDate = sowingDate.plusDays(daysUntilGermination);
+        culture.setGerminationDate(germinationDate);
 
         Optional<LocalDate> transplantingDate = culture.getCultureNursing()
                 .map(CultureNursing::getDayDuration)
@@ -125,30 +328,37 @@ public class CultureService {
         transplantingDate.ifPresent(date -> this.setNursingDates(culture, sowingDate, date));
         LocalDate cultureOnBedStartDate = transplantingDate.orElse(sowingDate);
 
-        Optional<LocalDate> preSowingDate = culture.getBedPreparation()
+        Optional<LocalDate> preparationStartDate = culture.getBedPreparation()
                 .map(BedPreparation::getDayDuration)
                 .map(cultureOnBedStartDate::minusDays);
-        preSowingDate.ifPresent(date -> this.setBedPreparationDates(culture, date, cultureOnBedStartDate));
-        LocalDate bedOccupancyStartDate = preSowingDate.orElse(cultureOnBedStartDate);
+        preparationStartDate.ifPresent(date -> this.setBedPreparationDates(culture, date, cultureOnBedStartDate));
 
+
+        int daysUntilFirstHarvest = culture.getDaysUntilFirstHarvest();
+        LocalDate firstHarvestDate = sowingDate.plusDays(daysUntilFirstHarvest);
+        int harvestDaysDuration = culture.getHarvestDaysDuration();
+        LocalDate lastHarvestDate = firstHarvestDate.plusDays(harvestDaysDuration);
+
+        culture.setFirstHarvestDate(firstHarvestDate);
+        culture.setLastHarvestDate(lastHarvestDate);
+
+        LocalDate bedOccupancyStartDate = preparationStartDate.orElse(cultureOnBedStartDate);
         culture.setBedOccupancyStartDate(bedOccupancyStartDate);
-
-        LocalDate occupancyEndTime = culture.getLastHarvestDate();
-        culture.setBedOccupancyEndDate(occupancyEndTime);
+        culture.setBedOccupancyEndDate(lastHarvestDate);
     }
 
 
     private void setNursingDates(Culture culture, LocalDate sowingDate, LocalDate transplantingDate) {
         CultureNursing cultureNursing = culture.getCultureNursing().orElseThrow(IllegalStateException::new);
 
-        cultureNursing.setStartdate(sowingDate);
+        cultureNursing.setStartDate(sowingDate);
         cultureNursing.setEndDate(transplantingDate);
     }
 
-    private void setBedPreparationDates(Culture culture, LocalDate preSowingDate, LocalDate cultureOnBedStartDate) {
+    private void setBedPreparationDates(Culture culture, LocalDate start, LocalDate cultureOnBedStartDate) {
         BedPreparation bedPreparation = culture.getBedPreparation().orElseThrow(IllegalStateException::new);
 
-        bedPreparation.setStartDate(preSowingDate);
+        bedPreparation.setStartDate(start);
         bedPreparation.setEndDate(cultureOnBedStartDate);
     }
 
@@ -265,4 +475,21 @@ public class CultureService {
     }
 
 
+    private CulturePhase createPreparationPhase(Culture culture, BedPreparation bedPreparation) {
+        CulturePhase culturePhase = new CulturePhase();
+        culturePhase.setCulture(culture);
+        culturePhase.setPhaseType(bedPreparation.getType().getPhaseType());
+        culturePhase.setStartDate(bedPreparation.getStartDate());
+        culturePhase.setEndDate(bedPreparation.getEndDate());
+        return culturePhase;
+    }
+
+    private CulturePhase createNursingPhase(Culture culture, CultureNursing nursing) {
+        CulturePhase culturePhase = new CulturePhase();
+        culturePhase.setCulture(culture);
+        culturePhase.setPhaseType(CulturePhaseType.NURSING);
+        culturePhase.setStartDate(nursing.getStartDate());
+        culturePhase.setEndDate(nursing.getEndDate());
+        return culturePhase;
+    }
 }

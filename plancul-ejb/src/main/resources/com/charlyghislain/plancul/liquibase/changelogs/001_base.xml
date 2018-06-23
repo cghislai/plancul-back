@@ -313,6 +313,16 @@
                 <constraints nullable="false"/>
             </column>
 
+            <column name="DAYSUNTILGERMINATION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DAYSUNTILFIRSTHARVEST" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="HARVESTDAYSDURATION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+
             <column name="SOWINGDATE" type="DATE">
                 <constraints nullable="false"/>
             </column>
@@ -332,7 +342,7 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="HTMLNOTES" type="MEDIUMTEXT" />
+            <column name="HTMLNOTES" type="MEDIUMTEXT"/>
 
             <column name="CULTURENURSING_ID" type="BIGINT(19)"/>
             <column name="BEDPREPARATION_ID" type="BIGINT(19)"/>

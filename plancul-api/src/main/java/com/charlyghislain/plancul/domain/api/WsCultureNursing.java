@@ -12,7 +12,7 @@ public class WsCultureNursing implements WsDomainEntity {
     @Min(1)
     private int dayDuration;
     @NotNull
-    private LocalDate startdate;
+    private LocalDate startDate;
     @NotNull
     private LocalDate endDate;
 
@@ -34,12 +34,12 @@ public class WsCultureNursing implements WsDomainEntity {
     }
 
     @NotNull
-    public LocalDate getStartdate() {
-        return startdate;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setStartdate(@NotNull LocalDate startdate) {
-        this.startdate = startdate;
+    public void setStartDate(@NotNull LocalDate startDate) {
+        this.startDate = startDate;
     }
 
     @NotNull

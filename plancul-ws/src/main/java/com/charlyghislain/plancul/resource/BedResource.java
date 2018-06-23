@@ -9,7 +9,7 @@ import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.BedFilter;
 import com.charlyghislain.plancul.domain.api.request.filter.WsBedFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.api.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.api.response.WsSearchResult;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.BedService;

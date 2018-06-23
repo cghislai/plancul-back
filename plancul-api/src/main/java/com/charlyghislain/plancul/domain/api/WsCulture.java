@@ -4,6 +4,7 @@ import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
 import com.charlyghislain.plancul.domain.api.util.WsRef;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
@@ -19,18 +20,25 @@ public class WsCulture implements WsDomainEntity {
 
     @NotNull
     private LocalDate sowingDate;
-    @NotNull
-    private LocalDate germinationDate;
-    @NotNull
+    @Min(1)
+    private int daysUntilGermination;
+    @Min(1)
+    private int daysUntilFirstHarvest;
+    @Min(1)
+    private int harvestDaysDuration;
+
+    @Nullable
     private LocalDate firstHarvestDate;
-    @NotNull
+    @Nullable
     private LocalDate lastHarvestDate;
+    @Nullable
+    private LocalDate germinationDate;
     @Nullable
     private LocalDate bedOccupancyStartDate;
     @Nullable
     private LocalDate bedOccupancyEndDate;
 
-    @NotNull
+    @Nullable
     private String htmlNotes;
 
     @Nullable
@@ -52,7 +60,7 @@ public class WsCulture implements WsDomainEntity {
         return tenantWsRef;
     }
 
-    public void setTenantWsRef( WsRef<WsTenant> tenantWsRef) {
+    public void setTenantWsRef(WsRef<WsTenant> tenantWsRef) {
         this.tenantWsRef = tenantWsRef;
     }
 
@@ -61,7 +69,7 @@ public class WsCulture implements WsDomainEntity {
         return cropWsRef;
     }
 
-    public void setCropWsRef( WsRef<WsCrop> cropWsRef) {
+    public void setCropWsRef(WsRef<WsCrop> cropWsRef) {
         this.cropWsRef = cropWsRef;
     }
 
@@ -70,7 +78,7 @@ public class WsCulture implements WsDomainEntity {
         return bedWsRef;
     }
 
-    public void setBedWsRef( WsRef<WsBed> bedWsRef) {
+    public void setBedWsRef(WsRef<WsBed> bedWsRef) {
         this.bedWsRef = bedWsRef;
     }
 
@@ -79,7 +87,7 @@ public class WsCulture implements WsDomainEntity {
         return sowingDate;
     }
 
-    public void setSowingDate( LocalDate sowingDate) {
+    public void setSowingDate(LocalDate sowingDate) {
         this.sowingDate = sowingDate;
     }
 
@@ -88,7 +96,7 @@ public class WsCulture implements WsDomainEntity {
         return germinationDate;
     }
 
-    public void setGerminationDate( LocalDate germinationDate) {
+    public void setGerminationDate(LocalDate germinationDate) {
         this.germinationDate = germinationDate;
     }
 
@@ -97,7 +105,7 @@ public class WsCulture implements WsDomainEntity {
         return firstHarvestDate;
     }
 
-    public void setFirstHarvestDate( LocalDate firstHarvestDate) {
+    public void setFirstHarvestDate(LocalDate firstHarvestDate) {
         this.firstHarvestDate = firstHarvestDate;
     }
 
@@ -106,7 +114,7 @@ public class WsCulture implements WsDomainEntity {
         return lastHarvestDate;
     }
 
-    public void setLastHarvestDate( LocalDate lastHarvestDate) {
+    public void setLastHarvestDate(LocalDate lastHarvestDate) {
         this.lastHarvestDate = lastHarvestDate;
     }
 
@@ -131,7 +139,7 @@ public class WsCulture implements WsDomainEntity {
         return htmlNotes;
     }
 
-    public void setHtmlNotes( String htmlNotes) {
+    public void setHtmlNotes(String htmlNotes) {
         this.htmlNotes = htmlNotes;
     }
 
@@ -149,5 +157,29 @@ public class WsCulture implements WsDomainEntity {
 
     public void setBedPreparation(WsBedPreparation bedPreparation) {
         this.bedPreparation = bedPreparation;
+    }
+
+    public int getDaysUntilGermination() {
+        return daysUntilGermination;
+    }
+
+    public void setDaysUntilGermination(int daysUntilGermination) {
+        this.daysUntilGermination = daysUntilGermination;
+    }
+
+    public int getDaysUntilFirstHarvest() {
+        return daysUntilFirstHarvest;
+    }
+
+    public void setDaysUntilFirstHarvest(int daysUntilFirstHarvest) {
+        this.daysUntilFirstHarvest = daysUntilFirstHarvest;
+    }
+
+    public int getHarvestDaysDuration() {
+        return harvestDaysDuration;
+    }
+
+    public void setHarvestDaysDuration(int harvestDaysDuration) {
+        this.harvestDaysDuration = harvestDaysDuration;
     }
 }

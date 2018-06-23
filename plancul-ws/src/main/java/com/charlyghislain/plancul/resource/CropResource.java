@@ -12,7 +12,7 @@ import com.charlyghislain.plancul.domain.api.request.WsCropCreationRequest;
 import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.api.request.filter.WsCropFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.api.result.WsSearchResult;
+import com.charlyghislain.plancul.domain.api.response.WsSearchResult;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.CropService;
