@@ -16,6 +16,20 @@
         <module>plancul-opendata-client</module>
     </modules>
 
+    <distributionManagement>
+        <!-- TODO: use a public repo -->
+        <repository>
+            <id>nexus</id>
+            <name>Nexus</name>
+            <url>https://tools.charlyghislain.com/nexus/repository/maven-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <name>Nexus</name>
+            <url>https://tools.charlyghislain.com/nexus/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
