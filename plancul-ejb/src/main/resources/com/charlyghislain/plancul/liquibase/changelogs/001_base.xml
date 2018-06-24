@@ -6,7 +6,7 @@
 
     <changeSet id="0-sequence" author="cghislai">
         <createTable tableName="SEQUENCE">
-            <column name="SEQ_NAME" type="VARCHAR"/>
+            <column name="SEQ_NAME" type="VARCHAR(20)"/>
             <column name="SEQ_COUNT" type="BIGINT(19)"/>
         </createTable>
         <insert tableName="SEQUENCE">
