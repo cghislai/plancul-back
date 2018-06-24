@@ -69,7 +69,7 @@ public class MailService {
             Multipart multipart = new MimeMultipart();
 
             MimeBodyPart textBodyPart = new MimeBodyPart();
-            textBodyPart.setText(textBody, "UTF-8", "text/plain");
+            textBodyPart.setText(textBody, "UTF-8", "plain");
             multipart.addBodyPart(textBodyPart);
             htmlBody.ifPresent(body -> this.addHtmlBody(body, multipart));
             mimeMessage.setContent(multipart);
