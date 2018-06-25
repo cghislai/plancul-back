@@ -113,8 +113,8 @@ public class UserService {
                     .orElseThrow(OperationNotAllowedException::new);
         }
 
-        User updatedUser = securityService.updateUserLogin(user);
-        User managedUser = entityManager.merge(updatedUser);
+        securityService.checkUserMailDidNotChange(user);
+        User managedUser = entityManager.merge(user);
 
         return managedUser;
     }
@@ -173,11 +173,15 @@ public class UserService {
         Caller caller = user.getCaller();
         String callerName = caller.getName();
         String passwordResetToken = caller.getPasswordResetToken();
+        Language language = user.getLanguage();
+
 
         try {
             String encodedCallerName = URLEncoder.encode(callerName, "UTF-8");
             String encodedResetToken = URLEncoder.encode(passwordResetToken, "UTF-8");
-            String url = frontUrl + ACCOUNT_INIT_FRONTEND_PATH
+            String url = frontUrl
+                    + "/" + language.getCode()
+                    + ACCOUNT_INIT_FRONTEND_PATH
                     + "?" + ACCOUNT_INIT_CALLER_PARAM + "=" + encodedCallerName
                     + "&" + ACCOUNT_INIT_TOKEN_PARAM + "=" + encodedResetToken;
             return url;
@@ -207,7 +211,6 @@ public class UserService {
         return typedQuery.getResultList().stream()
                 .findFirst();
     }
-
 
     private boolean isUserAccessibleToLoggedUser(User user) {
         Optional<Tenant> userTenantForWhichLoggedUserIsAdmin = findUserTenantRoles(user)

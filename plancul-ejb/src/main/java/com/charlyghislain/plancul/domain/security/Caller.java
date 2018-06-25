@@ -28,6 +28,7 @@ public class Caller implements DomainEntity {
     private String passwordResetToken;
     @Nullable
     private LocalDateTime passwordResetTokenExpiration;
+    private boolean active;
 
     @Override
     public Long getId() {
@@ -77,5 +78,13 @@ public class Caller implements DomainEntity {
 
     public void setPasswordResetTokenExpiration(LocalDateTime passwordResetTokenExpiration) {
         this.passwordResetTokenExpiration = passwordResetTokenExpiration;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

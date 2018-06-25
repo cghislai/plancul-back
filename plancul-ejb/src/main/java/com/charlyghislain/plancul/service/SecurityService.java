@@ -75,7 +75,10 @@ public class SecurityService {
         Path<String> namePath = callerRoot.get(Caller_.name);
         Predicate namePredicate = criteriaBuilder.equal(namePath, name);
 
-        query.where(namePredicate);
+        Path<Boolean> activePath = callerRoot.get(Caller_.active);
+        Predicate activePredicate = criteriaBuilder.equal(activePath, true);
+
+        query.where(namePredicate, activePredicate);
 
         TypedQuery<Caller> typedQuery = entityManager.createQuery(query);
         return typedQuery.getResultList().stream().findFirst();
@@ -95,14 +98,11 @@ public class SecurityService {
     }
 
     public Caller updatePassword(@NotNull String callerName, @ValidPassword String clearTextPassword, @NotNull String updateToken) {
-        Caller caller = this.findCallerByName(callerName)
+        Caller caller = this.findCallerByNameAndPasswordResetToken(callerName, updateToken)
                 .orElseThrow(OperationNotAllowedException::new);
-        String passwordResetToken = caller.getPasswordResetToken();
+
         LocalDateTime passwordResetTokenExpiration = caller.getPasswordResetTokenExpiration();
 
-        if (!updateToken.equals(passwordResetToken)) {
-            throw new OperationNotAllowedException();
-        }
         if (passwordResetTokenExpiration != null && passwordResetTokenExpiration.isBefore(LocalDateTime.now())) {
             throw new PlanCulRuntimeException("This password reset token has expired", HttpStatus.SC_PRECONDITION_FAILED);
         }
@@ -111,23 +111,14 @@ public class SecurityService {
         return mergedCaller;
     }
 
-    public User updateUserLogin(@Valid User user) {
+    public void checkUserMailDidNotChange(@Valid User user) {
         Caller caller = user.getCaller();
         String email = user.getEmail();
-        caller.setName(email);
-        Caller updatedCaller = entityManager.merge(caller);
-        user.setCaller(updatedCaller);
-        return user;
-    }
 
-    @RolesAllowed({ApplicationGroupNames.ADMIN})
-    public Caller updateMyLogin(@NotNull String userName) {
-        Caller loggedCaller = this.findLoggedCaller();
-
-        loggedCaller.setName(userName);
-
-        Caller mergedCaller = entityManager.merge(loggedCaller);
-        return mergedCaller;
+        String callerName = caller.getName();
+        if (!callerName.equals(email)) {
+            throw new PlanCulRuntimeException("User mail cannot be changed");
+        }
     }
 
     public Set<ApplicationGroup> findCallerGroups(Caller caller) {
@@ -155,9 +146,17 @@ public class SecurityService {
         return passwordHash.verify(password, storedCallerPassword);
     }
 
+    @RolesAllowed(ApplicationGroupNames.ADMIN)
+    public void createAdminAccount(String username, String password) {
+        String passwordHash = this.passwordHash.generate(password.toCharArray());
+        this.createCallerWithPassword(username, passwordHash, ApplicationGroup.ADMIN);
+
+        this.deactivateDefaultAdminAccount();
+    }
+
     public void createDefaultAccounts() {
-        Optional<Caller> adminCaller = this.findCallerByName(DEFAULT_ADMIN_USERNAME);
-        if (!adminCaller.isPresent()) {
+        Optional<Caller> activeAdminCaller = this.findActiveAdminCaller();
+        if (!activeAdminCaller.isPresent()) {
             String hashedPassword = this.createNewAdminHashedPassword();
             Caller newAdminCaller = this.createCallerWithPassword(DEFAULT_ADMIN_USERNAME, hashedPassword, ApplicationGroup.ADMIN);
             newAdminCaller.setPasswordNeedsChange(true);
@@ -207,6 +206,7 @@ public class SecurityService {
         Caller caller = new Caller();
         caller.setName(name);
         caller.setPassword(hashedPassword);
+        caller.setActive(true);
         Caller managedCaller = entityManager.merge(caller);
 
         Arrays.stream(groups)
@@ -223,6 +223,7 @@ public class SecurityService {
         caller.setPasswordResetToken(passwordResetToken);
         caller.setPasswordResetTokenExpiration(passwordResetTokenExpiration);
         caller.setPasswordNeedsChange(true);
+        caller.setActive(false);
         Caller managedCaller = entityManager.merge(caller);
 
         Arrays.stream(groups)
@@ -240,13 +241,14 @@ public class SecurityService {
     }
 
 
-    private Caller updateCallerPassword(String clearTextPassword, Caller loggedCaller) {
+    private Caller updateCallerPassword(String clearTextPassword, Caller caller) {
         String hashedPassword = passwordHash.generate(clearTextPassword.toCharArray());
-        loggedCaller.setPassword(hashedPassword);
-        loggedCaller.setPasswordNeedsChange(false);
-        loggedCaller.setPasswordResetToken(null);
+        caller.setPassword(hashedPassword);
+        caller.setPasswordNeedsChange(false);
+        caller.setPasswordResetToken(null);
+        caller.setActive(true);
 
-        return entityManager.merge(loggedCaller);
+        return entityManager.merge(caller);
     }
 
 
@@ -255,4 +257,54 @@ public class SecurityService {
                 .plusDays(PASSWORD_RESET_TOKEN_AVAILABILITY_DAYS);
     }
 
+    private Optional<Caller> findCallerByNameAndPasswordResetToken(String name, String resetToken) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Caller> query = criteriaBuilder.createQuery(Caller.class);
+        Root<Caller> callerRoot = query.from(Caller.class);
+
+        Path<String> namePath = callerRoot.get(Caller_.name);
+        Predicate namePredicate = criteriaBuilder.equal(namePath, name);
+
+        Path<Boolean> activePath = callerRoot.get(Caller_.active);
+        Predicate activePredicate = criteriaBuilder.equal(activePath, false);
+
+        Path<String> tokenPath = callerRoot.get(Caller_.passwordResetToken);
+        Predicate tokenpredicate = criteriaBuilder.equal(tokenPath, resetToken);
+
+        query.where(namePredicate, activePredicate, tokenpredicate);
+
+        TypedQuery<Caller> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList().stream().findFirst();
+    }
+
+    private Optional<Caller> findActiveAdminCaller() {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Caller> query = criteriaBuilder.createQuery(Caller.class);
+        Root<CallerGroups> groupsRoot = query.from(CallerGroups.class);
+
+        Path<ApplicationGroup> groupPath = groupsRoot.get(CallerGroups_.group);
+        Predicate adminPredicate = criteriaBuilder.equal(groupPath, ApplicationGroup.ADMIN);
+
+        Path<Caller> callerPath = groupsRoot.get(CallerGroups_.caller);
+
+        Path<Boolean> activePath = callerPath.get(Caller_.active);
+        Predicate activePredicate = criteriaBuilder.equal(activePath, true);
+
+        query.select(callerPath);
+        query.where(adminPredicate, activePredicate);
+
+        TypedQuery<Caller> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList().stream().findFirst();
+    }
+
+
+    private void deactivateDefaultAdminAccount() {
+        this.findCallerByName(DEFAULT_ADMIN_USERNAME)
+                .ifPresent(this::deactivateAccount);
+    }
+
+    private void deactivateAccount(Caller caller) {
+        caller.setActive(false);
+        entityManager.merge(caller);
+    }
 }

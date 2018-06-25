@@ -52,8 +52,7 @@ public class AdminResource {
     public void updateMyInfo(WsAdminAccountUpdateRequest updateRequest) {
         String userName = updateRequest.getUserName();
         String password = updateRequest.getPassword();
-        securityService.updateMyLogin(userName);
-        securityService.updateMyPassword(password);
+        securityService.createAdminAccount(userName, password);
     }
 
     @POST

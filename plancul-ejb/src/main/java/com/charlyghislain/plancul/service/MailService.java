@@ -134,7 +134,7 @@ public class MailService {
     private void addHtmlBody(String body, Multipart multipart) {
         try {
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setText(body, "UTF-8", "text/html");
+            mimeBodyPart.setText(body, "UTF-8", "html");
             multipart.addBodyPart(mimeBodyPart);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to add html body part", e);
