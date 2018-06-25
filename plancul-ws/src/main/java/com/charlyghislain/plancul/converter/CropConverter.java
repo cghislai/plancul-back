@@ -9,16 +9,16 @@ import com.charlyghislain.plancul.domain.api.WsAgrovocPlant;
 import com.charlyghislain.plancul.domain.api.WsAgrovocProduct;
 import com.charlyghislain.plancul.domain.api.WsCrop;
 import com.charlyghislain.plancul.domain.api.WsTenant;
-import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.api.request.filter.WsCropFilter;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.request.sort.CropSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.CropService;
 import com.charlyghislain.plancul.util.ContentLanguage;
-import com.charlyghislain.plancul.util.LanguageContainer;
-import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
@@ -38,7 +38,7 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
     private TenantConverter tenantConverter;
     @Inject
     @ContentLanguage
-    private LanguageContainer contentLanguage;
+    private Language contentLanguage;
 
     public Crop load(WsRef<WsCrop> ref) {
         return cropService.findCropById(ref.getId())
@@ -69,7 +69,7 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
 
     public CropFilter fromWsCropFilter(WsCropFilter wsCropFilter) {
         CropFilter cropFilter = new CropFilter();
-        cropFilter.setQueryLanguage(contentLanguage.getLanguage());
+        cropFilter.setQueryLanguage(contentLanguage);
 
         wsCropFilter.getTenantWsRef()
                 .map(tenantConverter::load)

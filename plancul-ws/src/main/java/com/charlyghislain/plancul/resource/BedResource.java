@@ -4,21 +4,21 @@ import com.charlyghislain.plancul.converter.BedConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Bed;
 import com.charlyghislain.plancul.domain.api.WsBed;
+import com.charlyghislain.plancul.domain.api.request.filter.WsBedFilter;
+import com.charlyghislain.plancul.domain.api.response.WsSearchResult;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.BedFilter;
-import com.charlyghislain.plancul.domain.api.request.filter.WsBedFilter;
-import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.api.response.WsSearchResult;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.service.BedService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
-import com.charlyghislain.plancul.util.LanguageContainer;
-import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -36,6 +36,7 @@ import java.util.List;
 @Path("/bed")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class BedResource {
 
     @EJB
@@ -50,7 +51,7 @@ public class BedResource {
     private List<UntypedSort> sortList;
     @Inject
     @AcceptedLanguage
-    private LanguageContainer acceptedLanguage;
+    private Language acceptedLanguage;
 
     @POST
     public WsRef<WsBed> createBed(@NotNull @Valid WsBed wsBed) {
@@ -93,9 +94,8 @@ public class BedResource {
     public WsSearchResult<WsBed> searchBeds(@NotNull @Valid WsBedFilter wsBedFilter) {
         BedFilter bedFilter = bedConverter.fromWsBedFilter(wsBedFilter);
         List<Sort<Bed>> sorts = bedConverter.fromUntypedSorts(sortList);
-        Language language = acceptedLanguage.getLanguage();
 
-        SearchResult<Bed> searchResult = bedService.findBeds(bedFilter, pagination, sorts, language);
+        SearchResult<Bed> searchResult = bedService.findBeds(bedFilter, pagination, sorts, acceptedLanguage);
         WsSearchResult<WsBed> wsSearchResult = searchResultConverter.convertSearchResults(searchResult, bedConverter);
         return wsSearchResult;
     }

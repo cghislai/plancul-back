@@ -1,11 +1,13 @@
 package com.charlyghislain.plancul.domain.api.response;
 
+import com.charlyghislain.plancul.domain.api.util.WsLanguage;
+
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class WsPlantProductResult implements Serializable {
     @NotNull
-    private String language;
+    private WsLanguage language;
     @NotNull
     private String plantLabel;
     @NotNull
@@ -16,11 +18,11 @@ public class WsPlantProductResult implements Serializable {
     private String productAgrovocUri;
 
     @NotNull
-    public String getLanguage() {
+    public WsLanguage getLanguage() {
         return language;
     }
 
-    public void setLanguage(@NotNull String language) {
+    public void setLanguage(@NotNull WsLanguage language) {
         this.language = language;
     }
 

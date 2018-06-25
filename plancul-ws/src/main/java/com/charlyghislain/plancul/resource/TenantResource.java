@@ -7,17 +7,15 @@ import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.api.WsTenant;
 import com.charlyghislain.plancul.domain.api.WsUser;
-import com.charlyghislain.plancul.domain.request.UserCreationRequest;
 import com.charlyghislain.plancul.domain.api.request.WsUserCreationRequest;
 import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.request.UserCreationRequest;
 import com.charlyghislain.plancul.service.TenantService;
 import com.charlyghislain.plancul.service.UserService;
-import com.charlyghislain.plancul.util.AcceptedLanguage;
-import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
-import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.ejb.EJB;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -29,11 +27,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Path("/tenant")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class TenantResource {
 
     @EJB
@@ -46,11 +44,6 @@ public class TenantResource {
     private UserCreationRequestConverter userCreationRequestConverter;
     @Inject
     private UserConverter userConverter;
-    @Inject
-    private List<UntypedSort> sortList;
-    @Inject
-    @AcceptedLanguage
-    private LanguageContainer acceptedLanguage;
 
     @GET
     @Path("/{id}")

@@ -2,14 +2,15 @@ package com.charlyghislain.plancul.resource;
 
 
 import com.charlyghislain.plancul.converter.PlantProductTupleConverter;
+import com.charlyghislain.plancul.domain.api.request.filter.WsPlantProductTupleFilter;
+import com.charlyghislain.plancul.domain.api.response.WsPlantProductResult;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
-import com.charlyghislain.plancul.domain.api.request.filter.WsPlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
-import com.charlyghislain.plancul.domain.api.response.WsPlantProductResult;
 import com.charlyghislain.plancul.service.AgrovocService;
 
 import javax.ejb.EJB;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Path("/plantProductTuple")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class PlantProductTupleResource {
 
     @EJB

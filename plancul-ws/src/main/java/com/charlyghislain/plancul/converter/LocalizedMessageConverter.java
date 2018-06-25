@@ -3,6 +3,7 @@ package com.charlyghislain.plancul.converter;
 import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.api.WsLocalizedMessage;
+import com.charlyghislain.plancul.domain.api.util.WsLanguage;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.util.UntypedSort;
@@ -21,12 +22,12 @@ public class LocalizedMessageConverter implements ToWsDomainObjectConverter<Loca
         String label = entity.getLabel();
         Language language = entity.getLanguage();
 
-        String code = language.getCode();
+        WsLanguage wsLanguage = WsLanguage.fromCode(language.getCode()).orElseThrow(IllegalStateException::new);
 
         WsLocalizedMessage wsLocalizedMessage = new WsLocalizedMessage();
         wsLocalizedMessage.setId(id);
         wsLocalizedMessage.setLabel(label);
-        wsLocalizedMessage.setLanguageCode(code);
+        wsLocalizedMessage.setLanguage(wsLanguage);
         return wsLocalizedMessage;
     }
 

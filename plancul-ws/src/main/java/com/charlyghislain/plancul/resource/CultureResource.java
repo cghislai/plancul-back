@@ -19,12 +19,12 @@ import com.charlyghislain.plancul.domain.util.CulturePhaseType;
 import com.charlyghislain.plancul.service.CultureService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.EntityValidator;
-import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.UntypedSort;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.exception.WsException;
 
 import javax.ejb.EJB;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 @Path("/culture")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class CultureResource {
 
     @EJB
@@ -63,7 +64,7 @@ public class CultureResource {
     private List<UntypedSort> sortList;
     @Inject
     @AcceptedLanguage
-    private LanguageContainer acceptedLanguage;
+    private Language acceptedLanguage;
 
     @POST
     public WsRef<WsCulture> createCulture(@NotNull @Valid WsCulture wsCulture) {
@@ -90,9 +91,8 @@ public class CultureResource {
     public WsSearchResult<WsCulture> searchCultures(@NotNull @Valid WsCultureFilter wsCultureFilter) {
         CultureFilter cultureFilter = cultureConverter.fromWsCultureFilter(wsCultureFilter);
         List<Sort<Culture>> sorts = cultureConverter.fromUntypedSorts(sortList);
-        Language language = acceptedLanguage.getLanguage();
 
-        SearchResult<Culture> searchResult = cultureService.findCultures(cultureFilter, pagination, sorts, language);
+        SearchResult<Culture> searchResult = cultureService.findCultures(cultureFilter, pagination, sorts, acceptedLanguage);
         WsSearchResult<WsCulture> wsSearchResult = searchResultConverter.convertSearchResults(searchResult, cultureConverter);
         return wsSearchResult;
     }

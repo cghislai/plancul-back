@@ -1,11 +1,13 @@
 package com.charlyghislain.plancul.domain.result;
 
+import com.charlyghislain.plancul.domain.i18n.Language;
+
 import javax.validation.constraints.NotNull;
 
 public class PlantProductTupleResult {
 
     @NotNull
-    private String language;
+    private Language language;
     @NotNull
     private String plantLabel;
     @NotNull
@@ -16,11 +18,11 @@ public class PlantProductTupleResult {
     private String productAgrovocUri;
 
     @NotNull
-    public String getLanguage() {
+    public Language getLanguage() {
         return language;
     }
 
-    public void setLanguage(@NotNull String language) {
+    public void setLanguage(@NotNull Language language) {
         this.language = language;
     }
 

@@ -4,11 +4,11 @@ import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.AgrovocProduct;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.api.WsAgrovocProduct;
+import com.charlyghislain.plancul.domain.api.util.WsLanguage;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.sort.AgrovocProductSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
-import com.charlyghislain.plancul.util.LanguageContainer;
 import com.charlyghislain.plancul.util.UntypedSort;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,7 +23,7 @@ public class AgrovocProductConverter implements ToWsDomainObjectConverter<Agrovo
     private LocalizedMessageConverter localizedMessageConverter;
     @Inject
     @AcceptedLanguage
-    private LanguageContainer acceptedLanguage;
+    private Language acceptedLanguage;
 
     @Override
     public WsAgrovocProduct toWsEntity(AgrovocProduct entity) {
@@ -33,16 +33,16 @@ public class AgrovocProductConverter implements ToWsDomainObjectConverter<Agrovo
         Long id = entity.getId();
 
 
-        Language language = acceptedLanguage.getLanguage();
-        String preferedLabelValue = localizedMessageConverter.toLocalizedStrings(preferedLabel, language)
+        String preferedLabelValue = localizedMessageConverter.toLocalizedStrings(preferedLabel, acceptedLanguage)
                 .stream()
                 .findFirst()
                 .orElse(null);
-        List<String> alternativeLabelValues = localizedMessageConverter.toLocalizedStrings(alternativeLabels, language);
+        List<String> alternativeLabelValues = localizedMessageConverter.toLocalizedStrings(alternativeLabels, acceptedLanguage);
+        WsLanguage wsLanguage = WsLanguage.fromCode(acceptedLanguage.getCode()).orElseThrow(IllegalStateException::new);
 
         WsAgrovocProduct wsAgrovocProduct = new WsAgrovocProduct();
         wsAgrovocProduct.setAgrovocNodeId(agrovocNodeId);
-        wsAgrovocProduct.setLanguage(language.getCode());
+        wsAgrovocProduct.setLanguage(wsLanguage);
         wsAgrovocProduct.setPreferedLabel(preferedLabelValue);
         wsAgrovocProduct.setAlternativeLabels(alternativeLabelValues);
         wsAgrovocProduct.setId(id);

@@ -1,6 +1,7 @@
 package com.charlyghislain.plancul.domain.api;
 
 import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
+import com.charlyghislain.plancul.domain.api.util.WsLanguage;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class WsAgrovocProduct implements WsDomainEntity {
     @NotNull
     private String agrovocNodeId;
     @NotNull
-    private String language;
+    private WsLanguage language;
     @NotNull
     private String preferedLabel;
     @NotNull
@@ -39,11 +40,11 @@ public class WsAgrovocProduct implements WsDomainEntity {
     }
 
     @NotNull
-    public String getLanguage() {
+    public WsLanguage getLanguage() {
         return language;
     }
 
-    public void setLanguage(@NotNull String language) {
+    public void setLanguage(@NotNull WsLanguage language) {
         this.language = language;
     }
 

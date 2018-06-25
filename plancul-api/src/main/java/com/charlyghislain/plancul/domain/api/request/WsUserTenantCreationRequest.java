@@ -1,6 +1,7 @@
 package com.charlyghislain.plancul.domain.api.request;
 
 import com.charlyghislain.plancul.domain.api.WsTenant;
+import com.charlyghislain.plancul.domain.api.util.WsLanguage;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -19,6 +20,8 @@ public class WsUserTenantCreationRequest implements Serializable {
     private String email;
     @NotNull
     private WsTenant tenant;
+    @NotNull
+    private WsLanguage language;
 
     @NotNull
     public String getFirstName() {
@@ -56,4 +59,12 @@ public class WsUserTenantCreationRequest implements Serializable {
         this.tenant = tenant;
     }
 
+    @NotNull
+    public WsLanguage getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(@NotNull WsLanguage language) {
+        this.language = language;
+    }
 }

@@ -10,11 +10,11 @@ import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.AgrovocPlantFilter;
 import com.charlyghislain.plancul.domain.request.filter.AgrovocProductFilter;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
-import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
-import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.request.sort.AgrovocPlantSortField;
 import com.charlyghislain.plancul.domain.request.sort.AgrovocProductSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocNodeDataClient;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocPlantProductTupleSearchClient;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocNodeData;
@@ -222,11 +222,14 @@ public class AgrovocService {
     private PlantProductTupleResult mapToDomain(AgrovocPlantProductResultTuple agrovocPlantProductResultTuple) {
         AgrovocPlantResult plant = agrovocPlantProductResultTuple.getPlant();
         AgrovocProductResult product = agrovocPlantProductResultTuple.getProduct();
-        String language = plant.getLanguage();
+        String languageCode = plant.getLanguage();
         String plantLabel = plant.getLabel();
         String plantNodeUri = plant.getNodeUri();
         String productLabel = product.getLabel();
         String productNodeUri = product.getNodeUri();
+
+        Language language = Language.fromCode(languageCode)
+                .orElseThrow(IllegalStateException::new);
 
         PlantProductTupleResult domainTuple = new PlantProductTupleResult();
         domainTuple.setLanguage(language);

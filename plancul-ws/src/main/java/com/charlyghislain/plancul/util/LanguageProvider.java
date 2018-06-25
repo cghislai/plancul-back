@@ -1,9 +1,10 @@
 package com.charlyghislain.plancul.util;
 
 import com.charlyghislain.plancul.domain.i18n.Language;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -16,36 +17,35 @@ import java.util.Optional;
 @ApplicationScoped
 public class LanguageProvider {
 
-
     @Context
     private HttpServletRequest httpRequest;
 
     @Produces
-    @RequestScoped
+    @Dependent
     @ContentLanguage
-    public LanguageContainer getContentLanguage() {
+    @NonNull
+    public Language getContentLanguage() {
         Enumeration<String> headers = httpRequest.getHeaders("Content-Language");
         return Collections.list(headers).stream()
                 .map(this::getSupportedLanguage)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
-                .map(LanguageContainer::new)
-                .orElseGet(LanguageContainer::new);
+                .orElse(Language.DEFAULT_LANGUAGE);
     }
 
     @Produces
-    @RequestScoped
+    @Dependent
     @AcceptedLanguage
-    public LanguageContainer getAcceptedLanguage() {
+    @NonNull
+    public Language getAcceptedLanguage() {
         Enumeration<String> headers = httpRequest.getHeaders("Accept-Language");
         return Collections.list(headers).stream()
                 .map(this::getSupportedLanguage)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
-                .map(LanguageContainer::new)
-                .orElseGet(LanguageContainer::new);
+                .orElse(Language.DEFAULT_LANGUAGE);
     }
 
 

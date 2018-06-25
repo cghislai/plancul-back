@@ -4,15 +4,15 @@ import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.AgrovocPlant;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.api.WsAgrovocPlant;
+import com.charlyghislain.plancul.domain.api.util.WsLanguage;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.sort.AgrovocPlantSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.AgrovocService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
-import com.charlyghislain.plancul.util.LanguageContainer;
-import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
+import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
@@ -29,7 +29,7 @@ public class AgrovocPlantConverter implements ToWsDomainObjectConverter<AgrovocP
     private LocalizedMessageConverter localizedMessageConverter;
     @Inject
     @AcceptedLanguage
-    private LanguageContainer acceptedLanguage;
+    private Language acceptedLanguage;
 
     public AgrovocPlant load(WsRef<WsAgrovocPlant> ref) {
         return agrovocService.findAgrovocPlantById(ref.getId())
@@ -43,16 +43,16 @@ public class AgrovocPlantConverter implements ToWsDomainObjectConverter<AgrovocP
         List<LocalizedMessage> alternativeLabels = entity.getAlternativeLabels();
         Long id = entity.getId();
 
-        Language language = acceptedLanguage.getLanguage();
-        String preferedLabelValue = localizedMessageConverter.toLocalizedStrings(preferedLabel, language)
+        WsLanguage wsLanguage = WsLanguage.fromCode(acceptedLanguage.getCode()).orElseThrow(IllegalStateException::new);
+        String preferedLabelValue = localizedMessageConverter.toLocalizedStrings(preferedLabel, acceptedLanguage)
                 .stream()
                 .findFirst()
                 .orElse(null);
-        List<String> alternativeLabelValues = localizedMessageConverter.toLocalizedStrings(alternativeLabels, language);
+        List<String> alternativeLabelValues = localizedMessageConverter.toLocalizedStrings(alternativeLabels, acceptedLanguage);
 
         WsAgrovocPlant wsAgrovocPlant = new WsAgrovocPlant();
         wsAgrovocPlant.setAgrovocNodeId(agrovocNodeId);
-        wsAgrovocPlant.setLanguage(language.getCode());
+        wsAgrovocPlant.setLanguage(wsLanguage);
         wsAgrovocPlant.setPreferedLabel(preferedLabelValue);
         wsAgrovocPlant.setAlternativeLabels(alternativeLabelValues);
         wsAgrovocPlant.setId(id);

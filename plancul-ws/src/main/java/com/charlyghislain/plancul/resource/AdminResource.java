@@ -6,18 +6,19 @@ import com.charlyghislain.plancul.converter.request.UserCreationRequestConverter
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.api.WsUser;
-import com.charlyghislain.plancul.domain.request.UserCreationRequest;
 import com.charlyghislain.plancul.domain.api.request.WsAdminAccountUpdateRequest;
 import com.charlyghislain.plancul.domain.api.request.WsUserTenantCreationRequest;
+import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.request.UserCreationRequest;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.security.Caller;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.service.SecurityService;
 import com.charlyghislain.plancul.service.UserService;
 import com.charlyghislain.plancul.util.exception.WsException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -34,6 +35,7 @@ import java.util.Optional;
 @RolesAllowed({ApplicationGroupNames.ADMIN})
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class AdminResource {
 
     @EJB

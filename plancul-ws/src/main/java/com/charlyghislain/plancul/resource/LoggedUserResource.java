@@ -14,6 +14,7 @@ import com.charlyghislain.plancul.service.UserService;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
 import javax.ejb.EJB;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.security.enterprise.SecurityContext;
 import javax.validation.Valid;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 @Path("/user/me")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class LoggedUserResource {
 
     @EJB

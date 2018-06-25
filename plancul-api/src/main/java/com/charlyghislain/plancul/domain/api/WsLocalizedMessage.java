@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.domain.api;
 
 
 import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
+import com.charlyghislain.plancul.domain.api.util.WsLanguage;
 
 import javax.validation.constraints.NotNull;
 
@@ -9,7 +10,7 @@ public class WsLocalizedMessage implements WsDomainEntity {
     @NotNull
     private Long id;
     @NotNull
-    private String languageCode;
+    private WsLanguage language;
     @NotNull
     private String label;
 
@@ -21,12 +22,13 @@ public class WsLocalizedMessage implements WsDomainEntity {
         this.id = id;
     }
 
-    public String getLanguageCode() {
-        return languageCode;
+    @NotNull
+    public WsLanguage getLanguage() {
+        return language;
     }
 
-    public void setLanguageCode(String languageCode) {
-        this.languageCode = languageCode;
+    public void setLanguage(@NotNull WsLanguage language) {
+        this.language = language;
     }
 
     public String getLabel() {
