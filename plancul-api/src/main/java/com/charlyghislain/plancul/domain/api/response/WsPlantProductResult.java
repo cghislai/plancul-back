@@ -6,16 +6,17 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class WsPlantProductResult implements Serializable {
+
     @NotNull
     private WsLanguage language;
     @NotNull
-    private String plantLabel;
+    private String matchedTerm;
     @NotNull
-    private String productLabel;
+    private String plantPreferredLabel;
     @NotNull
-    private String plantAgrovocUri;
+    private String plantURI;
     @NotNull
-    private String productAgrovocUri;
+    private String productURI;
 
     @NotNull
     public WsLanguage getLanguage() {
@@ -27,38 +28,38 @@ public class WsPlantProductResult implements Serializable {
     }
 
     @NotNull
-    public String getPlantLabel() {
-        return plantLabel;
+    public String getMatchedTerm() {
+        return matchedTerm;
     }
 
-    public void setPlantLabel(@NotNull String plantLabel) {
-        this.plantLabel = plantLabel;
-    }
-
-    @NotNull
-    public String getProductLabel() {
-        return productLabel;
-    }
-
-    public void setProductLabel(@NotNull String productLabel) {
-        this.productLabel = productLabel;
+    public void setMatchedTerm(@NotNull String matchedTerm) {
+        this.matchedTerm = matchedTerm;
     }
 
     @NotNull
-    public String getPlantAgrovocUri() {
-        return plantAgrovocUri;
+    public String getPlantPreferredLabel() {
+        return plantPreferredLabel;
     }
 
-    public void setPlantAgrovocUri(@NotNull String plantAgrovocUri) {
-        this.plantAgrovocUri = plantAgrovocUri;
+    public void setPlantPreferredLabel(@NotNull String plantPreferredLabel) {
+        this.plantPreferredLabel = plantPreferredLabel;
     }
 
     @NotNull
-    public String getProductAgrovocUri() {
-        return productAgrovocUri;
+    public String getPlantURI() {
+        return plantURI;
     }
 
-    public void setProductAgrovocUri(@NotNull String productAgrovocUri) {
-        this.productAgrovocUri = productAgrovocUri;
+    public void setPlantURI(@NotNull String plantURI) {
+        this.plantURI = plantURI;
+    }
+
+    @NotNull
+    public String getProductURI() {
+        return productURI;
+    }
+
+    public void setProductURI(@NotNull String productURI) {
+        this.productURI = productURI;
     }
 }

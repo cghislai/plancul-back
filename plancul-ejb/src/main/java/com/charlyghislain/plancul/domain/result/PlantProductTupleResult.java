@@ -7,15 +7,51 @@ import javax.validation.constraints.NotNull;
 public class PlantProductTupleResult {
 
     @NotNull
+    private String matchedTerm;
+    @NotNull
+    private String plantPreferredLabel;
+    @NotNull
+    private String plantURI;
+    @NotNull
+    private String productURI;
+    @NotNull
     private Language language;
+
     @NotNull
-    private String plantLabel;
+    public String getMatchedTerm() {
+        return matchedTerm;
+    }
+
+    public void setMatchedTerm(@NotNull String matchedTerm) {
+        this.matchedTerm = matchedTerm;
+    }
+
     @NotNull
-    private String productLabel;
+    public String getPlantPreferredLabel() {
+        return plantPreferredLabel;
+    }
+
+    public void setPlantPreferredLabel(@NotNull String plantPreferredLabel) {
+        this.plantPreferredLabel = plantPreferredLabel;
+    }
+
     @NotNull
-    private String plantAgrovocUri;
+    public String getPlantURI() {
+        return plantURI;
+    }
+
+    public void setPlantURI(@NotNull String plantURI) {
+        this.plantURI = plantURI;
+    }
+
     @NotNull
-    private String productAgrovocUri;
+    public String getProductURI() {
+        return productURI;
+    }
+
+    public void setProductURI(@NotNull String productURI) {
+        this.productURI = productURI;
+    }
 
     @NotNull
     public Language getLanguage() {
@@ -24,41 +60,5 @@ public class PlantProductTupleResult {
 
     public void setLanguage(@NotNull Language language) {
         this.language = language;
-    }
-
-    @NotNull
-    public String getPlantLabel() {
-        return plantLabel;
-    }
-
-    public void setPlantLabel(@NotNull String plantLabel) {
-        this.plantLabel = plantLabel;
-    }
-
-    @NotNull
-    public String getProductLabel() {
-        return productLabel;
-    }
-
-    public void setProductLabel(@NotNull String productLabel) {
-        this.productLabel = productLabel;
-    }
-
-    @NotNull
-    public String getPlantAgrovocUri() {
-        return plantAgrovocUri;
-    }
-
-    public void setPlantAgrovocUri(@NotNull String plantAgrovocUri) {
-        this.plantAgrovocUri = plantAgrovocUri;
-    }
-
-    @NotNull
-    public String getProductAgrovocUri() {
-        return productAgrovocUri;
-    }
-
-    public void setProductAgrovocUri(@NotNull String productAgrovocUri) {
-        this.productAgrovocUri = productAgrovocUri;
     }
 }

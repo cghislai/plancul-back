@@ -13,7 +13,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <api.version>1.0.0-alpha.1</api.version>
+        <api.version>1.0.0-alpha.2</api.version>
     </properties>
 
     <build>

@@ -9,6 +9,7 @@ public class OpenDataConstants {
     public static final Node SKOS_ALT_LABEL_PREDICATE_NODE = NodeUtils.asNode("http://www.w3.org/2004/02/skos/core#altLabel");
     public static final Node SKOS_EXACT_MATCH_PREDICATE_NODE = NodeUtils.asNode("http://www.w3.org/2004/02/skos/core#exactMatch");
     public static final Node SKOS_CLOSE_MATCH_PREDICATE_NODE = NodeUtils.asNode("http://www.w3.org/2004/02/skos/core#closeMatch");
+    public static final Node SKOS_RELATED_PREDICATE_NODE = NodeUtils.asNode("http://www.w3.org/2004/02/skos/core#related");
 
     public static final Node FOAF_IS_PRIMARY_TOPIC_NODE = NodeUtils.asNode("http://xmlns.com/foaf/0.1/isPrimaryTopicOf");
 

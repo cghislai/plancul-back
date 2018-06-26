@@ -18,9 +18,7 @@ import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocNodeDataClient;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocPlantProductTupleSearchClient;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocNodeData;
-import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantProductResultTuple;
-import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantResult;
-import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocProductResult;
+import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantProductTuple;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -70,11 +68,14 @@ public class AgrovocService {
     }
 
     // TODO: pass through a queue to avoid request spamming
-    public List<PlantProductTupleResult> searchPlantProductTuples(PlantProductTupleFilter filter) {
+    public List<PlantProductTupleResult> searchPlantProductTuples(PlantProductTupleFilter filter, Pagination pagination) {
         Language language = filter.getLanguage();
         String queryString = filter.getQueryString();
+        int offset = pagination.getOffset();
+        int size = pagination.getSize();
 
-        List<AgrovocPlantProductResultTuple> plantProductTuples = plantProductTupleSearchClient.findPlantProductTuples(queryString, language.getCode());
+        List<AgrovocPlantProductTuple> plantProductTuples = plantProductTupleSearchClient.findPlantProductTuples(
+                queryString, language.getCode(), offset, size);
 
         return plantProductTuples.stream()
                 .map(this::mapToDomain)
@@ -219,24 +220,22 @@ public class AgrovocService {
     }
 
 
-    private PlantProductTupleResult mapToDomain(AgrovocPlantProductResultTuple agrovocPlantProductResultTuple) {
-        AgrovocPlantResult plant = agrovocPlantProductResultTuple.getPlant();
-        AgrovocProductResult product = agrovocPlantProductResultTuple.getProduct();
-        String languageCode = plant.getLanguage();
-        String plantLabel = plant.getLabel();
-        String plantNodeUri = plant.getNodeUri();
-        String productLabel = product.getLabel();
-        String productNodeUri = product.getNodeUri();
+    private PlantProductTupleResult mapToDomain(AgrovocPlantProductTuple agrovocPlantProductTuple) {
+        String matchedTerm = agrovocPlantProductTuple.getMatchedTerm();
+        String plantPreferredLabel = agrovocPlantProductTuple.getPlantPreferredLabel();
+        String plantURI = agrovocPlantProductTuple.getPlantURI();
+        String productURI = agrovocPlantProductTuple.getProductURI();
+        String languageCode = agrovocPlantProductTuple.getLanguage();
 
         Language language = Language.fromCode(languageCode)
                 .orElseThrow(IllegalStateException::new);
 
         PlantProductTupleResult domainTuple = new PlantProductTupleResult();
         domainTuple.setLanguage(language);
-        domainTuple.setPlantAgrovocUri(plantNodeUri);
-        domainTuple.setPlantLabel(plantLabel);
-        domainTuple.setProductLabel(productLabel);
-        domainTuple.setProductAgrovocUri(productNodeUri);
+        domainTuple.setMatchedTerm(matchedTerm);
+        domainTuple.setPlantPreferredLabel(plantPreferredLabel);
+        domainTuple.setProductURI(productURI);
+        domainTuple.setPlantURI(plantURI);
         return domainTuple;
     }
 

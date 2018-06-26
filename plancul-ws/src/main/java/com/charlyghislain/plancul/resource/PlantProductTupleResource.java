@@ -39,8 +39,8 @@ public class PlantProductTupleResource {
     @Path("/search")
     public List<WsPlantProductResult> searchPlantProductTuples(@NotNull @Valid WsPlantProductTupleFilter wsPlantProductTupleFilter) {
         PlantProductTupleFilter tupleFilter = plantProductTupleConverter.fromWsPlantProductTupleQueryFilter(wsPlantProductTupleFilter);
-        // TODO: pass pagination + fetch total count
-        List<PlantProductTupleResult> tupleResultList = agrovocService.searchPlantProductTuples(tupleFilter);
+        // TODO: fetch total count
+        List<PlantProductTupleResult> tupleResultList = agrovocService.searchPlantProductTuples(tupleFilter, pagination);
         return tupleResultList.stream()
                 .map(plantProductTupleConverter::toWsPlantProductResult)
                 .collect(Collectors.toList());

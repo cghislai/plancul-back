@@ -21,6 +21,10 @@
             <artifactId>jena-arq</artifactId>
             <version>3.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

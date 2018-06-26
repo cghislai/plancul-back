@@ -16,7 +16,7 @@ import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.request.sort.CropSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.service.CropService;
-import com.charlyghislain.plancul.util.ContentLanguage;
+import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.UntypedSort;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
@@ -37,8 +37,8 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
     @Inject
     private TenantConverter tenantConverter;
     @Inject
-    @ContentLanguage
-    private Language contentLanguage;
+    @AcceptedLanguage
+    private Language acceptedLanguage;
 
     public Crop load(WsRef<WsCrop> ref) {
         return cropService.findCropById(ref.getId())
@@ -69,7 +69,7 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
 
     public CropFilter fromWsCropFilter(WsCropFilter wsCropFilter) {
         CropFilter cropFilter = new CropFilter();
-        cropFilter.setQueryLanguage(contentLanguage);
+        cropFilter.setQueryLanguage(acceptedLanguage);
 
         wsCropFilter.getTenantWsRef()
                 .map(tenantConverter::load)

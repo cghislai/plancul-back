@@ -6,7 +6,7 @@ import com.charlyghislain.plancul.domain.api.util.WsLanguage;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
-import com.charlyghislain.plancul.util.ContentLanguage;
+import com.charlyghislain.plancul.util.AcceptedLanguage;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,25 +15,26 @@ import javax.inject.Inject;
 public class PlantProductTupleConverter {
 
     @Inject
-    @ContentLanguage
-    private Language contentLanguage;
+    @AcceptedLanguage
+    private Language acceptedLanguage;
 
-    public WsPlantProductResult toWsPlantProductResult(PlantProductTupleResult tupleResult) {
-        Language language = tupleResult.getLanguage();
-        String plantLabel = tupleResult.getPlantLabel();
-        String productLabel = tupleResult.getProductLabel();
-        String plantAgrovocUri = tupleResult.getPlantAgrovocUri();
-        String productAgrovocUri = tupleResult.getProductAgrovocUri();
+    public WsPlantProductResult toWsPlantProductResult(PlantProductTupleResult plantProductTupleResult) {
+        String matchedTerm = plantProductTupleResult.getMatchedTerm();
+        String plantPreferredLabel = plantProductTupleResult.getPlantPreferredLabel();
+        String plantURI = plantProductTupleResult.getPlantURI();
+        String productURI = plantProductTupleResult.getProductURI();
+        Language language = plantProductTupleResult.getLanguage();
 
         WsLanguage wsLanguage = WsLanguage.fromCode(language.getCode())
                 .orElseThrow(IllegalStateException::new);
 
         WsPlantProductResult wsPlantProductResult = new WsPlantProductResult();
         wsPlantProductResult.setLanguage(wsLanguage);
-        wsPlantProductResult.setPlantAgrovocUri(plantAgrovocUri);
-        wsPlantProductResult.setPlantLabel(plantLabel);
-        wsPlantProductResult.setProductLabel(productLabel);
-        wsPlantProductResult.setProductAgrovocUri(productAgrovocUri);
+        wsPlantProductResult.setMatchedTerm(matchedTerm);
+        wsPlantProductResult.setPlantPreferredLabel(plantPreferredLabel);
+        wsPlantProductResult.setPlantURI(plantURI);
+        wsPlantProductResult.setProductURI(productURI);
+
         return wsPlantProductResult;
     }
 
@@ -41,7 +42,7 @@ public class PlantProductTupleConverter {
         String queryString = wsFilter.getQueryString();
 
         PlantProductTupleFilter tupleFilter = new PlantProductTupleFilter();
-        tupleFilter.setLanguage(contentLanguage);
+        tupleFilter.setLanguage(acceptedLanguage);
         tupleFilter.setQueryString(queryString);
         return tupleFilter;
     }

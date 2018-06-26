@@ -29,8 +29,7 @@ public class LiquibaseChangelogRunner {
     private DataSource dataSource;
 
     public void runChangeLogs() {
-        try {
-            Connection connection = dataSource.getConnection();
+        try (Connection connection = dataSource.getConnection()) {
             JdbcConnection jdbcConnection = new JdbcConnection(connection);
             Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcConnection);
 
