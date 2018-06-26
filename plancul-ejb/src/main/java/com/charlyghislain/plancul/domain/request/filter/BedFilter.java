@@ -17,6 +17,10 @@ public class BedFilter {
     private Plot plot;
     @Nullable
     private Bed exactBed;
+    @Nullable
+    private String patchQuery;
+    @Nullable
+    private String patch;
 
     public Optional<Tenant> getTenant() {
         return Optional.ofNullable(tenant);
@@ -48,5 +52,21 @@ public class BedFilter {
 
     public void setExactBed(Bed exactBed) {
         this.exactBed = exactBed;
+    }
+
+    public Optional<String> getPatch() {
+        return Optional.ofNullable(patch);
+    }
+
+    public void setPatch(String patch) {
+        this.patch = patch;
+    }
+
+    public Optional<String> getPatchQuery() {
+        return Optional.ofNullable(patchQuery);
+    }
+
+    public void setPatchQuery(String patchQuery) {
+        this.patchQuery = patchQuery;
     }
 }

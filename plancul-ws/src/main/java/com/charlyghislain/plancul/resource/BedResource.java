@@ -100,4 +100,13 @@ public class BedResource {
         return wsSearchResult;
     }
 
+
+    @POST
+    @Path("/patch/search")
+    public List<String> searchBedPatches(@NotNull @Valid WsBedFilter wsBedFilter) {
+        BedFilter bedFilter = bedConverter.fromWsBedFilter(wsBedFilter);
+
+        List<String> bedPatches = bedService.findBedPatches(bedFilter);
+        return bedPatches;
+    }
 }

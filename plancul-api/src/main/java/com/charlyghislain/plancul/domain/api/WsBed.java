@@ -12,6 +12,8 @@ public class WsBed implements WsDomainEntity {
     @NotNull
     @Size(max = 255)
     private String name;
+    @Size(max = 255)
+    private String patch;
     @NotNull
     private WsRef<WsPlot> plotWsRef;
 
@@ -40,5 +42,13 @@ public class WsBed implements WsDomainEntity {
 
     public void setPlotWsRef(@NotNull WsRef<WsPlot> plotWsRef) {
         this.plotWsRef = plotWsRef;
+    }
+
+    public String getPatch() {
+        return patch;
+    }
+
+    public void setPatch(String patch) {
+        this.patch = patch;
     }
 }

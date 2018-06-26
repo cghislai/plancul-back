@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 @Entity
 public class Bed implements DomainEntity {
@@ -18,6 +19,8 @@ public class Bed implements DomainEntity {
     @NotNull
     @Size(max = 255)
     private String name;
+    @Size(max = 255)
+    private String patch;
     @NotNull
     @ManyToOne
     private Plot plot;
@@ -47,5 +50,13 @@ public class Bed implements DomainEntity {
 
     public void setPlot(@NotNull Plot plot) {
         this.plot = plot;
+    }
+
+    public Optional<String> getPatch() {
+        return Optional.ofNullable(patch);
+    }
+
+    public void setPatch(String patch) {
+        this.patch = patch;
     }
 }

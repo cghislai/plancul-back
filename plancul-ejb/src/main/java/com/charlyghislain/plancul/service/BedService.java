@@ -8,17 +8,19 @@ import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.BedFilter;
-import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.request.sort.BedSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -82,6 +84,29 @@ public class BedService {
         return searchService.search(pagination, sorts, language, query, rootBed, predicates);
     }
 
+    public List<String> findBedPatches(BedFilter bedFilter) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<String> query = criteriaBuilder.createQuery(String.class);
+        Root<Bed> rootBed = query.from(Bed.class);
+
+        Path<String> patchPath = rootBed.get(Bed_.patch);
+        Predicate hasPatchPredicate = criteriaBuilder.isNotNull(patchPath);
+
+        List<Predicate> predicates = this.createBedPredicates(bedFilter, rootBed);
+        predicates.add(hasPatchPredicate);
+
+        Order patchOrder = criteriaBuilder.asc(patchPath);
+
+
+        query.select(patchPath);
+        query.distinct(true);
+        query.where(predicates.toArray(new Predicate[0]));
+        query.orderBy(patchOrder);
+
+        TypedQuery<String> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList();
+    }
+
 
     public List<Predicate> createBedPredicates(BedFilter bedFilter, From<?, Bed> rootBed) {
         CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
@@ -97,6 +122,7 @@ public class BedService {
                 .ifPresent(predicateList::add);
 
         bedFilter.getNameQuery()
+                .filter(query -> !query.isEmpty())
                 .map(query -> this.createNamesContainsPredicate(query, rootBed))
                 .ifPresent(predicateList::add);
 
@@ -108,7 +134,26 @@ public class BedService {
                 .map(plot -> criteriaBuilder.equal(plotPath, plot))
                 .ifPresent(predicateList::add);
 
+        bedFilter.getPatch()
+                .map(patch -> this.createPatchPredicate(rootBed, patch))
+                .ifPresent(predicateList::add);
+
+        bedFilter.getPatchQuery()
+                .map(query -> this.createPatchQueryPredicate(rootBed, query))
+                .ifPresent(predicateList::add);
+
         return predicateList;
+    }
+
+    private Predicate createPatchPredicate(From<?, Bed> rootBed, String patch) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        Path<String> patchPath = rootBed.get(Bed_.patch);
+        return criteriaBuilder.equal(patchPath, patch);
+    }
+
+    private Predicate createPatchQueryPredicate(From<?, Bed> rootBed, String query) {
+        Path<String> patchPath = rootBed.get(Bed_.patch);
+        return searchService.createTextMatchPredicate(patchPath, query);
     }
 
     private List<Sort<Bed>> getDefaultSorts() {

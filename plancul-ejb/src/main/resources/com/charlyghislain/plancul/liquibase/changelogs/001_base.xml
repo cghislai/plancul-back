@@ -286,6 +286,7 @@
             <column name="NAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="PATCH" type="VARCHAR(255)"/>
             <column name="PLOT_ID" type="BIGINT(19)">
                 <constraints nullable="false"/>
             </column>

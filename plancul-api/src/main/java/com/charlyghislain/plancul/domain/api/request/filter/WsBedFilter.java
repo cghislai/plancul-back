@@ -16,6 +16,10 @@ public class WsBedFilter implements Serializable {
     @Nullable
     private String nameQuery;
     @Nullable
+    private String patch;
+    @Nullable
+    private String patchQuery;
+    @Nullable
     private WsRef<WsPlot> plotWsRef;
     @Nullable
     private WsRef<WsBed> exactBedWsRef;
@@ -50,5 +54,21 @@ public class WsBedFilter implements Serializable {
 
     public void setExactBedWsRef(@Nullable WsRef<WsBed> exactBedWsRef) {
         this.exactBedWsRef = exactBedWsRef;
+    }
+
+    public Optional<String> getPatch() {
+        return Optional.ofNullable(patch);
+    }
+
+    public void setPatch(String patch) {
+        this.patch = patch;
+    }
+
+    public Optional<String> getPatchQuery() {
+        return Optional.ofNullable(patchQuery);
+    }
+
+    public void setPatchQuery(String patchQuery) {
+        this.patchQuery = patchQuery;
     }
 }

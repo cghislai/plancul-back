@@ -41,6 +41,7 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
         Long id = entity.getId();
         String name = entity.getName();
         Plot plot = entity.getPlot();
+        Optional<String> patch = entity.getPatch();
 
         WsRef<WsPlot> plotWsRef = plotConverter.reference(plot);
 
@@ -48,6 +49,7 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
         wsBed.setId(id);
         wsBed.setName(name);
         wsBed.setPlotWsRef(plotWsRef);
+        wsBed.setPatch(patch.orElse(null));
         return wsBed;
     }
 
@@ -66,11 +68,13 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
     public void updateEntity(Bed entity, WsBed wsEntity) {
         String name = wsEntity.getName();
         WsRef<WsPlot> plotWsRef = wsEntity.getPlotWsRef();
+        String patch = wsEntity.getPatch();
 
         Plot plot = plotConverter.load(plotWsRef);
 
         entity.setName(name);
         entity.setPlot(plot);
+        entity.setPatch(patch);
     }
 
     public BedFilter fromWsBedFilter(WsBedFilter wsBedFilter) {
@@ -90,6 +94,12 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
         wsBedFilter.getTenantWsRef()
                 .map(tenantConverter::load)
                 .ifPresent(bedFilter::setTenant);
+
+        wsBedFilter.getPatch()
+                .ifPresent(bedFilter::setPatch);
+
+        wsBedFilter.getPatchQuery()
+                .ifPresent(bedFilter::setPatchQuery);
 
         return bedFilter;
     }

@@ -4,6 +4,7 @@ import com.charlyghislain.plancul.domain.Bed;
 
 public enum BedSortField implements SortField<Bed> {
     NAME(BedSortMappings.NAME),
+    PATCH(BedSortMappings.PATCH),
     PLOT(BedSortMappings.PLOT_NAME);
 
     private final SortMapping<Bed, ?> mappingFunction;

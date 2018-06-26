@@ -11,6 +11,8 @@ class BedSortMappings {
 
     static SortMapping<Bed, String> NAME = (bed, context) -> new SortMappingResult<>(bed.get(Bed_.name));
 
+    static SortMapping<Bed, String> PATCH = (bed, context) -> new SortMappingResult<>(bed.get(Bed_.patch));
+
     static SortMapping<Bed, String> PLOT_NAME = (bed, context) -> {
         Path<Plot> plotPath = bed.get(Bed_.plot);
         Path<String> namePath = plotPath.get(Plot_.name);
