@@ -4,6 +4,7 @@ import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.AgrovocPlant;
 import com.charlyghislain.plancul.domain.AgrovocProduct;
 import com.charlyghislain.plancul.domain.Crop;
+import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.api.WsAgrovocPlant;
 import com.charlyghislain.plancul.domain.api.WsAgrovocProduct;
@@ -23,6 +24,7 @@ import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -37,6 +39,8 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
     @Inject
     private TenantConverter tenantConverter;
     @Inject
+    private LocalizedMessageConverter localizedMessageConverter;
+    @Inject
     @AcceptedLanguage
     private Language acceptedLanguage;
 
@@ -48,24 +52,36 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
 
     @Override
     public WsCrop toWsEntity(Crop entity) {
-        AgrovocPlant agrovocPlant = entity.getAgrovocPlant();
-        AgrovocProduct agrovocProduct = entity.getAgrovocProduct();
-        Optional<String> cultivar = entity.getCultivar();
         Long id = entity.getId();
+        String family = entity.getFamily();
+        String species = entity.getSpecies();
+        Optional<String> subSpecies = entity.getSubSpecies();
+        Optional<String> cultivar = entity.getCultivar();
+        Optional<AgrovocPlant> agrovocPlant = entity.getAgrovocPlant();
+        Optional<AgrovocProduct> agrovocProduct = entity.getAgrovocProduct();
         Optional<Tenant> tenant = entity.getTenant();
+        List<LocalizedMessage> displayName = entity.getDisplayName();
 
-        WsRef<WsAgrovocPlant> agrovocPlantWsRef = agrovocPlantConverter.reference(agrovocPlant);
-        WsRef<WsAgrovocProduct> agrovocProductWsRef = agrovocProductConverter.reference(agrovocProduct);
+        Optional<WsRef<WsAgrovocPlant>> wsAgrovocPlantWsRef = agrovocPlant.map(agrovocPlantConverter::reference);
+        Optional<WsRef<WsAgrovocProduct>> wsAgrovocProductWsRef = agrovocProduct.map(agrovocProductConverter::reference);
         Optional<WsRef<WsTenant>> tenantWsRef = tenant.map(tenantConverter::reference);
+        String displayNameValue = localizedMessageConverter.toLocalizedStrings(displayName, acceptedLanguage)
+                .stream().findFirst()
+                .orElseGet(() -> this.createFallbackDisplayName(entity, acceptedLanguage));
 
         WsCrop wsCrop = new WsCrop();
-        wsCrop.setAgrovocPlantWsRef(agrovocPlantWsRef);
-        wsCrop.setAgrovocProductWsRef(agrovocProductWsRef);
-        wsCrop.setCultivar(cultivar.orElse(null));
         wsCrop.setId(id);
-        wsCrop.setTenantRestriction(tenantWsRef.orElse(null));
+        wsCrop.setFamily(family);
+        wsCrop.setSpecies(species);
+        subSpecies.ifPresent(wsCrop::setSubSpecies);
+        cultivar.ifPresent(wsCrop::setCultivar);
+        wsAgrovocPlantWsRef.ifPresent(wsCrop::setAgrovocPlantWsRef);
+        wsAgrovocProductWsRef.ifPresent(wsCrop::setAgrovocProductWsRef);
+        tenantWsRef.ifPresent(wsCrop::setTenantRestriction);
+        wsCrop.setDisplayName(displayNameValue);
         return wsCrop;
     }
+
 
     public CropFilter fromWsCropFilter(WsCropFilter wsCropFilter) {
         CropFilter cropFilter = new CropFilter();
@@ -96,6 +112,15 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
                 .ifPresent(cropFilter::setShared);
 
         return cropFilter;
+    }
+
+    private String createFallbackDisplayName(Crop entity, Language acceptedLanguage) {
+        String fallbackName = entity.getAgrovocProduct()
+                .map(AgrovocProduct::getPreferedLabel)
+                .flatMap(labels -> localizedMessageConverter.toLocalizedStrings(labels, acceptedLanguage)
+                        .stream().findFirst())
+                .orElse(entity.getSpecies());
+        return fallbackName;
     }
 
     @Override

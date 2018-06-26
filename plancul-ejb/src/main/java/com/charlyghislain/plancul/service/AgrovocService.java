@@ -16,8 +16,10 @@ import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocNodeDataClient;
+import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocPlantDataSearchClient;
 import com.charlyghislain.plancul.opendata.agrovoc.client.AgrovocPlantProductTupleSearchClient;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocNodeData;
+import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantData;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantProductTuple;
 
 import javax.ejb.EJB;
@@ -54,6 +56,8 @@ public class AgrovocService {
     @Inject
     private AgrovocPlantProductTupleSearchClient plantProductTupleSearchClient;
     @Inject
+    private AgrovocPlantDataSearchClient agrovocPlantDataSearchClient;
+    @Inject
     private AgrovocNodeDataClient agrovocNodeDataClient;
 
 
@@ -80,6 +84,12 @@ public class AgrovocService {
         return plantProductTuples.stream()
                 .map(this::mapToDomain)
                 .collect(Collectors.toList());
+    }
+
+
+    public AgrovocPlantData searchAgrovocPlantData(String agrovocNodeId, Language language) {
+        AgrovocPlantData plantData = agrovocPlantDataSearchClient.findPlantData(agrovocNodeId, language.getCode());
+        return plantData;
     }
 
 
@@ -186,6 +196,20 @@ public class AgrovocService {
         return criteriaBuilder.or(preferedLabelPredicate, alternativeLabelPredicate);
     }
 
+
+    public Predicate createProductNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocProduct> rootProduct) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        ListJoin<AgrovocProduct, LocalizedMessage> preferredLabelsJoin = rootProduct.join(AgrovocProduct_.preferedLabel, JoinType.LEFT);
+        ListJoin<AgrovocProduct, LocalizedMessage> alternativeLabelsJoin = rootProduct.join(AgrovocProduct_.alternativeLabels, JoinType.LEFT);
+
+        Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferredLabelsJoin, query, language);
+        Predicate alternativeLabelPredicate = searchService.createLocalizedTextMatchPredicate(alternativeLabelsJoin, query, language);
+
+        return criteriaBuilder.or(preferedLabelPredicate, alternativeLabelPredicate);
+    }
+
+
+
     private List<Predicate> createProductPredicates(AgrovocProductFilter filter, Root<AgrovocProduct> rootProduct) {
         Optional<Language> namesQueryLanguage = filter.getNamesQueryLanguage();
         List<Predicate> predicateList = new ArrayList<>();
@@ -207,25 +231,13 @@ public class AgrovocService {
 
         return criteriaBuilder.equal(nodeUriPath, uri);
     }
-
-    public Predicate createProductNameQueryPredicate(String query, Optional<Language> language, From<?, AgrovocProduct> rootProduct) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        ListJoin<AgrovocProduct, LocalizedMessage> preferredLabelsJoin = rootProduct.join(AgrovocProduct_.preferedLabel, JoinType.LEFT);
-        ListJoin<AgrovocProduct, LocalizedMessage> alternativeLabelsJoin = rootProduct.join(AgrovocProduct_.alternativeLabels, JoinType.LEFT);
-
-        Predicate preferedLabelPredicate = searchService.createLocalizedTextMatchPredicate(preferredLabelsJoin, query, language);
-        Predicate alternativeLabelPredicate = searchService.createLocalizedTextMatchPredicate(alternativeLabelsJoin, query, language);
-
-        return criteriaBuilder.or(preferedLabelPredicate, alternativeLabelPredicate);
-    }
-
-
     private PlantProductTupleResult mapToDomain(AgrovocPlantProductTuple agrovocPlantProductTuple) {
         String matchedTerm = agrovocPlantProductTuple.getMatchedTerm();
         String plantPreferredLabel = agrovocPlantProductTuple.getPlantPreferredLabel();
         String plantURI = agrovocPlantProductTuple.getPlantURI();
         String productURI = agrovocPlantProductTuple.getProductURI();
         String languageCode = agrovocPlantProductTuple.getLanguage();
+        String productPreferredLabel = agrovocPlantProductTuple.getProductPreferredLabel();
 
         Language language = Language.fromCode(languageCode)
                 .orElseThrow(IllegalStateException::new);
@@ -236,6 +248,7 @@ public class AgrovocService {
         domainTuple.setPlantPreferredLabel(plantPreferredLabel);
         domainTuple.setProductURI(productURI);
         domainTuple.setPlantURI(plantURI);
+        domainTuple.setProductPreferredLabel(productPreferredLabel);
         return domainTuple;
     }
 

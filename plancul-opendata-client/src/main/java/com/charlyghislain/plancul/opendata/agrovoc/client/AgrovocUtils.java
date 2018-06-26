@@ -8,6 +8,7 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.SortCondition;
 import org.apache.jena.sparql.algebra.op.OpPath;
+import org.apache.jena.sparql.algebra.op.OpSequence;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.expr.E_Bound;
@@ -72,13 +73,14 @@ class AgrovocUtils {
         return new OpPath(isPlantaeTriplePath);
     }
 
-    static OpPath getHasRankOfSpeciesOrSubSpeciesTriplePath(Var subjectVar) {
+
+    static OpPath getHasDistanceOfNFromRankFamily(Var subjectVar, int minDistance, int maxDistance) {
         // Not all subjects have the hasTaxonomicRank predicate, neither their parent genus.
         // The famillly seems to be correctly labelled, although some times (Poaceae), with the
         // skos:related rather than agro:hasTaxonomicRank predicate.
 
         Path broaderPredicatePath = PathFactory.pathLink(SKOS_BROADER_PREDICATE_NODE);
-        Path broaderTwicePath = PathFactory.pathMod(broaderPredicatePath, 2, 3);
+        Path broaderTwicePath = PathFactory.pathMod(broaderPredicatePath, minDistance, maxDistance);
         Path taxonomicRankPath = PathFactory.pathLink(PREDICATE_HAS_TAXONOMIC_RANK);
         Path relatedConceptPath = PathFactory.pathLink(SKOS_RELATED_PREDICATE_NODE);
         Path effectiveRankPath = PathFactory.pathAlt(taxonomicRankPath, relatedConceptPath);
@@ -87,6 +89,60 @@ class AgrovocUtils {
 
         TriplePath isSpeciesTriplePath = new TriplePath(subjectVar, grandParentIsFamilyPath, TAXONOMIC_RANK_FAMILTY_NODE);
         return new OpPath(isSpeciesTriplePath);
+    }
+
+
+    static OpSequence getSubspeciesToFamiltyPath(Node subspeciesNode, Var subspeciesVar, Var speciesVar, Var familyVar) {
+        OpPath nodeToVar = getHasDistanceOfNFromParent(subspeciesNode, subspeciesVar, 0, 0);
+        OpPath subSpeciesToSpecies = getHasDistanceOfNFromParent(subspeciesVar, speciesVar, 1, 1);
+        OpPath speciesToFamilty = getHasDistanceOfNFromParent(speciesVar, familyVar, 0, 0);
+
+        OpSequence sequence = OpSequence.create();
+        sequence.add(nodeToVar);
+        sequence.add(subSpeciesToSpecies);
+        sequence.add(speciesToFamilty);
+        return sequence;
+    }
+
+
+    static OpSequence getSpeciesToFamiltyPath(Node speciesNode, Var speciesVar, Var familyVar) {
+        OpPath nodeToVar = getHasDistanceOfNFromParent(speciesNode, speciesVar, 0, 0);
+        OpPath speciesToFamilty = getHasDistanceOfNFromParent(speciesVar, familyVar, 0, 0);
+
+        OpSequence sequence = OpSequence.create();
+        sequence.add(nodeToVar);
+        sequence.add(speciesToFamilty);
+        return sequence;
+    }
+
+    static OpPath getHasDistanceOfNFromParent(Node subjectNode, Node parentNode, int minDistance, int maxDistance) {
+        Path broaderPredicatePath = PathFactory.pathLink(SKOS_BROADER_PREDICATE_NODE);
+        Path broaderModPath = PathFactory.pathMod(broaderPredicatePath, minDistance, maxDistance);
+
+        TriplePath isSpeciesTriplePath = new TriplePath(subjectNode, broaderModPath, parentNode);
+        return new OpPath(isSpeciesTriplePath);
+    }
+
+
+    static OpPath getHasRankOfSpeciesOrSubSpeciesTriplePath(Var subjectVar) {
+        // Not all subjects have the hasTaxonomicRank predicate, neither their parent genus.
+        // The famillly seems to be correctly labelled, although some times (Poaceae), with the
+        // skos:related rather than agro:hasTaxonomicRank predicate.
+        return getHasDistanceOfNFromRankFamily(subjectVar, 2, 3);
+    }
+
+    static OpPath getHasRankOfFamilyPath(Var subjectVar) {
+        return getHasDistanceOfNFromRankFamily(subjectVar, 0, 0);
+
+    }
+
+    static OpPath getHasRankOfSpeciesPath(Var subjectVar) {
+        return getHasDistanceOfNFromRankFamily(subjectVar, 2, 2);
+
+    }
+
+    static OpPath getHasRankOfSubspeciesPath(Var subjectVar) {
+        return getHasDistanceOfNFromRankFamily(subjectVar, 3, 3);
     }
 
     static OpPath getIsVegetalProductTripletPath(Var subjectVar) {
@@ -179,15 +235,16 @@ class AgrovocUtils {
         try (QueryExecution queryExecution = QueryExecutionFactory.sparqlService(AGROVOC_ENDPOINT_URL, query)) {
             queryExecution.setTimeout(QUERY_TIMEOUT);
 
-//            String serialized = query.serialize();
-//            System.out.println(serialized);
+            String serialized = query.serialize();
+            System.out.println(serialized);
 
             ResultSet resultSet = queryExecution.execSelect();
             Iterable<QuerySolution> solutionsIterable = () -> resultSet;
             List<T> resultList = StreamSupport.stream(solutionsIterable.spliterator(), false)
 //                    .peek(qs -> System.out.println(qs.toString()))
                     .map(resultMapper::apply)
-//                    .peek(r -> System.out.println(r.toString()))
+                    .distinct()
+                    .peek(r -> System.out.println(r.toString()))
                     .collect(Collectors.toList());
             return resultList;
         }

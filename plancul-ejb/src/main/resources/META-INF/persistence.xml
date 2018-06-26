@@ -10,7 +10,9 @@
 
         <properties>
             <property name="eclipselink.ddl-generation" value="none"/>
-
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.level.sql" value="FINE"/>
+            <property name="eclipselink.logging.parameters" value="false"/>
         </properties>
     </persistence-unit>
 

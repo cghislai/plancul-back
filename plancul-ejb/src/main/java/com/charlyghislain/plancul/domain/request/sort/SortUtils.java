@@ -17,7 +17,10 @@ class SortUtils {
         CriteriaBuilder criteriaBuilder = context.getCriteriaBuilder();
         Language language = context.getLanguage();
 
-        Predicate languagePredicate = criteriaBuilder.equal(languagePath, language);
+        Predicate languagePredicate = criteriaBuilder.or(
+                criteriaBuilder.isNull(languagePath),
+                criteriaBuilder.equal(languagePath, language)
+        );
 
         Path<String> labelPath = messageListJoin.get(LocalizedMessage_.label);
 

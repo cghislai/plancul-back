@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,6 +27,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.SecurityContext;
+import javax.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import javax.security.enterprise.identitystore.PasswordHash;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -56,6 +58,9 @@ public class SecurityService {
     @Inject
     private SecurityContext securityContext;
 
+    @Inject
+    //FIXME: workaround CDI injection bug in payara/weld/soteria - we just make the deployment fail as soon as possible
+    private Instance<HttpAuthenticationMechanism> authenticationMechanismInstance;
 
     public Caller findLoggedCaller() {
         String callerName = securityContext.getCallerPrincipal().getName();

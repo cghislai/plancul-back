@@ -14,6 +14,12 @@ import javax.persistence.criteria.ListJoin;
 
 class CropSortMappings {
 
+    static SortMapping<Crop, String> DISPLAY_NAME = (crop, context) -> {
+        ListJoin<Crop, LocalizedMessage> displayNameJoin = crop.join(Crop_.displayName, JoinType.LEFT);
+
+        return SortUtils.getLocalizedMessagePath(displayNameJoin, context);
+    };
+
     static SortMapping<Crop, String> PLANT_NAME = (crop, context) -> {
         Join<Crop, AgrovocPlant> plantJoin = crop.join(Crop_.agrovocPlant, JoinType.LEFT);
         ListJoin<AgrovocPlant, LocalizedMessage> messageJoin = plantJoin.join(AgrovocPlant_.preferedLabel, JoinType.LEFT);

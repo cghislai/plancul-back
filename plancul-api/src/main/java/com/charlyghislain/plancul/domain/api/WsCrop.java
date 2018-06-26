@@ -11,12 +11,26 @@ public class WsCrop implements WsDomainEntity {
 
     private Long id;
     @NotNull
-    private WsRef<WsAgrovocPlant> agrovocPlantWsRef;
-    @NotNull
-    private WsRef<WsAgrovocProduct> agrovocProductWsRef;
     @Size(max = 255)
+    private String displayName;
+    @NotNull
+    @Size(max = 255)
+    private String family;
+    @NotNull
+    @Size(max = 255)
+    private String species;
+
     @Nullable
+    @Size(max = 255)
+    private String subSpecies;
+    @Nullable
+    @Size(max = 255)
     private String cultivar;
+
+    @Nullable
+    private WsRef<WsAgrovocPlant> agrovocPlantWsRef;
+    @Nullable
+    private WsRef<WsAgrovocProduct> agrovocProductWsRef;
     @Nullable
     private WsRef<WsTenant> tenantRestriction;
 
@@ -30,21 +44,38 @@ public class WsCrop implements WsDomainEntity {
     }
 
     @NotNull
-    public WsRef<WsAgrovocPlant> getAgrovocPlantWsRef() {
-        return agrovocPlantWsRef;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setAgrovocPlantWsRef(@NotNull WsRef<WsAgrovocPlant> agrovocPlantWsRef) {
-        this.agrovocPlantWsRef = agrovocPlantWsRef;
+    public void setDisplayName(@NotNull String displayName) {
+        this.displayName = displayName;
     }
 
     @NotNull
-    public WsRef<WsAgrovocProduct> getAgrovocProductWsRef() {
-        return agrovocProductWsRef;
+    public String getFamily() {
+        return family;
     }
 
-    public void setAgrovocProductWsRef(@NotNull WsRef<WsAgrovocProduct> agrovocProductWsRef) {
-        this.agrovocProductWsRef = agrovocProductWsRef;
+    public void setFamily(@NotNull String family) {
+        this.family = family;
+    }
+
+    @NotNull
+    public String getSpecies() {
+        return species;
+    }
+
+    public void setSpecies(@NotNull String species) {
+        this.species = species;
+    }
+
+    public String getSubSpecies() {
+        return subSpecies;
+    }
+
+    public void setSubSpecies(String subSpecies) {
+        this.subSpecies = subSpecies;
     }
 
     public String getCultivar() {
@@ -53,6 +84,22 @@ public class WsCrop implements WsDomainEntity {
 
     public void setCultivar(String cultivar) {
         this.cultivar = cultivar;
+    }
+
+    public WsRef<WsAgrovocPlant> getAgrovocPlantWsRef() {
+        return agrovocPlantWsRef;
+    }
+
+    public void setAgrovocPlantWsRef(WsRef<WsAgrovocPlant> agrovocPlantWsRef) {
+        this.agrovocPlantWsRef = agrovocPlantWsRef;
+    }
+
+    public WsRef<WsAgrovocProduct> getAgrovocProductWsRef() {
+        return agrovocProductWsRef;
+    }
+
+    public void setAgrovocProductWsRef(WsRef<WsAgrovocProduct> agrovocProductWsRef) {
+        this.agrovocProductWsRef = agrovocProductWsRef;
     }
 
     public WsRef<WsTenant> getTenantRestriction() {

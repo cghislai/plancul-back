@@ -59,7 +59,7 @@ public class CropResource {
     @POST
     public WsRef<WsCrop> createCrop(@NotNull @Valid WsCropCreationRequest wsCropCreationRequest) {
         CropCreationRequest cropCreationRequest = cropCreationRequestConverter.fromWsCropCreationRequest(wsCropCreationRequest);
-        Crop createdCrop = cropService.createPlot(cropCreationRequest);
+        Crop createdCrop = cropService.createCrop(cropCreationRequest);
         WsRef<WsCrop> createdCropRef = cropConverter.reference(createdCrop);
         return createdCropRef;
     }

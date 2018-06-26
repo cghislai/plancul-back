@@ -5,7 +5,7 @@ import com.charlyghislain.plancul.domain.api.util.WsLanguage;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-public class WsPlantProductResult implements Serializable {
+public class WsAgrovocPlantProduct implements Serializable {
 
     @NotNull
     private WsLanguage language;
@@ -13,6 +13,8 @@ public class WsPlantProductResult implements Serializable {
     private String matchedTerm;
     @NotNull
     private String plantPreferredLabel;
+    @NotNull
+    private String productPreferredLabel;
     @NotNull
     private String plantURI;
     @NotNull
@@ -61,5 +63,14 @@ public class WsPlantProductResult implements Serializable {
 
     public void setProductURI(@NotNull String productURI) {
         this.productURI = productURI;
+    }
+
+    @NotNull
+    public String getProductPreferredLabel() {
+        return productPreferredLabel;
+    }
+
+    public void setProductPreferredLabel(@NotNull String productPreferredLabel) {
+        this.productPreferredLabel = productPreferredLabel;
     }
 }

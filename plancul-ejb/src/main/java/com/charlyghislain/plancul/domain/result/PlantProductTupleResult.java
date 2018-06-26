@@ -11,6 +11,8 @@ public class PlantProductTupleResult {
     @NotNull
     private String plantPreferredLabel;
     @NotNull
+    private String productPreferredLabel;
+    @NotNull
     private String plantURI;
     @NotNull
     private String productURI;
@@ -60,5 +62,14 @@ public class PlantProductTupleResult {
 
     public void setLanguage(@NotNull Language language) {
         this.language = language;
+    }
+
+    @NotNull
+    public String getProductPreferredLabel() {
+        return productPreferredLabel;
+    }
+
+    public void setProductPreferredLabel(@NotNull String productPreferredLabel) {
+        this.productPreferredLabel = productPreferredLabel;
     }
 }

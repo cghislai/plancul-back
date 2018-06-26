@@ -7,7 +7,8 @@ import org.apache.jena.rdf.model.Resource;
 public class AgrovocPlantProductTupleFactory {
 
     static AgrovocPlantProductTuple createTuple(Resource plant, Resource product,
-                                                Literal plantPrefLabel, Literal plantLabel, Literal productLabel,
+                                                Literal plantPrefLabel, Literal productPrefLabel,
+                                                Literal plantLabel, Literal productLabel,
                                                 String searchTerm) {
         String plantURI = plant.getURI();
         String productURI = product.getURI();
@@ -17,6 +18,7 @@ public class AgrovocPlantProductTupleFactory {
         tuple.setLanguage(plantPrefLabel.getLanguage());
         tuple.setMatchedTerm(matchedTerm);
         tuple.setPlantPreferredLabel(plantPrefLabel.getString());
+        tuple.setProductPreferredLabel(productPrefLabel.getString());
         tuple.setPlantURI(plantURI);
         tuple.setProductURI(productURI);
         return tuple;

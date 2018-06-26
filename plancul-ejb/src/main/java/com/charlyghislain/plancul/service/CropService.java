@@ -4,7 +4,9 @@ import com.charlyghislain.plancul.domain.AgrovocPlant;
 import com.charlyghislain.plancul.domain.AgrovocProduct;
 import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.Crop_;
+import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.CropCreationRequest;
 import com.charlyghislain.plancul.domain.request.Pagination;
@@ -14,6 +16,7 @@ import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.request.sort.CropSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantData;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -25,9 +28,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +51,8 @@ public class CropService {
     private SearchService searchService;
     @Inject
     private ValidationService validationService;
+    @Inject
+    private UserService userService;
 
     public Optional<Crop> findCropById(long id) {
         Crop found = entityManager.find(Crop.class, id);
@@ -53,28 +60,51 @@ public class CropService {
                 .filter(this::isCropAccessibleToLoggedUser);
     }
 
-    public Crop createPlot(CropCreationRequest cropCreationRequest) {
+    public Crop createCrop(CropCreationRequest cropCreationRequest) {
         // TODO: ask FAO sparql if plant produces product - or skip the product part altogether.
         // The product should probably not be linked to a crop, but rather a crop-yield of some sort.
         // It is kept here for the moment as it is useful to search crops by their product names (Solanum tuberosum vs potato)
-        String agrovocPlantUri = cropCreationRequest.getAgrovocPlantUri();
-        String agrovocProductUri = cropCreationRequest.getAgrovocProductUri();
+        String displayName = cropCreationRequest.getDisplayName();
+        String family = cropCreationRequest.getFamily();
+        String species = cropCreationRequest.getSpecies();
+        Tenant tenant = cropCreationRequest.getTenant();
+        boolean shared = cropCreationRequest.isShared();
+        Language language = cropCreationRequest.getLanguage();
+        Optional<String> subSpecies = cropCreationRequest.getSubSpecies();
         Optional<String> cultivar = cropCreationRequest.getCultivar();
-        Optional<Tenant> tenantRestriction = cropCreationRequest.getTenantRestriction();
+        Optional<String> agrovocPlantURI = cropCreationRequest.getAgrovocPlantURI();
+        Optional<String> agrovocProductURI = cropCreationRequest.getAgrovocProductURI();
 
-        tenantRestriction
-                .ifPresent(validationService::validateLoggedUserHasTenantRole);
-
-        AgrovocPlant agrovocPlant = this.getOrCreateAgrovocPlant(agrovocPlantUri);
-        AgrovocProduct agrovocProduct = this.getOrCreateAgrovocProduct(agrovocProductUri);
+        validationService.validateLoggedUserHasTenantRole(tenant);
+        User user = userService.getLoggedUser().orElseThrow(IllegalStateException::new);
+        LocalDateTime creationTime = LocalDateTime.now();
 
         Crop crop = new Crop();
-        crop.setAgrovocPlant(agrovocPlant);
-        crop.setAgrovocProduct(agrovocProduct);
-        crop.setCultivar(cultivar.orElse(null));
-        crop.setTenant(tenantRestriction.orElse(null));
+        crop.setFamily(family);
+        crop.setSpecies(species);
+        subSpecies.ifPresent(crop::setSubSpecies);
+        cultivar.ifPresent(crop::setCultivar);
+        crop.setCreationUser(user);
+        crop.setCreationDateTime(creationTime);
 
+        agrovocPlantURI.map(this::getOrCreateAgrovocPlant)
+                .ifPresent(plant -> this.setCropAgrovocPlant(crop, plant));
+
+        agrovocProductURI.map(this::getOrCreateAgrovocProduct)
+                .ifPresent(crop::setAgrovocProduct);
+
+        if (!shared) {
+            crop.setTenant(tenant);
+        }
         Crop managedCrop = entityManager.merge(crop);
+
+        LocalizedMessage displayNameMessage = new LocalizedMessage();
+        displayNameMessage.setLanguage(language);
+        displayNameMessage.setLabel(displayName);
+        LocalizedMessage managedDisplayNameMessage = entityManager.merge(displayNameMessage);
+
+        managedCrop.getDisplayName().add(managedDisplayNameMessage);
+
         return managedCrop;
     }
 
@@ -120,14 +150,22 @@ public class CropService {
 
         Optional<Language> queryLanguage = cropFilter.getQueryLanguage();
         cropFilter.getNamesQuery()
+                .filter(q -> !q.isEmpty())
                 .map(q -> this.createNamesQueryPredicate(cropSource, q, queryLanguage))
                 .ifPresent(predicateList::add);
 
         cropFilter.getPlantQuery()
+                .filter(q -> !q.isEmpty())
                 .map(q -> this.createPlantNamesQueryPredicate(cropSource, q, queryLanguage))
                 .ifPresent(predicateList::add);
 
+        cropFilter.getDisplayNameQuery()
+                .filter(q -> !q.isEmpty())
+                .map(q -> this.createDisplayNameQueryPredicate(cropSource, q, queryLanguage))
+                .ifPresent(predicateList::add);
+
         cropFilter.getCultivarQuery()
+                .filter(q -> !q.isEmpty())
                 .map(q -> this.createCultivarQueryPredicate(cropSource, q))
                 .ifPresent(predicateList::add);
 
@@ -135,8 +173,13 @@ public class CropService {
                 .map(shared -> this.createSharedPredicate(cropSource, shared))
                 .ifPresent(predicateList::add);
 
+        cropFilter.getCreatedByLoggedUser()
+                .map(createdByLoggedUser -> this.createCreatedByLoggedUserPredicate(cropSource, createdByLoggedUser))
+                .ifPresent(predicateList::add);
+
         return predicateList;
     }
+
 
     private AgrovocPlant getOrCreateAgrovocPlant(String agrovocPlantUri) {
         AgrovocPlantFilter plantFilter = new AgrovocPlantFilter();
@@ -183,16 +226,35 @@ public class CropService {
         return sharedPredicate;
     }
 
+
+    private Predicate createCreatedByLoggedUserPredicate(From<?, Crop> cropSource, Boolean createdByLoggedUser) {
+        User loggedUser = userService.getLoggedUser().orElse(null);
+        Predicate createdByUserPredicate = this.createCreatedByUserPredicate(cropSource, loggedUser);
+        if (createdByLoggedUser) {
+            return createdByUserPredicate;
+        } else {
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            return criteriaBuilder.not(createdByUserPredicate);
+        }
+    }
+
+    private Predicate createCreatedByUserPredicate(From<?, Crop> cropSource, User user) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        Path<User> userPath = cropSource.get(Crop_.creationUser);
+        return criteriaBuilder.equal(userPath, user);
+    }
+
     private Predicate createNamesQueryPredicate(From<?, Crop> cropSource, String query, Optional<Language> queryLanguage) {
         Predicate plantNameQueryPredicate = this.createPlantNamesQueryPredicate(cropSource, query, queryLanguage);
 
         Join<Crop, AgrovocProduct> productJoin = cropSource.join(Crop_.agrovocProduct, JoinType.LEFT);
         Predicate productNamesPredicate = agrovocService.createProductNameQueryPredicate(query, queryLanguage, productJoin);
 
+        Predicate displayNameQueryPredicate = this.createDisplayNameQueryPredicate(cropSource, query, queryLanguage);
         Predicate cultivarPredicate = this.createCultivarQueryPredicate(cropSource, query);
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        Predicate namesPredicate = criteriaBuilder.or(plantNameQueryPredicate, productNamesPredicate, cultivarPredicate);
+        Predicate namesPredicate = criteriaBuilder.or(plantNameQueryPredicate, productNamesPredicate, displayNameQueryPredicate, cultivarPredicate);
         return namesPredicate;
     }
 
@@ -208,10 +270,29 @@ public class CropService {
         return cultivarPredicate;
     }
 
+    private Predicate createDisplayNameQueryPredicate(From<?, Crop> cropSource, String query, Optional<Language> queryLanguage) {
+        ListJoin<Crop, LocalizedMessage> displayNameJoin = cropSource.join(Crop_.displayName);
+        return searchService.createLocalizedTextMatchPredicate(displayNameJoin, query, queryLanguage);
+    }
+
     private Predicate createPlantPredicate(From<?, Crop> cropSource, AgrovocPlant plant) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        Path<AgrovocPlant> plantPath = cropSource.get(Crop_.agrovocPlant);
+        Path<AgrovocPlant> plantPath = cropSource.join(Crop_.agrovocPlant, JoinType.LEFT);
         Predicate predicate = criteriaBuilder.equal(plantPath, plant);
         return predicate;
+    }
+
+    private void setCropAgrovocPlant(Crop crop, AgrovocPlant plant) {
+        crop.setAgrovocPlant(plant);
+
+        // Taxonomy english labels should be the latin ones either way
+        AgrovocPlantData plantData = this.agrovocService.searchAgrovocPlantData(plant.getAgrovocNodeId(), Language.DEFAULT_LANGUAGE);
+        Optional<String> speciesName = plantData.getSpeciesName();
+        Optional<String> familyName = plantData.getFamilyName();
+        Optional<String> subSpeciesName = plantData.getSubSpeciesName();
+
+        familyName.ifPresent(crop::setFamily);
+        speciesName.ifPresent(crop::setSpecies);
+        subSpeciesName.ifPresent(crop::setSubSpecies);
     }
 }

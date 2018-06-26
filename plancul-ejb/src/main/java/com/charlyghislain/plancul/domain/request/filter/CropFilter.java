@@ -23,9 +23,13 @@ public class CropFilter {
     @Nullable
     private String cultivarQuery;
     @Nullable
+    private String displayNameQuery;
+    @Nullable
     private Language queryLanguage;
     @Nullable
     private Boolean shared;
+    @Nullable
+    private Boolean createdByLoggedUser;
 
     public Optional<Tenant> getTenant() {
         return Optional.ofNullable(tenant);
@@ -89,5 +93,21 @@ public class CropFilter {
 
     public void setQueryLanguage(Language queryLanguage) {
         this.queryLanguage = queryLanguage;
+    }
+
+    public Optional<String> getDisplayNameQuery() {
+        return Optional.ofNullable(displayNameQuery);
+    }
+
+    public void setDisplayNameQuery(String displayNameQuery) {
+        this.displayNameQuery = displayNameQuery;
+    }
+
+    public Optional<Boolean> getCreatedByLoggedUser() {
+        return Optional.ofNullable(createdByLoggedUser);
+    }
+
+    public void setCreatedByLoggedUser(Boolean createdByLoggedUser) {
+        this.createdByLoggedUser = createdByLoggedUser;
     }
 }
