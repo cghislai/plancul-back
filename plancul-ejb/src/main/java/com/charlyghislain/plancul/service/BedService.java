@@ -5,6 +5,7 @@ import com.charlyghislain.plancul.domain.Bed_;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Plot_;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.BedFilter;
@@ -42,7 +43,7 @@ public class BedService {
     private SearchService searchService;
 
 
-    public Bed saveBed(Bed bed) {
+    public Bed saveBed(Bed bed) throws OperationNotAllowedException {
         if (bed.getId() == null) {
             return this.createBed(bed);
         }
@@ -54,7 +55,7 @@ public class BedService {
     }
 
 
-    public void deleteBed(Bed bed) {
+    public void deleteBed(Bed bed) throws OperationNotAllowedException {
         validationService.validateNonNullId(bed);
         Tenant tenant = getBedTenant(bed);
         validationService.validateLoggedUserHasTenantRole(tenant);
@@ -160,7 +161,7 @@ public class BedService {
         return Collections.singletonList(new Sort<>(true, BedSortField.NAME));
     }
 
-    private Bed createBed(Bed bed) {
+    private Bed createBed(Bed bed) throws OperationNotAllowedException {
         Tenant bedTenant = this.getBedTenant(bed);
         validationService.validateLoggedUserHasTenantRole(bedTenant);
 

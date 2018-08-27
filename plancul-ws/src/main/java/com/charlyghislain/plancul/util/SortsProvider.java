@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.util;
 
-import com.charlyghislain.plancul.domain.api.request.WsSearchQueryParams;
-import com.charlyghislain.plancul.domain.api.request.sort.WsSortOrder;
+import com.charlyghislain.plancul.api.domain.request.WsSearchQueryParams;
+import com.charlyghislain.plancul.api.domain.request.sort.WsSortOrder;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;

@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>plancul</artifactId>
-        <groupId>com.charlyghislain</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.charlyghislain.plancul</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -20,16 +20,21 @@
                     <version>8</version>
                     <modules>
                         <ejbModule>
-                            <groupId>com.charlyghislain</groupId>
+                            <groupId>com.charlyghislain.plancul</groupId>
                             <artifactId>plancul-ejb</artifactId>
                         </ejbModule>
                         <webModule>
-                            <groupId>com.charlyghislain</groupId>
+                            <groupId>com.charlyghislain.plancul</groupId>
                             <artifactId>plancul-ws</artifactId>
                             <context-root>/plancul-ws</context-root>
                         </webModule>
+                        <webModule>
+                            <groupId>com.charlyghislain.plancul</groupId>
+                            <artifactId>plancul-authenticator-ws</artifactId>
+                            <context-root>/authenticator</context-root>
+                        </webModule>
                     </modules>
-                    <!--<unpackTypes>ejb,war</unpackTypes>-->
+                    <unpackTypes>ejb,war</unpackTypes>
                     <defaultLibBundleDir>lib</defaultLibBundleDir>
                     <!--suppress MavenModelInspection -->
                     <outputFileNameMapping>@{artifactId}@-@{version}@@{dashClassifier?}@.@{extension}@
@@ -41,15 +46,42 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.charlyghislain</groupId>
+            <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-ejb</artifactId>
             <type>ejb</type>
+            <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.charlyghislain</groupId>
+            <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-ws</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
             <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.plancul</groupId>
+            <artifactId>plancul-authenticator-ws</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.plancul</groupId>
+            <artifactId>plancul-domain</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.plancul</groupId>
+            <artifactId>plancul-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.authenticator</groupId>
+            <artifactId>authenticator-management-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.authenticator</groupId>
+            <artifactId>authenticator-application-api</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>

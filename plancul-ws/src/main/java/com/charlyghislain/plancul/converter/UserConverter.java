@@ -1,57 +1,43 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
+import com.charlyghislain.plancul.api.domain.WsUser;
+import com.charlyghislain.plancul.api.domain.util.WsLanguage;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
+import com.charlyghislain.plancul.converter.util.FromWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.User;
-import com.charlyghislain.plancul.domain.api.WsUser;
-import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
-import com.charlyghislain.plancul.service.UserService;
+import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.service.UserQueryService;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
-import com.charlyghislain.plancul.util.UntypedSort;
 
-import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
-import java.util.Optional;
+import javax.inject.Inject;
 
 @ApplicationScoped
-public class UserConverter implements ToWsDomainObjectConverter<User, WsUser> {
+public class UserConverter implements FromWsDomainObjectConverter<User, WsUser> {
 
-    @EJB
-    private UserService userService;
+    @Inject
+    private UserQueryService userQueryService;
 
     public User load(WsRef<WsUser> ref) {
-        return userService.findUserById(ref.getId())
+        return userQueryService.findUserById(ref.getId())
                 .orElseThrow(ReferenceNotFoundException::new);
     }
 
     @Override
-    public WsUser toWsEntity(User entity) {
-        Long id = entity.getId();
-        String firstName = entity.getFirstName();
-        String lastName = entity.getLastName();
-        String email = entity.getEmail();
-
-        WsUser wsUser = new WsUser();
-        wsUser.setId(id);
-        wsUser.setFirstName(firstName);
-        wsUser.setLastName(lastName);
-        wsUser.setEmail(email);
-        return wsUser;
-    }
-
-    @Override
-    public Optional<Sort<User>> mapSort(UntypedSort untypedSort) {
-        return Optional.empty();
-    }
-
-    public void updateEntity(User entity, WsUser wsEntity) {
+    public User fromWsEntity(WsUser wsEntity) {
         String firstName = wsEntity.getFirstName();
         String lastName = wsEntity.getLastName();
-        String email = wsEntity.getEmail();
+        WsLanguage wsLanguage = wsEntity.getLanguage();
 
-        entity.setFirstName(firstName);
-        entity.setLastName(lastName);
-        entity.setEmail(email);
+        Language language = Language.fromCode(wsLanguage.getCode())
+                .orElse(Language.DEFAULT_LANGUAGE);
+
+        User user = new User();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setLanguage(language);
+        return user;
     }
+
 
 }

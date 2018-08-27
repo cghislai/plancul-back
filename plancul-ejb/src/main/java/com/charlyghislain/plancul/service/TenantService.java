@@ -4,6 +4,7 @@ import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.Tenant_;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
@@ -35,7 +36,7 @@ public class TenantService {
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
 
-    @EJB
+    @Inject
     private PlotService plotService;
 
     @Inject
@@ -44,7 +45,7 @@ public class TenantService {
     private ValidationService validationService;
 
 
-    public Tenant saveTenant(Tenant tenant) {
+    public Tenant saveTenant(Tenant tenant) throws OperationNotAllowedException {
         if (tenant.getId() == null) {
             return this.createTenant(tenant);
         }
@@ -77,7 +78,7 @@ public class TenantService {
     }
 
     @RolesAllowed({ApplicationGroupNames.ADMIN})
-    private Tenant createTenant(Tenant tenant) {
+    private Tenant createTenant(Tenant tenant) throws OperationNotAllowedException {
         Tenant managedTenant = entityManager.merge(tenant);
 
         this.createDefaultPlot(managedTenant);
@@ -109,7 +110,7 @@ public class TenantService {
     }
 
 
-    private void createDefaultPlot(Tenant managedTenant) {
+    private void createDefaultPlot(Tenant managedTenant) throws OperationNotAllowedException {
         Plot plot = new Plot();
         plot.setTenant(managedTenant);
         plot.setName("Default");

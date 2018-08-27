@@ -1,8 +1,8 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.domain.api.request.filter.WsPlantProductTupleFilter;
-import com.charlyghislain.plancul.domain.api.response.WsAgrovocPlantProduct;
-import com.charlyghislain.plancul.domain.api.util.WsLanguage;
+import com.charlyghislain.plancul.api.domain.request.filter.WsPlantProductTupleFilter;
+import com.charlyghislain.plancul.api.domain.response.WsAgrovocPlantProduct;
+import com.charlyghislain.plancul.api.domain.util.WsLanguage;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;

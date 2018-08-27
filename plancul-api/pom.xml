@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>plancul</artifactId>
-        <groupId>com.charlyghislain</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.charlyghislain.plancul</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,4 +27,20 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>cz.habarta.typescript-generator</groupId>
+                <artifactId>typescript-generator-maven-plugin</artifactId>
+                <configuration>
+                    <classPatterns>
+                        <classPattern>com.charlyghislain.plancul.api.domain.**</classPattern>
+                    </classPatterns>
+                    <optionalAnnotations>
+                        <annotation>com.charlyghislain.plancul.api.domain.util.NullableField</annotation>
+                    </optionalAnnotations>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

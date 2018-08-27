@@ -1,22 +1,26 @@
 package com.charlyghislain.plancul.resource;
 
+import com.charlyghislain.plancul.api.domain.WsBed;
+import com.charlyghislain.plancul.api.domain.request.filter.WsBedFilter;
+import com.charlyghislain.plancul.api.domain.response.WsSearchResult;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.converter.BedConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Bed;
-import com.charlyghislain.plancul.domain.api.WsBed;
-import com.charlyghislain.plancul.domain.api.request.filter.WsBedFilter;
-import com.charlyghislain.plancul.domain.api.response.WsSearchResult;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.BedFilter;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.service.BedService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.UntypedSort;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.exception.WsException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -31,15 +35,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/bed")
+@RolesAllowed({ApplicationGroupNames.TENANT_USER})
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class BedResource {
 
-    @EJB
+    @Inject
     private BedService bedService;
     @Inject
     private BedConverter bedConverter;
@@ -56,9 +62,7 @@ public class BedResource {
     @POST
     public WsRef<WsBed> createBed(@NotNull @Valid WsBed wsBed) {
         Bed bed = bedConverter.fromWsEntity(wsBed);
-        Bed createdBed = bedService.saveBed(bed);
-        WsRef<WsBed> reference = bedConverter.reference(createdBed);
-        return reference;
+        return saveBed(bed);
     }
 
     @GET
@@ -75,9 +79,7 @@ public class BedResource {
     @Path("/{id}")
     public WsRef<WsBed> updateBed(@PathParam("id") long id, @NotNull @Valid WsBed wsBed) {
         Bed bed = bedConverter.fromWsEntity(wsBed);
-        Bed savedBed = bedService.saveBed(bed);
-        WsRef<WsBed> reference = bedConverter.reference(savedBed);
-        return reference;
+        return saveBed(bed);
     }
 
     @DELETE
@@ -86,7 +88,11 @@ public class BedResource {
         Bed bed = bedService.findBedById(id)
                 .orElseThrow(ReferenceNotFoundException::new);
 
-        bedService.deleteBed(bed);
+        try {
+            bedService.deleteBed(bed);
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.FORBIDDEN);
+        }
     }
 
     @POST
@@ -108,5 +114,16 @@ public class BedResource {
 
         List<String> bedPatches = bedService.findBedPatches(bedFilter);
         return bedPatches;
+    }
+
+
+    private WsRef<WsBed> saveBed(Bed bed) {
+        try {
+            Bed createdBed = bedService.saveBed(bed);
+            WsRef<WsBed> reference = bedConverter.reference(createdBed);
+            return reference;
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.FORBIDDEN);
+        }
     }
 }

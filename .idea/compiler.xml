@@ -7,6 +7,9 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="plancul-api" />
+        <module name="plancul-authenticator-client" />
+        <module name="plancul-authenticator-ws" />
+        <module name="plancul-domain" />
         <module name="plancul-ear" />
         <module name="plancul-ejb" />
         <module name="plancul-opendata-client" />

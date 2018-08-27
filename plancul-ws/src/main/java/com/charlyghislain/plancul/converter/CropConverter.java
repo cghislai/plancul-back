@@ -6,12 +6,12 @@ import com.charlyghislain.plancul.domain.AgrovocProduct;
 import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.api.WsAgrovocPlant;
-import com.charlyghislain.plancul.domain.api.WsAgrovocProduct;
-import com.charlyghislain.plancul.domain.api.WsCrop;
-import com.charlyghislain.plancul.domain.api.WsTenant;
-import com.charlyghislain.plancul.domain.api.request.filter.WsCropFilter;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.api.domain.WsAgrovocPlant;
+import com.charlyghislain.plancul.api.domain.WsAgrovocProduct;
+import com.charlyghislain.plancul.api.domain.WsCrop;
+import com.charlyghislain.plancul.api.domain.WsTenant;
+import com.charlyghislain.plancul.api.domain.request.filter.WsCropFilter;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.request.sort.CropSortField;
@@ -30,7 +30,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
 
-    @EJB
+    @Inject
     private CropService cropService;
     @Inject
     private AgrovocPlantConverter agrovocPlantConverter;
@@ -40,6 +40,8 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
     private TenantConverter tenantConverter;
     @Inject
     private LocalizedMessageConverter localizedMessageConverter;
+    @Inject
+    private WsTenantConverter wsTenantConverter;
     @Inject
     @AcceptedLanguage
     private Language acceptedLanguage;
@@ -64,7 +66,7 @@ public class CropConverter implements ToWsDomainObjectConverter<Crop, WsCrop> {
 
         Optional<WsRef<WsAgrovocPlant>> wsAgrovocPlantWsRef = agrovocPlant.map(agrovocPlantConverter::reference);
         Optional<WsRef<WsAgrovocProduct>> wsAgrovocProductWsRef = agrovocProduct.map(agrovocProductConverter::reference);
-        Optional<WsRef<WsTenant>> tenantWsRef = tenant.map(tenantConverter::reference);
+        Optional<WsRef<WsTenant>> tenantWsRef = tenant.map(wsTenantConverter::reference);
         String displayNameValue = localizedMessageConverter.toLocalizedStrings(displayName, acceptedLanguage)
                 .stream().findFirst()
                 .orElseGet(() -> this.createFallbackDisplayName(entity, acceptedLanguage));

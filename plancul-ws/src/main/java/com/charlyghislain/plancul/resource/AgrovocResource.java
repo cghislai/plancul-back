@@ -3,17 +3,19 @@ package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.AgrovocPlantDataConverter;
 import com.charlyghislain.plancul.converter.AgrovocPlantProductTupleConverter;
-import com.charlyghislain.plancul.domain.api.request.filter.WsPlantProductTupleFilter;
-import com.charlyghislain.plancul.domain.api.response.WsAgrovocPlantData;
-import com.charlyghislain.plancul.domain.api.response.WsAgrovocPlantProduct;
+import com.charlyghislain.plancul.api.domain.request.filter.WsPlantProductTupleFilter;
+import com.charlyghislain.plancul.api.domain.response.WsAgrovocPlantData;
+import com.charlyghislain.plancul.api.domain.response.WsAgrovocPlantProduct;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.PlantProductTupleFilter;
 import com.charlyghislain.plancul.domain.result.PlantProductTupleResult;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantData;
 import com.charlyghislain.plancul.service.AgrovocService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -28,12 +30,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/agrovoc")
+@RolesAllowed({ApplicationGroupNames.TENANT_USER})
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class AgrovocResource {
 
-    @EJB
+    @Inject
     private AgrovocService agrovocService;
     @Inject
     private AgrovocPlantProductTupleConverter plantProductTupleConverter;

@@ -2,8 +2,8 @@ package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
-import com.charlyghislain.plancul.domain.api.WsLocalizedMessage;
-import com.charlyghislain.plancul.domain.api.util.WsLanguage;
+import com.charlyghislain.plancul.api.domain.WsLocalizedMessage;
+import com.charlyghislain.plancul.api.domain.util.WsLanguage;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.util.UntypedSort;

@@ -1,5 +1,13 @@
 package com.charlyghislain.plancul.converter;
 
+import com.charlyghislain.plancul.api.domain.WsBed;
+import com.charlyghislain.plancul.api.domain.WsBedPreparation;
+import com.charlyghislain.plancul.api.domain.WsCrop;
+import com.charlyghislain.plancul.api.domain.WsCulture;
+import com.charlyghislain.plancul.api.domain.WsCultureNursing;
+import com.charlyghislain.plancul.api.domain.WsTenant;
+import com.charlyghislain.plancul.api.domain.request.filter.WsCultureFilter;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.Bed;
 import com.charlyghislain.plancul.domain.BedPreparation;
@@ -8,14 +16,6 @@ import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.Culture;
 import com.charlyghislain.plancul.domain.CultureNursing;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.api.WsBed;
-import com.charlyghislain.plancul.domain.api.WsBedPreparation;
-import com.charlyghislain.plancul.domain.api.WsCrop;
-import com.charlyghislain.plancul.domain.api.WsCulture;
-import com.charlyghislain.plancul.domain.api.WsCultureNursing;
-import com.charlyghislain.plancul.domain.api.WsTenant;
-import com.charlyghislain.plancul.domain.api.request.filter.WsCultureFilter;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.request.sort.CultureSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class CultureConverter implements WsDomainObjectConverter<Culture, WsCulture> {
 
-    @EJB
+    @Inject
     private CultureService cultureService;
     @Inject
     private TenantConverter tenantConverter;
@@ -46,6 +46,8 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
     private CultureNursingConverter cultureNursingConverter;
     @Inject
     private DateFilterConverter dateFilterConverter;
+    @Inject
+    private WsTenantConverter wsTenantConverter;
 
 
     @Override
@@ -74,7 +76,7 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         Optional<BedPreparation> bedPreparation = entity.getBedPreparation();
 
         Optional<WsRef<WsTenant>> tenantWsRef = Optional.ofNullable(tenant)
-                .map(tenantConverter::reference);
+                .map(wsTenantConverter::reference);
         Optional<WsRef<WsCrop>> cropWsRef = Optional.ofNullable(crop)
                 .map(cropConverter::reference);
         Optional<WsRef<WsBed>> bedWsRef = Optional.ofNullable(bed)
@@ -118,7 +120,7 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         return culture;
     }
 
-    @Override
+    @Deprecated
     public void updateEntity(Culture entity, WsCulture wsEntity) {
         WsRef<WsTenant> tenantWsRef = wsEntity.getTenantWsRef();
         WsRef<WsCrop> cropWsRef = wsEntity.getCropWsRef();

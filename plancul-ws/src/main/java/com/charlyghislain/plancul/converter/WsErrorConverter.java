@@ -1,9 +1,9 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.domain.api.response.WsContraintViolation;
-import com.charlyghislain.plancul.domain.api.response.WsValidationError;
-import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
-import com.charlyghislain.plancul.domain.api.util.WsError;
+import com.charlyghislain.plancul.api.domain.response.WsContraintViolation;
+import com.charlyghislain.plancul.api.domain.response.WsValidationError;
+import com.charlyghislain.plancul.api.domain.util.WsDomainEntity;
+import com.charlyghislain.plancul.api.domain.util.WsError;
 import com.charlyghislain.plancul.util.exception.WsValidationException;
 
 import javax.enterprise.context.ApplicationScoped;

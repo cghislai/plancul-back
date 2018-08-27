@@ -10,6 +10,9 @@ import com.charlyghislain.plancul.domain.CultureNursing;
 import com.charlyghislain.plancul.domain.CultureNursing_;
 import com.charlyghislain.plancul.domain.Culture_;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.exception.NoBedPreparationException;
+import com.charlyghislain.plancul.domain.exception.NoNursingException;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
@@ -19,7 +22,6 @@ import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.util.CulturePhase;
 import com.charlyghislain.plancul.domain.util.CulturePhaseType;
-import com.charlyghislain.plancul.domain.util.exception.PlanCulRuntimeException;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -51,13 +53,13 @@ public class CultureService {
     private ValidationService validationService;
     @Inject
     private SearchService searchService;
-    @EJB
+    @Inject
     private CropService cropService;
-    @EJB
+    @Inject
     private BedService bedService;
 
 
-    public Culture saveCulture(Culture culture) {
+    public Culture saveCulture(Culture culture) throws OperationNotAllowedException {
         if (culture.getId() == null) {
             return this.createCulture(culture);
         }
@@ -69,7 +71,7 @@ public class CultureService {
         return managedCulture;
     }
 
-    public void deleteCulture(Culture culture) {
+    public void deleteCulture(Culture culture) throws OperationNotAllowedException {
         validationService.validateNonNullId(culture);
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());
 
@@ -148,9 +150,9 @@ public class CultureService {
         return phases;
     }
 
-    public Culture updateBedPreparationDates(Culture culture, LocalDate start, LocalDate end) {
+    public Culture updateBedPreparationDates(Culture culture, LocalDate start, LocalDate end) throws NoBedPreparationException, OperationNotAllowedException {
         BedPreparation bedPreparation = culture.getBedPreparation()
-                .orElseThrow(() -> new PlanCulRuntimeException("No bed prepartaion for this culture", 400));
+                .orElseThrow(NoBedPreparationException::new);
 
         int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
         bedPreparation.setStartDate(start);
@@ -176,9 +178,9 @@ public class CultureService {
     }
 
 
-    public Culture updateNursingDates(Culture culture, LocalDate start, LocalDate end) {
+    public Culture updateNursingDates(Culture culture, LocalDate start, LocalDate end) throws NoNursingException, OperationNotAllowedException {
         CultureNursing nursing = culture.getCultureNursing()
-                .orElseThrow(() -> new PlanCulRuntimeException("No nursing for this culture", 400));
+                .orElseThrow(NoNursingException::new);
 
         int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
 
@@ -199,7 +201,7 @@ public class CultureService {
         return saveCulture(culture);
     }
 
-    public Culture updateGerminationDates(Culture culture, LocalDate start, LocalDate end) {
+    public Culture updateGerminationDates(Culture culture, LocalDate start, LocalDate end) throws OperationNotAllowedException {
         int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
         culture.setSowingDate(start);
         culture.setGerminationDate(end);
@@ -221,7 +223,7 @@ public class CultureService {
         return saveCulture(culture);
     }
 
-    public Culture updateGrowthDates(Culture culture, LocalDate start, LocalDate end) {
+    public Culture updateGrowthDates(Culture culture, LocalDate start, LocalDate end) throws OperationNotAllowedException {
         culture.getCultureNursing()
                 .ifPresent(nursing -> shiftNursingEndDate(nursing, culture, start));
 
@@ -245,7 +247,7 @@ public class CultureService {
         return saveCulture(culture);
     }
 
-    public Culture updateHarvestDates(Culture culture, LocalDate start, LocalDate end) {
+    public Culture updateHarvestDates(Culture culture, LocalDate start, LocalDate end) throws OperationNotAllowedException {
         int daysUntilFirstHarvest = culture.getDaysUntilFirstHarvest();
         LocalDate sowingDate = start.minusDays(daysUntilFirstHarvest);
         culture.setSowingDate(sowingDate);
@@ -304,7 +306,7 @@ public class CultureService {
         return Collections.singletonList(new Sort<>(true, CultureSortField.BED_OCCUPANCY_START_DATE));
     }
 
-    private Culture createCulture(Culture culture) {
+    private Culture createCulture(Culture culture) throws OperationNotAllowedException {
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());
         computeCultureDates(culture);
 

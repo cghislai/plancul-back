@@ -7,6 +7,7 @@ import com.charlyghislain.plancul.domain.Crop_;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.User;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.CropCreationRequest;
 import com.charlyghislain.plancul.domain.request.Pagination;
@@ -45,14 +46,14 @@ public class CropService {
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
 
-    @EJB
+    @Inject
     private AgrovocService agrovocService;
     @Inject
     private SearchService searchService;
     @Inject
     private ValidationService validationService;
     @Inject
-    private UserService userService;
+    private UserQueryService userQueryService;
 
     public Optional<Crop> findCropById(long id) {
         Crop found = entityManager.find(Crop.class, id);
@@ -60,7 +61,7 @@ public class CropService {
                 .filter(this::isCropAccessibleToLoggedUser);
     }
 
-    public Crop createCrop(CropCreationRequest cropCreationRequest) {
+    public Crop createCrop(CropCreationRequest cropCreationRequest) throws OperationNotAllowedException {
         // TODO: ask FAO sparql if plant produces product - or skip the product part altogether.
         // The product should probably not be linked to a crop, but rather a crop-yield of some sort.
         // It is kept here for the moment as it is useful to search crops by their product names (Solanum tuberosum vs potato)
@@ -76,7 +77,7 @@ public class CropService {
         Optional<String> agrovocProductURI = cropCreationRequest.getAgrovocProductURI();
 
         validationService.validateLoggedUserHasTenantRole(tenant);
-        User user = userService.getLoggedUser().orElseThrow(IllegalStateException::new);
+        User user = userQueryService.getLoggedUser().orElseThrow(IllegalStateException::new);
         LocalDateTime creationTime = LocalDateTime.now();
 
         Crop crop = new Crop();
@@ -228,7 +229,7 @@ public class CropService {
 
 
     private Predicate createCreatedByLoggedUserPredicate(From<?, Crop> cropSource, Boolean createdByLoggedUser) {
-        User loggedUser = userService.getLoggedUser().orElse(null);
+        User loggedUser = userQueryService.getLoggedUser().orElse(null);
         Predicate createdByUserPredicate = this.createCreatedByUserPredicate(cropSource, loggedUser);
         if (createdByLoggedUser) {
             return createdByUserPredicate;

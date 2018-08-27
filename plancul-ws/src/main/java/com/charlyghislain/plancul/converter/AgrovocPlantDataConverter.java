@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.converter;
 
-import com.charlyghislain.plancul.domain.api.response.WsAgrovocPlantData;
-import com.charlyghislain.plancul.domain.api.util.WsLanguage;
+import com.charlyghislain.plancul.api.domain.response.WsAgrovocPlantData;
+import com.charlyghislain.plancul.api.domain.util.WsLanguage;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantData;
 import com.charlyghislain.plancul.util.AcceptedLanguage;

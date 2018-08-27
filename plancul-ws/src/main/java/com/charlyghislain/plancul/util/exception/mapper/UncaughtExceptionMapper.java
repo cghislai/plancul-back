@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.util.exception.mapper;
 
 import com.charlyghislain.plancul.converter.WsErrorConverter;
-import com.charlyghislain.plancul.domain.api.util.WsError;
+import com.charlyghislain.plancul.api.domain.util.WsError;
 import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

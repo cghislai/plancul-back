@@ -1,7 +1,7 @@
 package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.domain.request.filter.DateFilter;
-import com.charlyghislain.plancul.domain.api.request.filter.WsDateFilter;
+import com.charlyghislain.plancul.api.domain.request.filter.WsDateFilter;
 
 import javax.enterprise.context.ApplicationScoped;
 

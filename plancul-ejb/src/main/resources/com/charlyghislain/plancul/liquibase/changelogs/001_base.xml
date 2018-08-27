@@ -43,50 +43,12 @@
                                  constraintName="PLOT_TENANT_ID"/>
     </changeSet>
 
-    <changeSet id="3-caller" author="cghislai">
-        <createTable tableName="CALLER">
-            <column name="ID" type="BIGINT(19)">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="NAME" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
-            <column name="PASSWORD" type="VARCHAR(400)"/>
-            <column name="PASSWORDNEEDSCHANGE" type="BIT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="ACTIVE" type="BIT" defaultValueBoolean="true">
-                <constraints nullable="false"/>
-            </column>
-            <column name="PASSWORDRESETTOKEN" type="VARCHAR(255)"/>
-            <column name="PASSWORDRESETTOKENEXPIRATION" type="DATETIME"/>
-        </createTable>
-    </changeSet>
-
-    <changeSet id="4-caller-groups" author="cghislai">
-        <createTable tableName="CALLERGROUPS">
-            <column name="ID" type="BIGINT(19)">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="CALLER_ID" type="BIGINT(19)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="GROUP_NAME" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-        <addForeignKeyConstraint baseTableName="CALLERGROUPS" baseColumnNames="CALLER_ID"
-                                 referencedTableName="CALLER" referencedColumnNames="ID"
-                                 constraintName="CALLERGROUPS_CALLER_ID"/>
-    </changeSet>
-
-
-    <changeSet id="5-user" author="cghislai">
+    <changeSet id="3-user" author="cghislai">
         <createTable tableName="PLANCULUSER">
             <column name="ID" type="BIGINT(19)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="CALLER_ID" type="BIGINT(19)">
+            <column name="AUTHENTICATORUID" type="BIGINT(19)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="FIRSTNAME" type="VARCHAR(255)">
@@ -95,16 +57,13 @@
             <column name="LASTNAME" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="EMAIL" type="VARCHAR(255)">
-                <constraints nullable="false" unique="true"/>
-            </column>
             <column name="LANGUAGE" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="ADMIN" type="BIT">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
-        <addForeignKeyConstraint constraintName="PLANCULUSER_CALLER"
-                                 baseTableName="PLANCULUSER" baseColumnNames="CALLER_ID"
-                                 referencedTableName="CALLER" referencedColumnNames="ID"/>
     </changeSet>
 
     <changeSet id="6-user-tenant-roles" author="cghilai">
@@ -128,6 +87,27 @@
         <addForeignKeyConstraint constraintName="TENANTUSERROLE_USER"
                                  baseTableName="TENANTUSERROLE" baseColumnNames="USER_ID"
                                  referencedTableName="PLANCULUSER" referencedColumnNames="ID"/>
+    </changeSet>
+
+
+    <changeSet id="6.1-user-tenant-roles-invitation" author="cghislai">
+        <createTable tableName="TENANTUSERROLEINVITATION">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="TENANT_ID" type="BIGINT(19)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TENANTROLE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOKEN" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint constraintName="TENANTUSERROLEINVITATION_TENANT"
+                                 baseTableName="TENANTUSERROLEINVITATION" baseColumnNames="TENANT_ID"
+                                 referencedTableName="TENANT" referencedColumnNames="ID"/>
     </changeSet>
 
     <changeSet id="7-localized-messages" author="cghislai">
@@ -398,4 +378,5 @@
                                  baseTableName="CULTURE" baseColumnNames="BEDPREPARATION_ID"
                                  referencedTableName="BEDPREPARATION" referencedColumnNames="ID"/>
     </changeSet>
+
 </databaseChangeLog>

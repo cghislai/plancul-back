@@ -3,12 +3,13 @@ package com.charlyghislain.plancul.service;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Plot_;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
-import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.request.sort.PlotSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -36,17 +37,16 @@ public class PlotService {
     private SearchService searchService;
 
 
-    public Plot savePlot(Plot plot) {
+    public Plot savePlot(Plot plot) throws OperationNotAllowedException {
         if (plot.getId() == null) {
             return this.createPlot(plot);
         }
-        validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
         Plot managedPlot = entityManager.merge(plot);
         return managedPlot;
     }
 
-    public void deletePlot(Plot plot) {
+    public void deletePlot(Plot plot) throws OperationNotAllowedException {
         validationService.validateNonNullId(plot);
         validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
@@ -81,9 +81,7 @@ public class PlotService {
     }
 
 
-    private Plot createPlot(Plot plot) {
-        validationService.validateLoggedUserHasTenantRole(plot.getTenant());
-
+    private Plot createPlot(Plot plot) throws OperationNotAllowedException {
         Plot managedPlot = entityManager.merge(plot);
         return managedPlot;
     }

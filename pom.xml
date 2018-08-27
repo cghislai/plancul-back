@@ -4,16 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.charlyghislain</groupId>
+    <groupId>com.charlyghislain.plancul</groupId>
     <artifactId>plancul</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <modules>
         <module>plancul-ejb</module>
         <module>plancul-ws</module>
         <module>plancul-api</module>
         <module>plancul-ear</module>
         <module>plancul-opendata-client</module>
+        <module>plancul-authenticator-ws</module>
+        <module>plancul-authenticator-client</module>
+        <module>plancul-domain</module>
     </modules>
 
     <distributionManagement>
@@ -30,25 +33,58 @@
         </snapshotRepository>
     </distributionManagement>
 
+
+    <properties>
+        <typescript.api.npm.version>${project.version}</typescript.api.npm.version>
+    </properties>
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.charlyghislain</groupId>
-                <artifactId>plancul-ejb</artifactId>
-                <version>1.0-SNAPSHOT</version>
-                <type>ejb</type>
+                <groupId>com.charlyghislain.authenticator</groupId>
+                <artifactId>authenticator-management-api</artifactId>
+                <version>1.0.0</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>com.charlyghislain</groupId>
-                <artifactId>plancul-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <groupId>com.charlyghislain.authenticator</groupId>
+                <artifactId>authenticator-application-api</artifactId>
+                <version>1.0.0</version>
+                <scope>provided</scope>
             </dependency>
 
+            <dependency>
+                <groupId>com.charlyghislain.plancul</groupId>
+                <artifactId>plancul-domain</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.charlyghislain.plancul</groupId>
+                <artifactId>plancul-ejb</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>ejb</type>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.charlyghislain.plancul</groupId>
+                <artifactId>plancul-api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
 
             <dependency>
                 <groupId>javax</groupId>
                 <artifactId>javaee-web-api</artifactId>
                 <version>8.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.microprofile</groupId>
+                <artifactId>microprofile</artifactId>
+                <version>1.3</version>
+                <type>pom</type>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -166,6 +202,7 @@
                     <artifactId>maven-war-plugin</artifactId>
                     <version>3.0.0</version>
                     <configuration>
+                        <attachClasses>true</attachClasses>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -175,6 +212,80 @@
                     <configuration>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.5</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>cz.habarta.typescript-generator</groupId>
+                    <artifactId>typescript-generator-maven-plugin</artifactId>
+                    <version>2.5.423</version>
+                    <executions>
+                        <execution>
+                            <id>generate-admin-api</id>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <excludeClassPatterns>
+                            <classPattern>java.io.**</classPattern>
+                            <classPattern>java.lang.**</classPattern>
+                        </excludeClassPatterns>
+                        <jsonLibrary>jackson2</jsonLibrary>
+                        <outputFile>target/npm/index.d.ts</outputFile>
+                        <outputKind>module</outputKind>
+                        <outputFileType>declarationFile</outputFileType>
+                        <mapClasses>asInterfaces</mapClasses>
+                        <mapEnum>asEnum</mapEnum>
+                        <mapDate>asString</mapDate>
+                        <generateNpmPackageJson>true</generateNpmPackageJson>
+                        <npmName>@charlyghislain/${project.artifactId}</npmName>
+                        <npmVersion>${typescript.api.npm.version}</npmVersion>
+                    </configuration>
+                </plugin>
+
             </plugins>
         </pluginManagement>
     </build>

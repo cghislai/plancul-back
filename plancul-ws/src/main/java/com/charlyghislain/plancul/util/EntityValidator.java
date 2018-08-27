@@ -1,6 +1,6 @@
 package com.charlyghislain.plancul.util;
 
-import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
+import com.charlyghislain.plancul.api.domain.util.WsDomainEntity;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
 import com.charlyghislain.plancul.util.exception.WsValidationException;
 

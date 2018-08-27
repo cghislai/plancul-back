@@ -1,8 +1,8 @@
 package com.charlyghislain.plancul.util.exception.mapper;
 
+import com.charlyghislain.plancul.api.domain.util.WsError;
 import com.charlyghislain.plancul.converter.WsErrorConverter;
-import com.charlyghislain.plancul.domain.api.util.WsError;
-import com.charlyghislain.plancul.domain.util.exception.PlanCulRuntimeException;
+import com.charlyghislain.plancul.domain.exception.PlanCulRuntimeException;
 import com.charlyghislain.plancul.util.CrossOriginResourceSharingResponseFilter;
 
 import javax.inject.Inject;
@@ -20,12 +20,10 @@ public class PlanCulRuntimeExceptionMapper implements ExceptionMapper<PlanCulRun
 
     @Override
     public Response toResponse(PlanCulRuntimeException exception) {
-        int httpStatusCode = exception.getHttpStatusCode()
-                .orElse(500);
 
         WsError wsError = wsErrorConverter.fromThrowable(exception);
 
-        Response response = Response.status(httpStatusCode)
+        Response response = Response.status(500)
                 .entity(wsError)
                 .build();
         crossOriginResourceSharingResponseFilter.filter(response);

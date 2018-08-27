@@ -3,13 +3,13 @@ package com.charlyghislain.plancul.converter;
 import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.Bed;
 import com.charlyghislain.plancul.domain.Plot;
-import com.charlyghislain.plancul.domain.api.WsBed;
-import com.charlyghislain.plancul.domain.api.WsPlot;
+import com.charlyghislain.plancul.api.domain.WsBed;
+import com.charlyghislain.plancul.api.domain.WsPlot;
 import com.charlyghislain.plancul.domain.request.filter.BedFilter;
-import com.charlyghislain.plancul.domain.api.request.filter.WsBedFilter;
+import com.charlyghislain.plancul.api.domain.request.filter.WsBedFilter;
 import com.charlyghislain.plancul.domain.request.sort.BedSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.service.BedService;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
 
-    @EJB
+    @Inject
     private BedService bedService;
     @Inject
     private PlotConverter plotConverter;
@@ -64,7 +64,7 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
         return bed;
     }
 
-    @Override
+    @Deprecated
     public void updateEntity(Bed entity, WsBed wsEntity) {
         String name = wsEntity.getName();
         WsRef<WsPlot> plotWsRef = wsEntity.getPlotWsRef();

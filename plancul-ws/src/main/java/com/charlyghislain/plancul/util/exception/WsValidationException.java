@@ -1,6 +1,6 @@
 package com.charlyghislain.plancul.util.exception;
 
-import com.charlyghislain.plancul.domain.api.util.WsDomainEntity;
+import com.charlyghislain.plancul.api.domain.util.WsDomainEntity;
 
 import javax.validation.ConstraintViolation;
 import javax.ws.rs.core.Response;

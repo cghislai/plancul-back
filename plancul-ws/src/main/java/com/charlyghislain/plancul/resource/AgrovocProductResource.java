@@ -1,16 +1,13 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.converter.AgrovocProductConverter;
-import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.AgrovocProduct;
-import com.charlyghislain.plancul.domain.api.WsAgrovocProduct;
-import com.charlyghislain.plancul.domain.i18n.Language;
-import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.api.domain.WsAgrovocProduct;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.service.AgrovocService;
-import com.charlyghislain.plancul.util.AcceptedLanguage;
-import com.charlyghislain.plancul.util.UntypedSort;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -20,15 +17,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Path("/agrovocProduct")
+@RolesAllowed({ApplicationGroupNames.TENANT_USER})
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class AgrovocProductResource {
 
-    @EJB
+    @Inject
     private AgrovocService agrovocService;
     @Inject
     private AgrovocProductConverter agrovocProductConverter;

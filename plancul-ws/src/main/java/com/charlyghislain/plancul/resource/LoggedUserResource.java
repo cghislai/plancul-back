@@ -1,19 +1,20 @@
 package com.charlyghislain.plancul.resource;
 
+import com.charlyghislain.plancul.api.domain.WsTenantUserRole;
+import com.charlyghislain.plancul.api.domain.WsUser;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.converter.TenantUserRoleConverter;
 import com.charlyghislain.plancul.converter.UserConverter;
+import com.charlyghislain.plancul.converter.WsUserConverter;
 import com.charlyghislain.plancul.domain.User;
-import com.charlyghislain.plancul.domain.api.WsTenantUserRole;
-import com.charlyghislain.plancul.domain.api.WsUser;
-import com.charlyghislain.plancul.domain.security.ApplicationGroup;
-import com.charlyghislain.plancul.domain.security.Caller;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
-import com.charlyghislain.plancul.security.JwtService;
-import com.charlyghislain.plancul.service.SecurityService;
-import com.charlyghislain.plancul.service.UserService;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
+import com.charlyghislain.plancul.service.UserQueryService;
+import com.charlyghislain.plancul.service.UserUpdateService;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
+import com.charlyghislain.plancul.util.exception.WsException;
 
-import javax.ejb.EJB;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.security.enterprise.SecurityContext;
@@ -24,85 +25,57 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/user/me")
+@RolesAllowed({ApplicationGroupNames.REGISTERED_USER})
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class LoggedUserResource {
 
-    @EJB
-    private UserService userService;
-    @EJB
-    private SecurityService securityService;
+    @Inject
+    private UserUpdateService userUpdateService;
+    @Inject
+    private UserQueryService userQueryService;
 
     @Inject
     private SecurityContext securityContext;
     @Inject
-    private JwtService jwtService;
-    @Inject
     private UserConverter userConverter;
+    @Inject
+    private WsUserConverter wsUserConverter;
     @Inject
     private TenantUserRoleConverter tenantUserRoleConverter;
 
     @GET
     public WsUser getMyUser() {
-        return this.userService.getLoggedUser()
-                .map(userConverter::toWsEntity)
+        return this.userQueryService.getLoggedUser()
+                .map(wsUserConverter::toWsEntity)
                 .orElseThrow(ReferenceNotFoundException::new);
     }
 
     @PUT
     public WsRef<WsUser> updateUser(@NotNull @Valid WsUser wsUser) {
-        User loggedUser = this.userService.getLoggedUser()
+        User loggedUser = this.userQueryService.getLoggedUser()
                 .orElseThrow(IllegalStateException::new);
 
-        userConverter.updateEntity(loggedUser, wsUser);
-        User savedUser = userService.saveUser(loggedUser);
-
-        WsRef<WsUser> reference = userConverter.reference(savedUser);
-        return reference;
-    }
-
-    @GET
-    @Path("/token")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response createJwtToken() {
-        Caller caller = securityService.findLoggedCaller();
-        Set<ApplicationGroup> callerGroups = securityService.findCallerGroups(caller);
-        String jwtToken = jwtService.createJwt(caller, callerGroups);
-
-        CacheControl cacheControl = new CacheControl();
-        cacheControl.setNoCache(true);
-        cacheControl.setNoStore(true);
-        return Response.ok(jwtToken)
-                .cacheControl(cacheControl)
-                .build();
-    }
-
-    @PUT
-    @Path("/password")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public void updatePassword(@NotNull String password) {
-        securityService.updateMyPassword(password);
-    }
-
-    @GET
-    @Path("/password/expired")
-    public boolean isMyPasswordExpired() {
-        return securityService.doesMyPasswordNeedUpdate();
+        User useUpdate = userConverter.fromWsEntity(wsUser);
+        try {
+            User updatedUser = userUpdateService.updateLoggedUser(loggedUser, useUpdate);
+            return wsUserConverter.reference(updatedUser);
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.FORBIDDEN);
+        }
     }
 
     @GET
     @Path("/tenants")
     public List<WsTenantUserRole> getMyTenants() {
-        return this.userService.getLoggedUserTenantsRoles()
+        return this.userQueryService.getLoggedUserTenantsRoles()
                 .stream()
                 .map(tenantUserRoleConverter::toWsEntity)
                 .collect(Collectors.toList());

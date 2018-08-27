@@ -2,9 +2,9 @@ package com.charlyghislain.plancul.converter.request;
 
 import com.charlyghislain.plancul.converter.TenantConverter;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.api.WsTenant;
-import com.charlyghislain.plancul.domain.api.request.WsCropCreationRequest;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.api.domain.WsTenant;
+import com.charlyghislain.plancul.api.domain.request.WsCropCreationRequest;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.CropCreationRequest;
 import com.charlyghislain.plancul.util.AcceptedLanguage;

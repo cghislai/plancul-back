@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>plancul</artifactId>
-        <groupId>com.charlyghislain</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.charlyghislain.plancul</groupId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,61 +16,28 @@
         <api.version>1.0.0-alpha.2</api.version>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>cz.habarta.typescript-generator</groupId>
-                <artifactId>typescript-generator-maven-plugin</artifactId>
-                <version>2.5.423</version>
-                <executions>
-                    <execution>
-                        <id>generate</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <classesFromAutomaticJaxrsApplication>true</classesFromAutomaticJaxrsApplication>
-                            <excludeClassPatterns>
-                                <classPattern>java.io.**</classPattern>
-                            </excludeClassPatterns>
-                            <classPatterns>
-                                com.charlyghislain.plancul.domain.api.**
-                            </classPatterns>
-                            <jsonLibrary>jaxb</jsonLibrary>
-                            <outputFile>target/npm/index.d.ts</outputFile>
-                            <outputKind>module</outputKind>
-                            <outputFileType>declarationFile</outputFileType>
-                            <optionalAnnotations>
-                                <annotation>org.checkerframework.checker.nullness.qual.Nullable</annotation>
-                            </optionalAnnotations>
-                            <mapClasses>asInterfaces</mapClasses>
-                            <mapEnum>asEnum</mapEnum>
-                            <mapDate>asString</mapDate>
-                            <generateNpmPackageJson>true</generateNpmPackageJson>
-                            <npmName>@charlyghislain/${project.artifactId}-api</npmName>
-                            <npmVersion>${api.version}</npmVersion>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
-            <groupId>com.charlyghislain</groupId>
+            <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-ejb</artifactId>
             <type>ejb</type>
-            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.charlyghislain.plancul</groupId>
+            <artifactId>plancul-domain</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.charlyghislain</groupId>
+            <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-api</artifactId>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.eclipse.microprofile</groupId>
+            <artifactId>microprofile</artifactId>
+            <type>pom</type>
+        </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>

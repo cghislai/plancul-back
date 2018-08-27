@@ -3,9 +3,9 @@ package com.charlyghislain.plancul.converter;
 import com.charlyghislain.plancul.converter.util.ToWsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.AgrovocPlant;
 import com.charlyghislain.plancul.domain.LocalizedMessage;
-import com.charlyghislain.plancul.domain.api.WsAgrovocPlant;
-import com.charlyghislain.plancul.domain.api.util.WsLanguage;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.api.domain.WsAgrovocPlant;
+import com.charlyghislain.plancul.api.domain.util.WsLanguage;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.sort.AgrovocPlantSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class AgrovocPlantConverter implements ToWsDomainObjectConverter<AgrovocPlant, WsAgrovocPlant> {
 
-    @EJB
+    @Inject
     private AgrovocService agrovocService;
     @Inject
     private LocalizedMessageConverter localizedMessageConverter;

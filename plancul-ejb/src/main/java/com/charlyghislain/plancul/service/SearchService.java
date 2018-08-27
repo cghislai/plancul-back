@@ -11,24 +11,28 @@ import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.request.sort.SortMappingContext;
 import com.charlyghislain.plancul.domain.request.sort.SortMappingResult;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
 
-import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.security.enterprise.SecurityContext;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -36,12 +40,40 @@ public class SearchService {
 
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
-    @EJB
-    private I18NService i18NService;
-    @EJB
-    private UserService userService;
-    @EJB
-    private SecurityService securityService;
+
+    @Inject
+    private UserQueryService userQueryService;
+    @Inject
+    private SecurityContext securityContext;
+
+
+    <T extends DomainEntity> Optional<T> getSingleResult(CriteriaQuery<T> query) {
+        TypedQuery<T> typedQuery = entityManager.createQuery(query);
+        typedQuery.setMaxResults(1);
+        List<T> listResult = typedQuery.getResultList();
+        return listResult.stream().findAny();
+    }
+
+
+    <T extends DomainEntity> List<T> getAllResults(CriteriaQuery<T> query) {
+        TypedQuery<T> typedQuery = entityManager.createQuery(query);
+        List<T> listResult = typedQuery.getResultList();
+        return listResult;
+    }
+
+    <T extends DomainEntity, F> CriteriaQuery<T> createSearchQuery(Class<T> resultType, F filter,
+                                                                   BiFunction<From<?, T>, F, List<Predicate>> filterMapper
+    ) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<T> query = criteriaBuilder.createQuery(resultType);
+        Root<T> queryRoot = query.from(resultType);
+        List<Predicate> predicates = filterMapper.apply(queryRoot, filter);
+
+        query.select(queryRoot);
+        query.where(predicates.toArray(new Predicate[0]));
+        return query;
+    }
+
 
     <T extends DomainEntity> SearchResult<T> search(Pagination pagination, List<Sort<T>> sorts, Language language, CriteriaQuery<T> query, Root<T> root, List<Predicate> predicates) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
@@ -120,12 +152,12 @@ public class SearchService {
     }
 
     public Optional<Predicate> createLoggedUserTenantsPredicate(Path<Tenant> rootTenant, boolean allowNull) {
-        boolean adminLogged = securityService.isAdminLogged();
+        boolean adminLogged = securityContext.isCallerInRole(ApplicationGroupNames.ADMIN);
         if (adminLogged) {
             return Optional.empty();
         }
 
-        List<Tenant> allowedTenantList = userService.getLoggedUserTenantsRoles().stream()
+        List<Tenant> allowedTenantList = userQueryService.getLoggedUserTenantsRoles().stream()
                 .map(TenantUserRole::getTenant)
                 .collect(Collectors.toList());
         Predicate tenantMatchpredicate = rootTenant.in(allowedTenantList);

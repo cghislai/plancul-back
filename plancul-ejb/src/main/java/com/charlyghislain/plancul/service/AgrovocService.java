@@ -49,7 +49,7 @@ public class AgrovocService {
     @PersistenceContext(unitName = "plancul-pu")
     private EntityManager entityManager;
 
-    @EJB
+    @Inject
     private I18NService i18NService;
     @Inject
     private SearchService searchService;

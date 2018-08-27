@@ -1,10 +1,10 @@
 package com.charlyghislain.plancul.converter;
 
 import com.charlyghislain.plancul.domain.Culture;
-import com.charlyghislain.plancul.domain.api.WsCulture;
-import com.charlyghislain.plancul.domain.api.response.WsCulturePhase;
-import com.charlyghislain.plancul.domain.api.response.WsCulturePhaseType;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.api.domain.WsCulture;
+import com.charlyghislain.plancul.api.domain.response.WsCulturePhase;
+import com.charlyghislain.plancul.api.domain.response.WsCulturePhaseType;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.domain.util.CulturePhase;
 import com.charlyghislain.plancul.domain.util.CulturePhaseType;
 

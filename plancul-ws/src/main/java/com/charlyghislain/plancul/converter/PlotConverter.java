@@ -3,13 +3,13 @@ package com.charlyghislain.plancul.converter;
 import com.charlyghislain.plancul.converter.util.WsDomainObjectConverter;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
-import com.charlyghislain.plancul.domain.api.WsPlot;
-import com.charlyghislain.plancul.domain.api.WsTenant;
+import com.charlyghislain.plancul.api.domain.WsPlot;
+import com.charlyghislain.plancul.api.domain.WsTenant;
 import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
-import com.charlyghislain.plancul.domain.api.request.filter.WsPlotFilter;
+import com.charlyghislain.plancul.api.domain.request.filter.WsPlotFilter;
 import com.charlyghislain.plancul.domain.request.sort.PlotSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.service.PlotService;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
@@ -22,10 +22,12 @@ import java.util.Optional;
 @ApplicationScoped
 public class PlotConverter implements WsDomainObjectConverter<Plot, WsPlot> {
 
-    @EJB
+    @Inject
     private PlotService plotService;
     @Inject
     private TenantConverter tenantConverter;
+    @Inject
+    private WsTenantConverter wsTenantConverter;
 
 
     @Override
@@ -40,7 +42,7 @@ public class PlotConverter implements WsDomainObjectConverter<Plot, WsPlot> {
         String name = entity.getName();
         Tenant tenant = entity.getTenant();
 
-        WsRef<WsTenant> wsTenantWsRef = tenantConverter.reference(tenant);
+        WsRef<WsTenant> wsTenantWsRef = wsTenantConverter.reference(tenant);
 
         WsPlot wsPlot = new WsPlot();
         wsPlot.setId(id);
@@ -65,7 +67,7 @@ public class PlotConverter implements WsDomainObjectConverter<Plot, WsPlot> {
         return plot;
     }
 
-    @Override
+    @Deprecated
     public void updateEntity(Plot entity, WsPlot wsEntity) {
         String name = wsEntity.getName();
         WsRef<WsTenant> tenantRef = wsEntity.getTenantRef();

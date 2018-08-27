@@ -1,6 +1,6 @@
 package com.charlyghislain.plancul.util;
 
-import com.charlyghislain.plancul.domain.api.request.WsSearchQueryParams;
+import com.charlyghislain.plancul.api.domain.request.WsSearchQueryParams;
 import com.charlyghislain.plancul.domain.request.Pagination;
 
 import javax.enterprise.context.ApplicationScoped;

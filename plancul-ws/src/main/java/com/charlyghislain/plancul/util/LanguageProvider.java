@@ -6,11 +6,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
+import javax.ws.rs.core.HttpHeaders;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -18,19 +16,15 @@ import java.util.Optional;
 public class LanguageProvider {
 
     @Context
-    private HttpServletRequest httpRequest;
+    private HttpHeaders httpHeaders;
 
     @Produces
     @Dependent
     @ContentLanguage
     @NonNull
     public Language getContentLanguage() {
-        Enumeration<String> headers = httpRequest.getHeaders("Content-Language");
-        return Collections.list(headers).stream()
-                .map(this::getSupportedLanguage)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst()
+        return Optional.ofNullable(httpHeaders.getLanguage())
+                .flatMap(this::getSupportedLanguage)
                 .orElse(Language.DEFAULT_LANGUAGE);
     }
 
@@ -39,8 +33,8 @@ public class LanguageProvider {
     @AcceptedLanguage
     @NonNull
     public Language getAcceptedLanguage() {
-        Enumeration<String> headers = httpRequest.getHeaders("Accept-Language");
-        return Collections.list(headers).stream()
+        List<Locale> acceptableLanguages = httpHeaders.getAcceptableLanguages();
+        return acceptableLanguages.stream()
                 .map(this::getSupportedLanguage)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -49,14 +43,7 @@ public class LanguageProvider {
     }
 
 
-    private Optional<Language> getSupportedLanguage(String headerValue) {
-        String[] splitted = headerValue.split(",");
-        return Arrays.stream(splitted)
-                .map(Locale::forLanguageTag)
-                .map(Locale::getLanguage)
-                .map(Language::fromCode)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .findFirst();
+    private Optional<Language> getSupportedLanguage(Locale locale) {
+        return Language.fromCode(locale.getLanguage());
     }
 }

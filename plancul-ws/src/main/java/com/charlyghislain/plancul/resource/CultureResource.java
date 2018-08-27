@@ -1,20 +1,24 @@
 package com.charlyghislain.plancul.resource;
 
+import com.charlyghislain.plancul.api.domain.WsCulture;
+import com.charlyghislain.plancul.api.domain.request.WsDateRange;
+import com.charlyghislain.plancul.api.domain.request.filter.WsCultureFilter;
+import com.charlyghislain.plancul.api.domain.response.WsCulturePhase;
+import com.charlyghislain.plancul.api.domain.response.WsSearchResult;
+import com.charlyghislain.plancul.api.domain.util.WsRef;
 import com.charlyghislain.plancul.converter.CultureConverter;
 import com.charlyghislain.plancul.converter.CulturePhaseConverter;
 import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.domain.Culture;
-import com.charlyghislain.plancul.domain.api.WsCulture;
-import com.charlyghislain.plancul.domain.api.request.WsDateRange;
-import com.charlyghislain.plancul.domain.api.request.filter.WsCultureFilter;
-import com.charlyghislain.plancul.domain.api.response.WsCulturePhase;
-import com.charlyghislain.plancul.domain.api.response.WsSearchResult;
-import com.charlyghislain.plancul.domain.api.util.WsRef;
+import com.charlyghislain.plancul.domain.exception.NoBedPreparationException;
+import com.charlyghislain.plancul.domain.exception.NoNursingException;
+import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.util.CulturePhaseType;
 import com.charlyghislain.plancul.service.CultureService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
@@ -23,6 +27,7 @@ import com.charlyghislain.plancul.util.UntypedSort;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.exception.WsException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -43,12 +48,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/culture")
+@RolesAllowed({ApplicationGroupNames.TENANT_USER})
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class CultureResource {
 
-    @EJB
+    @Inject
     private CultureService cultureService;
     @Inject
     private CultureConverter cultureConverter;
@@ -69,9 +75,8 @@ public class CultureResource {
     @POST
     public WsRef<WsCulture> createCulture(@NotNull @Valid WsCulture wsCulture) {
         Culture culture = cultureConverter.fromWsEntity(wsCulture);
-        Culture createdCulture = cultureService.saveCulture(culture);
-        WsRef<WsCulture> reference = cultureConverter.reference(createdCulture);
-        return reference;
+
+        return saveCulture(culture);
     }
 
     @PUT
@@ -112,9 +117,7 @@ public class CultureResource {
     @Path("/{id}")
     public WsRef<WsCulture> updateCulture(@PathParam("id") long id, @NotNull @Valid WsCulture wsCulture) {
         Culture culture = cultureConverter.fromWsEntity(wsCulture);
-        Culture savedCulture = cultureService.saveCulture(culture);
-        WsRef<WsCulture> reference = cultureConverter.reference(savedCulture);
-        return reference;
+        return saveCulture(culture);
     }
 
     @DELETE
@@ -123,7 +126,11 @@ public class CultureResource {
         Culture culture = cultureService.findCultureById(id)
                 .orElseThrow(ReferenceNotFoundException::new);
 
-        cultureService.deleteCulture(culture);
+        try {
+            cultureService.deleteCulture(culture);
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.FORBIDDEN);
+        }
     }
 
 
@@ -150,29 +157,47 @@ public class CultureResource {
         LocalDate endDate = wsDateRange.getEnd();
 
         Culture managedCulture;
-        switch (phaseType) {
-            case PREPARATION_COVER:
-            case PREPARATION_PRESOWING:
-                managedCulture = cultureService.updateBedPreparationDates(culture, startDate, endDate);
-                break;
-            case NURSING:
-                managedCulture = cultureService.updateNursingDates(culture, startDate, endDate);
-                break;
-            case GERMINATION:
-                managedCulture = cultureService.updateGerminationDates(culture, startDate, endDate);
-                break;
-            case GROWTH:
-                managedCulture = cultureService.updateGrowthDates(culture, startDate, endDate);
-                break;
-            case HARVEST:
-                managedCulture = cultureService.updateHarvestDates(culture, startDate, endDate);
-                break;
-            default:
-                throw new WsException(Response.Status.NOT_IMPLEMENTED);
+        try {
+            switch (phaseType) {
+                case PREPARATION_COVER:
+                case PREPARATION_PRESOWING:
+                    managedCulture = cultureService.updateBedPreparationDates(culture, startDate, endDate);
+                    break;
+                case NURSING:
+                    managedCulture = cultureService.updateNursingDates(culture, startDate, endDate);
+                    break;
+                case GERMINATION:
+                    managedCulture = cultureService.updateGerminationDates(culture, startDate, endDate);
+                    break;
+                case GROWTH:
+                    managedCulture = cultureService.updateGrowthDates(culture, startDate, endDate);
+                    break;
+                case HARVEST:
+                    managedCulture = cultureService.updateHarvestDates(culture, startDate, endDate);
+                    break;
+                default:
+                    throw new WsException(Response.Status.NOT_IMPLEMENTED);
+            }
+            WsRef<WsCulture> cultureWsRef = cultureConverter.reference(managedCulture);
+            return cultureWsRef;
+        } catch (NoBedPreparationException e) {
+            throw new WsException(Response.Status.BAD_REQUEST, "No bed prepartaion for this culture");
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.FORBIDDEN);
+        } catch (NoNursingException e) {
+            throw new WsException(Response.Status.BAD_REQUEST, "No nursing for this culture");
         }
 
-        WsRef<WsCulture> cultureWsRef = cultureConverter.reference(managedCulture);
-        return cultureWsRef;
+    }
+
+    private WsRef<WsCulture> saveCulture(Culture culture) {
+        try {
+            Culture createdCulture = cultureService.saveCulture(culture);
+            WsRef<WsCulture> reference = cultureConverter.reference(createdCulture);
+            return reference;
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.FORBIDDEN);
+        }
     }
 
 

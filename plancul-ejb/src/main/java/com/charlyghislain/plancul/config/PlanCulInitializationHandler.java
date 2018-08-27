@@ -1,25 +1,26 @@
 package com.charlyghislain.plancul.config;
 
-import com.charlyghislain.plancul.service.SecurityService;
+
+import com.charlyghislain.plancul.service.ApplicationInitializationService;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.inject.Inject;
 
 @Singleton
 @Startup
 public class PlanCulInitializationHandler {
 
-    @EJB
-    private SecurityService securityService;
-    @EJB
+    @Inject
     private LiquibaseChangelogRunner liquibaseChangelogRunner;
+    @Inject
+    private ApplicationInitializationService applicationInitializationService;
 
     @PostConstruct
     public void init() {
         liquibaseChangelogRunner.runChangeLogs();
-        securityService.createDefaultAccounts();
+        applicationInitializationService.checkInitializationStatus();
     }
 
 
