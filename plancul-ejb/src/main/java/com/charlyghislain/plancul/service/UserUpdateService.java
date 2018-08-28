@@ -50,6 +50,8 @@ public class UserUpdateService {
     private TenantUserRoleInvitationQueryService tenantUserRoleInvitationQueryService;
     @Inject
     private TenantUpdateService tenantUpdateService;
+    @Inject
+    private CommunicationService communicationService;
 
     @Inject
     @Claim("uid")
@@ -120,6 +122,21 @@ public class UserUpdateService {
         return savedUser;
     }
 
+    public void validateUserEmail(User user, String verificationToken) {
+        Long authenticatorUid = user.getAuthenticatorUid();
+        authenticatorUserClient.validateUserEmail(authenticatorUid, verificationToken);
+    }
+
+    public void sendNewPasswordResetToken(User user) {
+        String passwordResetToken = authenticatorUserClient.createNewPasswordResetToken(user.getAuthenticatorUid());
+        communicationService.sendPasswordResetToken(user, passwordResetToken);
+    }
+
+
+    public void resetUserPassword(User user, String resetToken, String password) {
+        Long authenticatorUid = user.getAuthenticatorUid();
+        authenticatorUserClient.resetUserPassword(authenticatorUid, resetToken, password);
+    }
 
     public User updateLoggedUser(@NotNull User existingUser, @NotNull User userUpdate) throws OperationNotAllowedException {
         userQueryService.getLoggedUser()
@@ -154,7 +171,6 @@ public class UserUpdateService {
             return Optional.empty();
         }
     }
-
 
     private void checkAdminTokenIsValid(@NotNull String adminToken) throws InvalidTokenException {
         applicationInitializationService.getAdminToken()

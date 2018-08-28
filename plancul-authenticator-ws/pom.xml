@@ -16,7 +16,6 @@
         <dependency>
             <groupId>com.charlyghislain.authenticator</groupId>
             <artifactId>authenticator-application-api</artifactId>
-            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
@@ -26,6 +25,10 @@
             <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-ejb</artifactId>
             <type>ejb</type>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.dispatcher</groupId>
+            <artifactId>dispatcher-api</artifactId>
         </dependency>
 
         <dependency>

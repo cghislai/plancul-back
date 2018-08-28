@@ -28,6 +28,10 @@
             <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.dispatcher</groupId>
+            <artifactId>dispatcher-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.microprofile</groupId>

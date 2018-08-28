@@ -2,13 +2,16 @@ package com.charlyghislain.plancul.authenticator.client;
 
 import com.charlyghislain.authenticator.management.api.UserResource;
 import com.charlyghislain.authenticator.management.api.domain.WsApplicationUser;
+import com.charlyghislain.authenticator.management.api.domain.WsEmailVerificationToken;
 import com.charlyghislain.authenticator.management.api.domain.WsPagination;
+import com.charlyghislain.authenticator.management.api.domain.WsPasswordReset;
 import com.charlyghislain.authenticator.management.api.domain.WsPasswordResetToken;
 import com.charlyghislain.authenticator.management.api.domain.WsResultList;
 import com.charlyghislain.authenticator.management.api.domain.WsUserApplicationFilter;
 import com.charlyghislain.plancul.authenticator.client.converter.AuthenticatorUserConverter;
 import com.charlyghislain.plancul.authenticator.client.converter.WsApplicationUserConverter;
 import com.charlyghislain.plancul.authenticator.client.provider.JwtTokenProvider;
+import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.config.ConfigConstants;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -69,6 +72,25 @@ public class AuthenticatorUserClient {
         WsPasswordResetToken newPasswordResetToken = userResource.createNewPasswordResetToken(userId);
         String token = newPasswordResetToken.getToken();
         return token;
+    }
+
+
+    public void resetUserPassword(Long userId, String resetToken, String password) {
+        WsPasswordReset wsPasswordReset = new WsPasswordReset();
+        wsPasswordReset.setPassword(password);
+        wsPasswordReset.setResetToken(resetToken);
+        userResource.resetUserPassword(userId, wsPasswordReset);
+    }
+
+    public String createNewEmailVerificationToken(User user) {
+        Long authenticatorUid = user.getAuthenticatorUid();
+        WsEmailVerificationToken emailVerificationToken = userResource.getEmailVerificationToken(authenticatorUid);
+        String token = emailVerificationToken.getToken();
+        return token;
+    }
+
+    public void validateUserEmail(Long userId, String verificationToken) {
+        userResource.checkEmailVerification(userId, verificationToken);
     }
 
     public AuthenticatorUser setUserPassword(Long userId, String password) {

@@ -23,6 +23,10 @@
                             <groupId>com.charlyghislain.plancul</groupId>
                             <artifactId>plancul-ejb</artifactId>
                         </ejbModule>
+                        <ejbModule>
+                            <groupId>com.charlyghislain.dispatcher</groupId>
+                            <artifactId>dispatcher</artifactId>
+                        </ejbModule>
                         <webModule>
                             <groupId>com.charlyghislain.plancul</groupId>
                             <artifactId>plancul-ws</artifactId>
@@ -83,6 +87,19 @@
             <artifactId>authenticator-application-api</artifactId>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.charlyghislain.dispatcher</groupId>
+            <artifactId>dispatcher-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.dispatcher</groupId>
+            <artifactId>dispatcher</artifactId>
+            <version>1.0.0</version>
+            <type>ejb</type>
+        </dependency>
+
 
         <dependency>
             <groupId>org.slf4j</groupId>

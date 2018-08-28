@@ -1,0 +1,20 @@
+<h1>Welcome to ${app.name}!</h1>
+<p>
+    You recently created the "${user.login}" account on <a href="${app.frontendUrl}">${app.frontendUrl}</a>.
+    <br/>
+    To activate your account, click on the link below:
+</p>
+<div style="font-size: 1.1em; margin: 2em; ">
+    <a href="${emailVerification.frontendUrl}">
+        Activate your account
+    </a>
+</div>
+<p>
+    If the link does not work, you can still paste your token in the account activation form.
+    <br/>
+    Your activation token is:
+</p>
+<pre>${emailVerification.token}</pre>
+<p>
+    See you soon on <a href="${app.frontendUrl}">${app.name}</a> !
+</p>

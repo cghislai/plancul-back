@@ -1,0 +1,24 @@
+<p>
+    Hello ${user.firstName} ${user.lastName},
+</p>
+<p>
+    You, or someone else, recently asked to reset your ${app.name} password.
+    <br/>
+    If this was you, click on the link below to choose a new password.
+</p>
+<div style="font-size: 1.1em; margin: 2em; ">
+    <a href="${passwordReset.frontendUrl}">
+        Reset your password
+    </a>
+</div>
+<p>
+    If you didn't take any action to reset your password, you can ignore this email.
+    Your account is still safe to use.
+</p>
+<p>
+    Your password reset token is:
+</p>
+<pre>${passwordReset.token}</pre>
+<p>
+    See you soon on <a href="${app.frontendUrl}">${app.name}</a> !
+</p>

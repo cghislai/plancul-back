@@ -107,8 +107,16 @@ public class UserQueryService {
 
     public AuthenticatorUser getLoggedAuthenticatorUser() {
         Long jwtUid = jwtUidClaim.get().getValue();
-        AuthenticatorUser user = this.authenticatorUserClient.getUser(jwtUid);
+        AuthenticatorUser user = findAuthenticatorUser(jwtUid);
         return user;
+    }
+
+    public AuthenticatorUser findAuthenticatorUser(Long authenticatorUserId) {
+        return this.authenticatorUserClient.getUser(authenticatorUserId);
+    }
+
+    public Optional<AuthenticatorUser> findAuthenticatorUserByEmail(String email) {
+        return this.authenticatorUserClient.findUserUserWithMail(email);
     }
 
     public List<TenantUserRole> getLoggedUserTenantsRoles() {
@@ -119,7 +127,7 @@ public class UserQueryService {
 
     public boolean isUserActive(User user) {
         Long authenticatorUid = user.getAuthenticatorUid();
-        AuthenticatorUser authenticatorUser = authenticatorUserClient.getUser(authenticatorUid);
+        AuthenticatorUser authenticatorUser = findAuthenticatorUser(authenticatorUid);
         return authenticatorUser.isActive();
     }
 

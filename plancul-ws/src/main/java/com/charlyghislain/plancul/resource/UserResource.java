@@ -1,6 +1,8 @@
 package com.charlyghislain.plancul.resource;
 
 import com.charlyghislain.plancul.api.domain.WsUser;
+import com.charlyghislain.plancul.api.domain.request.WsPasswordReset;
+import com.charlyghislain.plancul.api.domain.request.WsUserEmailVerification;
 import com.charlyghislain.plancul.api.domain.request.WsUserRegistration;
 import com.charlyghislain.plancul.converter.AuthenticatorUserConverter;
 import com.charlyghislain.plancul.converter.UserConverter;
@@ -22,6 +24,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -78,6 +81,47 @@ public class UserResource {
     }
 
     @POST
+    @Path("/email/verification")
+    @PermitAll
+    public void verifyUserEmail(@Valid WsUserEmailVerification wsUserEmailVerification) {
+        User user = Optional.ofNullable(wsUserEmailVerification.getEmail())
+                .flatMap(userQueryService::findAuthenticatorUserByEmail)
+                .map(AuthenticatorUser::getId)
+                .flatMap(userQueryService::findUserByAuthenticatorUid)
+                .orElseThrow(ReferenceNotFoundException::new);
+        String verificationToken = wsUserEmailVerification.getVerificationToken();
+        userUpdateService.validateUserEmail(user, verificationToken);
+    }
+
+    @POST
+    @Path("/password/resetToken")
+    @PermitAll
+    @Consumes(MediaType.TEXT_PLAIN)
+    public void createNewPasswordResetToken(@NotNull String email) {
+        User user = userQueryService.findAuthenticatorUserByEmail(email)
+                .map(AuthenticatorUser::getId)
+                .flatMap(userQueryService::findUserByAuthenticatorUid)
+                .orElseThrow(ReferenceNotFoundException::new);
+        userUpdateService.sendNewPasswordResetToken(user);
+    }
+
+    @POST
+    @Path("/password/reset")
+    @PermitAll
+    public void resetPassword(@Valid WsPasswordReset wsPasswordReset) {
+        String email = wsPasswordReset.getEmail();
+        String resetToken = wsPasswordReset.getResetToken();
+        String password = wsPasswordReset.getPassword();
+
+        User user = userQueryService.findAuthenticatorUserByEmail(email)
+                .map(AuthenticatorUser::getId)
+                .flatMap(userQueryService::findUserByAuthenticatorUid)
+                .orElseThrow(ReferenceNotFoundException::new);
+
+        userUpdateService.resetUserPassword(user, resetToken, password);
+    }
+
+    @POST
     @Path("/register")
     @RolesAllowed(ApplicationGroupNames.UNREGISTERED_USER)
     public WsUser registerNewUser(@Valid WsUserRegistration wsUserRegistration) {
@@ -95,6 +139,7 @@ public class UserResource {
             throw new WsException(Response.Status.NOT_ACCEPTABLE);
         }
     }
+
 
     @GET
     @Path("/{id}")
