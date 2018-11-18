@@ -16,6 +16,10 @@
             <groupId>com.charlyghislain.authenticator</groupId>
             <artifactId>authenticator-management-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.plancul</groupId>
+            <artifactId>plancul-authenticator-client</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
@@ -29,6 +33,14 @@
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.json.bind</groupId>
+            <artifactId>javax.json.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 

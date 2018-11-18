@@ -9,6 +9,9 @@ import javax.validation.constraints.NotNull;
 public class WsUserRegistration {
     @NotNull
     private WsUser user;
+    @NotNull
+    private String password;
+
     @Nullable
     @NullableField
     private String name;
@@ -21,9 +24,6 @@ public class WsUserRegistration {
     @Nullable
     @NullableField
     private String tenantInvitationToken;
-    @Nullable
-    @NullableField
-    private String password;
 
     @NotNull
     public WsUser getUser() {

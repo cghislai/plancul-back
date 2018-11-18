@@ -22,7 +22,6 @@
         <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-authenticator-client</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
@@ -79,7 +78,10 @@
             <groupId>javax.annotation</groupId>
             <artifactId>jsr250-api</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.liquibase</groupId>

@@ -18,6 +18,11 @@
             <artifactId>authenticator-application-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.charlyghislain.dispatcher</groupId>
+            <artifactId>dispatcher-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-domain</artifactId>
         </dependency>
@@ -27,8 +32,8 @@
             <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>com.charlyghislain.dispatcher</groupId>
-            <artifactId>dispatcher-api</artifactId>
+            <groupId>com.charlyghislain.plancul</groupId>
+            <artifactId>plancul-authenticator-client</artifactId>
         </dependency>
 
         <dependency>
@@ -44,6 +49,7 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-server</artifactId>
         </dependency>
+
     </dependencies>
 
 </project>

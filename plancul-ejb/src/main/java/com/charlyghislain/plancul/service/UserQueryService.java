@@ -1,11 +1,14 @@
 package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.authenticator.client.AuthenticatorUserClient;
+import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientError;
+import com.charlyghislain.plancul.authenticator.client.exception.UserNotFoundException;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.TenantUserRole;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.User_;
+import com.charlyghislain.plancul.domain.exception.PlanCulRuntimeException;
 import com.charlyghislain.plancul.domain.request.filter.UserFilter;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
@@ -107,12 +110,20 @@ public class UserQueryService {
 
     public AuthenticatorUser getLoggedAuthenticatorUser() {
         Long jwtUid = jwtUidClaim.get().getValue();
-        AuthenticatorUser user = findAuthenticatorUser(jwtUid);
+        AuthenticatorUser user = findAuthenticatorUser(jwtUid)
+                .orElseThrow(IllegalStateException::new);
         return user;
     }
 
-    public AuthenticatorUser findAuthenticatorUser(Long authenticatorUserId) {
-        return this.authenticatorUserClient.getUser(authenticatorUserId);
+    public Optional<AuthenticatorUser> findAuthenticatorUser(Long authenticatorUserId) {
+        try {
+            AuthenticatorUser user = this.authenticatorUserClient.getUser(authenticatorUserId);
+            return Optional.of(user);
+        } catch (UserNotFoundException e) {
+            return Optional.empty();
+        } catch (AuthenticatorClientError e) {
+            throw new PlanCulRuntimeException(e);
+        }
     }
 
     public Optional<AuthenticatorUser> findAuthenticatorUserByEmail(String email) {
@@ -127,8 +138,9 @@ public class UserQueryService {
 
     public boolean isUserActive(User user) {
         Long authenticatorUid = user.getAuthenticatorUid();
-        AuthenticatorUser authenticatorUser = findAuthenticatorUser(authenticatorUid);
-        return authenticatorUser.isActive();
+        return findAuthenticatorUser(authenticatorUid)
+                .map(AuthenticatorUser::isActive)
+                .orElse(false);
     }
 
     private Optional<User> findCallerUser() {

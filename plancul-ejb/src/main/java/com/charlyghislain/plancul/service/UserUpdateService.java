@@ -1,6 +1,8 @@
 package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.authenticator.client.AuthenticatorUserClient;
+import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientError;
+import com.charlyghislain.plancul.authenticator.client.exception.InvalidPasswordException;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.TenantUserRole;
@@ -58,43 +60,42 @@ public class UserUpdateService {
     private ClaimValue<Long> jwtUidClaim;
 
 
-    public User createUser(@NotNull User newUser, @NotNull AuthenticatorUser newAuthenticatorUser) throws OperationNotAllowedException, InvalidTokenException {
-        return this.createUser(newUser, newAuthenticatorUser, null, null, null);
-    }
-
     public User createUser(@NotNull User newUser, @NotNull AuthenticatorUser newAuthenticatorUser,
                            @NotNull String password) throws OperationNotAllowedException, InvalidTokenException {
         return this.createUser(newUser, newAuthenticatorUser, password, null, null);
     }
 
     public User createUser(@NotNull User newUser, @NotNull AuthenticatorUser newAuthenticatorUser,
-                           @Nullable String password, @Nullable String adminToken, @Nullable String tenantInvitationToken) throws InvalidTokenException, OperationNotAllowedException {
+                           @NotNull String password, @Nullable String adminToken, @Nullable String tenantInvitationToken)
+            throws InvalidTokenException, OperationNotAllowedException {
         newAuthenticatorUser.setActive(false);
 
         boolean adminAccount = this.checkAdminAccountCreation(adminToken);
         Optional<TenantUserRoleInvitation> tenantUserRoleInvitation = this.checkTenantInvitationToken(tenantInvitationToken);
 
-
 //        newAuthenticatorUser.setActive(true);
-        AuthenticatorUser createdAuthenticatorUser = authenticatorUserClient.createUser(newAuthenticatorUser);
-        Long authenticatorUserId = createdAuthenticatorUser.getId();
+        try {
+            AuthenticatorUser createdAuthenticatorUser = authenticatorUserClient.createUser(newAuthenticatorUser, password);
+            Long authenticatorUserId = createdAuthenticatorUser.getId();
 
-        newUser.setAuthenticatorUid(authenticatorUserId);
-        newUser.setAdmin(adminAccount);
-        User savedUser = saveUser(newUser);
+            newUser.setAuthenticatorUid(authenticatorUserId);
+            newUser.setAdmin(adminAccount);
+            User savedUser = saveUser(newUser);
 
-        tenantUserRoleInvitation.ifPresent(invitation -> this.createTenantRole(savedUser, invitation));
-        this.initializeNewUserAccount(savedUser);
-
-        if (password != null) {
-            this.authenticatorUserClient.setUserPassword(authenticatorUserId, password);
+            tenantUserRoleInvitation.ifPresent(invitation -> this.createTenantRole(savedUser, invitation));
+            this.initializeNewUserAccount(savedUser);
+            if (adminAccount) {
+                this.authenticatorUserClient.setUserActive(authenticatorUserId);
+                this.applicationInitializationService.checkInitializationStatus();
+            }
+            return savedUser;
+        } catch (InvalidPasswordException invalidPasswordException) {
+            throw new OperationNotAllowedException("Invalid password");
+        } catch (AuthenticatorClientError authenticatorClientError) {
+            throw new OperationNotAllowedException(authenticatorClientError.getMessage());
         }
-        if (adminAccount) {
-            this.authenticatorUserClient.setUserActive(authenticatorUserId);
-            this.applicationInitializationService.checkInitializationStatus();
-        }
-        return savedUser;
     }
+
 
     public User registerNewUser(@NotNull User newUser, @Nullable String adminToken) throws InvalidTokenException, OperationNotAllowedException {
         return this.registerNewUser(newUser, adminToken, null);
@@ -152,6 +153,7 @@ public class UserUpdateService {
         return saveUser(existingUser);
     }
 
+
     private boolean checkAdminAccountCreation(@Nullable String token) throws InvalidTokenException, OperationNotAllowedException {
         if (token != null) {
             checkAdminTokenIsValid(token);
@@ -175,7 +177,7 @@ public class UserUpdateService {
     private void checkAdminTokenIsValid(@NotNull String adminToken) throws InvalidTokenException {
         applicationInitializationService.getAdminToken()
                 .filter(adminToken::equals)
-                .orElseThrow(InvalidTokenException::new);
+                .orElseThrow(() -> new InvalidTokenException("Invalid admin token"));
     }
 
     private void checkAdminAccountInitialized() throws OperationNotAllowedException {
@@ -232,6 +234,14 @@ public class UserUpdateService {
         } else {
             TenantUserRoleInvitation invitation = tenantUserRoleInvitationUpdateService.createInvitation(tenant, tenantRole);
             // sendInvitationToNewUser
+        }
+    }
+
+    private void setUserPassword(@NotNull String password, Long authenticatorUserId) throws OperationNotAllowedException {
+        try {
+            this.authenticatorUserClient.setUserPassword(authenticatorUserId, password);
+        } catch (AuthenticatorClientError authenticatorClientError) {
+            throw new OperationNotAllowedException("Could not set password");
         }
     }
 

@@ -1,5 +1,6 @@
 package com.charlyghislain.plancul.service;
 
+import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.request.filter.UserFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class ApplicationInitializationService {
     private void checkAdminAccount() {
         UserFilter userFilter = new UserFilter();
         userFilter.setAdmin(true);
-        adminAccountInitialized = userQueryService.findUser(userFilter).isPresent();
+        adminAccountInitialized = checkAdminAccountInitialized(userFilter);
         if (!adminAccountInitialized && adminToken == null) {
             adminToken = UUID.randomUUID().toString();
             LOG.info("Your admin account initialization token:\n\n" + adminToken + "\n\n");
@@ -41,4 +42,21 @@ public class ApplicationInitializationService {
     Optional<String> getAdminToken() {
         return Optional.ofNullable(adminToken);
     }
+
+
+    private boolean checkAdminAccountInitialized(UserFilter userFilter) {
+        return userQueryService.findUser(userFilter)
+                .map(this::checkAdminUserExists)
+                .orElse(false);
+    }
+
+    private boolean checkAdminUserExists(User adminUser) {
+        Long authenticatorUid = adminUser.getAuthenticatorUid();
+        boolean exists = userQueryService.findAuthenticatorUser(authenticatorUid).isPresent();
+        if (!exists) {
+            throw new RuntimeException("Could not find the admin user account at the authenticator endpoint");
+        }
+        return true;
+    }
+
 }

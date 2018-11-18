@@ -28,11 +28,10 @@ public class AuthenticatorUserEventResource implements UserEventResource {
     @Override
     public CompletionStage<Void> userAdded(WsApplicationUser wsApplicationUser) {
         userQueryService.findUserByAuthenticatorUid(wsApplicationUser.getId())
-                .ifPresent(user->this.checkSendVerificationMail(user, wsApplicationUser));
+                .ifPresent(user -> this.checkSendVerificationMail(user, wsApplicationUser));
 
         return CompletableFuture.completedFuture(null);
     }
-
 
 
     @Override
@@ -52,15 +51,14 @@ public class AuthenticatorUserEventResource implements UserEventResource {
         boolean active = wsApplicationUser.isActive();
         boolean admin = user.isAdmin();
 
-        if (!active && !emailVerified && !admin) {
-            this.sendAccountMailVerification(user);
+        if (!active && !emailVerified) {
+            String emailVerificationToken = authenticatorUserClient.createNewEmailVerificationToken(user);
+            if (admin) {
+                authenticatorUserClient.validateUserEmail(user.getAuthenticatorUid(), emailVerificationToken);
+            } else {
+                communicationService.sendAccountEmailVerification(user, emailVerificationToken);
+            }
         }
     }
-
-    private void sendAccountMailVerification(User user) {
-        String emailVerificationToken = authenticatorUserClient.createNewEmailVerificationToken(user);
-        communicationService.sendAccountEmailVerification(user, emailVerificationToken);
-    }
-
 
 }

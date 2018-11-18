@@ -24,6 +24,8 @@ import com.charlyghislain.plancul.domain.config.ConfigConstants;
 import com.charlyghislain.plancul.domain.exception.PlanCulRuntimeException;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -39,6 +41,8 @@ import java.util.Set;
 
 @Stateless
 public class CommunicationService {
+
+    private final static Logger LOG = LoggerFactory.getLogger(CommunicationService.class);
 
     @Inject
     private TemplateContextsService templateContextsService;
@@ -87,7 +91,8 @@ public class CommunicationService {
 
     public UserTemplate createUserTemplate(User user) {
         Long authenticatorUid = user.getAuthenticatorUid();
-        AuthenticatorUser authenticatorUser = userQueryService.findAuthenticatorUser(authenticatorUid);
+        AuthenticatorUser authenticatorUser = userQueryService.findAuthenticatorUser(authenticatorUid)
+                .orElseThrow(IllegalStateException::new);
 
         UserTemplate userTemplate = new UserTemplate();
         userTemplate.setActive(authenticatorUser.isActive());
@@ -117,11 +122,16 @@ public class CommunicationService {
             readyToBeRenderedMessage.setMessage(accountEmailVerificationMessage);
 
 
-            return dispatchHtmlMessage(readyToBeRenderedMessage);
+            DispatchingResult dispatchingResult = dispatchHtmlMessage(readyToBeRenderedMessage);
+
+            String message = MessageFormat.format("email verification with token {0} for user {1}", verificationToken, user.getId());
+            this.logDispatching(message, dispatchingResult);
+            return dispatchingResult;
         } catch (DispatcherException e) {
             throw new PlanCulRuntimeException(e);
         }
     }
+
 
     public DispatchingResult sendPasswordResetToken(User user, String resetToken) {
         try {
@@ -142,7 +152,12 @@ public class CommunicationService {
             readyToBeRenderedMessage.setMessage(accountPasswordResetMessage);
 
 
-            return dispatchHtmlMessage(readyToBeRenderedMessage);
+            DispatchingResult dispatchingResult = dispatchHtmlMessage(readyToBeRenderedMessage);
+
+
+            String message = MessageFormat.format("password reset token for user {0}", user.getId());
+            this.logDispatching(message, dispatchingResult);
+            return dispatchingResult;
         } catch (DispatcherException e) {
             throw new PlanCulRuntimeException(e);
         }
@@ -165,7 +180,9 @@ public class CommunicationService {
     }
 
     private EmailVerificationTemplate createEmailVerificationTemplate(String token, User user) {
-        AuthenticatorUser authenticatorUser = userQueryService.findAuthenticatorUser(user.getAuthenticatorUid());
+        AuthenticatorUser authenticatorUser = userQueryService.findAuthenticatorUser(user.getAuthenticatorUid())
+                .orElseThrow(IllegalStateException::new);
+
         String email = authenticatorUser.getEmail();
         try {
             String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8.name());
@@ -186,7 +203,9 @@ public class CommunicationService {
     }
 
     private PasswordResetTemplate createPasswordResetTemplate(String token, User user) {
-        AuthenticatorUser authenticatorUser = userQueryService.findAuthenticatorUser(user.getAuthenticatorUid());
+        AuthenticatorUser authenticatorUser = userQueryService.findAuthenticatorUser(user.getAuthenticatorUid())
+                .orElseThrow(IllegalStateException::new);
+
         String email = authenticatorUser.getEmail();
         try {
             String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8.name());
@@ -203,6 +222,19 @@ public class CommunicationService {
             return passwordResetTemplate;
         } catch (UnsupportedEncodingException e) {
             throw new PlanCulRuntimeException(e);
+        }
+    }
+
+
+    private void logDispatching(String message, DispatchingResult dispatchingResult) {
+        boolean success = dispatchingResult.isSuccess();
+        DispatchingOption dispatchingOption = dispatchingResult.getDispatchingOption();
+        if (success) {
+            LOG.info("Sucessfully dispatched {} message {}", dispatchingOption.name(), message);
+        } else {
+            Exception error = dispatchingResult.getError();
+            String errorMessage = error.getMessage();
+            LOG.warn("Failed to dispatch {} message {}: {}", dispatchingOption.name(), message, errorMessage);
         }
     }
 }

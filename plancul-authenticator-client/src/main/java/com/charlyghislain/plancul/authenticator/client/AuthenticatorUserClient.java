@@ -1,15 +1,11 @@
 package com.charlyghislain.plancul.authenticator.client;
 
 import com.charlyghislain.authenticator.management.api.UserResource;
-import com.charlyghislain.authenticator.management.api.domain.WsApplicationUser;
-import com.charlyghislain.authenticator.management.api.domain.WsEmailVerificationToken;
-import com.charlyghislain.authenticator.management.api.domain.WsPagination;
-import com.charlyghislain.authenticator.management.api.domain.WsPasswordReset;
-import com.charlyghislain.authenticator.management.api.domain.WsPasswordResetToken;
-import com.charlyghislain.authenticator.management.api.domain.WsResultList;
-import com.charlyghislain.authenticator.management.api.domain.WsUserApplicationFilter;
+import com.charlyghislain.authenticator.management.api.domain.*;
 import com.charlyghislain.plancul.authenticator.client.converter.AuthenticatorUserConverter;
 import com.charlyghislain.plancul.authenticator.client.converter.WsApplicationUserConverter;
+import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientError;
+import com.charlyghislain.plancul.authenticator.client.provider.ClientErrorsHidden;
 import com.charlyghislain.plancul.authenticator.client.provider.JwtTokenProvider;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.config.ConfigConstants;
@@ -20,11 +16,13 @@ import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.WebApplicationException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
 @ApplicationScoped
+@ClientErrorsHidden
 public class AuthenticatorUserClient {
 
     private UserResource userResource;
@@ -52,8 +50,8 @@ public class AuthenticatorUserClient {
         }
     }
 
-    public AuthenticatorUser createUser(AuthenticatorUser authenticatorUser) {
-        WsApplicationUser wsApplicationUser = wsApplicationUserConverter.toWsApplicationUser(authenticatorUser);
+    public AuthenticatorUser createUser(AuthenticatorUser authenticatorUser, String password) throws AuthenticatorClientError {
+        WsApplicationUserWithPassword wsApplicationUser = wsApplicationUserConverter.toWsApplicationUser(authenticatorUser, password);
         WsApplicationUser createdUser = userResource.createUser(wsApplicationUser);
 
         return authenticatorUserConverter.toAuthenticatorUser(createdUser);
@@ -93,12 +91,16 @@ public class AuthenticatorUserClient {
         userResource.checkEmailVerification(userId, verificationToken);
     }
 
-    public AuthenticatorUser setUserPassword(Long userId, String password) {
-        WsApplicationUser wsApplicationUser = userResource.updateUserPassword(userId, password);
-        return authenticatorUserConverter.toAuthenticatorUser(wsApplicationUser);
+    public AuthenticatorUser setUserPassword(Long userId, String password) throws AuthenticatorClientError {
+        try {
+            WsApplicationUser wsApplicationUser = userResource.updateUserPassword(userId, password);
+            return authenticatorUserConverter.toAuthenticatorUser(wsApplicationUser);
+        } catch (WebApplicationException e) {
+            throw new AuthenticatorClientError(e);
+        }
     }
 
-    public AuthenticatorUser getUser(long id) {
+    public AuthenticatorUser getUser(long id) throws AuthenticatorClientError {
         WsApplicationUser wsApplicationUser = userResource.getUser(id);
         return authenticatorUserConverter.toAuthenticatorUser(wsApplicationUser);
     }

@@ -48,6 +48,60 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>core-mariadb-client</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>copy-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.basedir}/../plancul-stack/</outputDirectory>
+                                    <includeArtifactIds>mariadb-java-client</includeArtifactIds>
+                                    <stripVersion>true</stripVersion>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.coderplus.maven.plugins</groupId>
+                        <artifactId>copy-rename-maven-plugin</artifactId>
+                        <version>1.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>copy-war</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceFile>${project.build.directory}/plancul-ear-${project.version}.ear
+                                    </sourceFile>
+                                    <destinationFile>${project.basedir}/../plancul-stack/plancul-ear.ear
+                                    </destinationFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.mariadb.jdbc</groupId>
+                    <artifactId>mariadb-java-client</artifactId>
+                    <version>2.3.0</version>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
@@ -55,6 +109,19 @@
             <type>ejb</type>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.plancul</groupId>
+            <artifactId>plancul-authenticator-client</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.charlyghislain.dispatcher</groupId>
+            <artifactId>dispatcher</artifactId>
+            <type>ejb</type>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
             <artifactId>plancul-ws</artifactId>
@@ -93,12 +160,6 @@
             <artifactId>dispatcher-api</artifactId>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.charlyghislain.dispatcher</groupId>
-            <artifactId>dispatcher</artifactId>
-            <version>1.0.0</version>
-            <type>ejb</type>
-        </dependency>
 
 
         <dependency>
@@ -106,5 +167,7 @@
             <artifactId>slf4j-jdk14</artifactId>
             <version>1.7.21</version>
         </dependency>
+
     </dependencies>
+
 </project>

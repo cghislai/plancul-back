@@ -14,6 +14,7 @@ import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import com.charlyghislain.plancul.service.UserQueryService;
 import com.charlyghislain.plancul.service.UserUpdateService;
+import com.charlyghislain.plancul.util.exception.InvalidPasswordException;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.exception.WsException;
 import org.eclipse.microprofile.jwt.Claim;
@@ -25,12 +26,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
@@ -64,19 +60,20 @@ public class UserResource {
     public WsUser createNewUser(@Valid WsUserRegistration wsUserRegistration) {
         AuthenticatorUser authenticatorUser = authenticatorUserConverter.toAuthenticatorUser(wsUserRegistration)
                 .orElseGet(this::getLoggedUser);
+        String password = Optional.ofNullable(wsUserRegistration.getPassword())
+                .orElseThrow(InvalidPasswordException::new);
         Optional<String> adminToken = Optional.ofNullable(wsUserRegistration.getAdminToken());
-        Optional<String> password = Optional.ofNullable(wsUserRegistration.getPassword());
         Optional<String> tenantInvitationToken = Optional.ofNullable(wsUserRegistration.getTenantInvitationToken());
 
         User user = userConverter.fromWsEntity(wsUserRegistration.getUser());
 
         try {
-            User createdUser = userUpdateService.createUser(user, authenticatorUser,
-                    password.orElse(null), adminToken.orElse(null), tenantInvitationToken.orElse(null));
+            User createdUser = userUpdateService.createUser(user, authenticatorUser, password,
+                    adminToken.orElse(null), tenantInvitationToken.orElse(null));
 
             return wsUserConverter.toWsEntity(createdUser);
         } catch (InvalidTokenException | OperationNotAllowedException e) {
-            throw new WsException(Response.Status.NOT_ACCEPTABLE);
+            throw new WsException(Response.Status.NOT_ACCEPTABLE, e.getMessage());
         }
     }
 
