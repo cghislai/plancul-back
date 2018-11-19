@@ -10,6 +10,7 @@ import com.charlyghislain.plancul.converter.WsUserConverter;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.exception.InvalidTokenException;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
+import com.charlyghislain.plancul.domain.exception.PlanCulException;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import com.charlyghislain.plancul.service.UserQueryService;
@@ -99,7 +100,11 @@ public class UserResource {
                 .map(AuthenticatorUser::getId)
                 .flatMap(userQueryService::findUserByAuthenticatorUid)
                 .orElseThrow(ReferenceNotFoundException::new);
-        userUpdateService.sendNewPasswordResetToken(user);
+        try {
+            userUpdateService.sendNewPasswordResetToken(user);
+        } catch (PlanCulException e) {
+            throw new WsException(Response.Status.INTERNAL_SERVER_ERROR, "Password reset message could not be sent");
+        }
     }
 
     @POST

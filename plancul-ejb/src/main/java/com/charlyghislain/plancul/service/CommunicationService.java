@@ -4,11 +4,11 @@ import com.charlyghislain.dispatcher.api.context.TemplateContextObject;
 import com.charlyghislain.dispatcher.api.dispatching.DispatchedMessage;
 import com.charlyghislain.dispatcher.api.dispatching.DispatchingOption;
 import com.charlyghislain.dispatcher.api.dispatching.DispatchingResult;
-import com.charlyghislain.dispatcher.api.exception.DispatcherException;
-import com.charlyghislain.dispatcher.api.header.MailHeadersTemplate;
+import com.charlyghislain.dispatcher.api.exception.MessageRenderingException;
 import com.charlyghislain.dispatcher.api.message.DispatcherMessage;
 import com.charlyghislain.dispatcher.api.message.Message;
 import com.charlyghislain.dispatcher.api.rendering.ReadyToBeRenderedMessage;
+import com.charlyghislain.dispatcher.api.rendering.ReadyToBeRenderedMessageBuilder;
 import com.charlyghislain.dispatcher.api.rendering.RenderedMessage;
 import com.charlyghislain.dispatcher.api.service.MessageDispatcher;
 import com.charlyghislain.dispatcher.api.service.MessageRenderer;
@@ -21,6 +21,7 @@ import com.charlyghislain.plancul.communication.template.PasswordResetTemplate;
 import com.charlyghislain.plancul.communication.template.UserTemplate;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.config.ConfigConstants;
+import com.charlyghislain.plancul.domain.exception.PlanCulException;
 import com.charlyghislain.plancul.domain.exception.PlanCulRuntimeException;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -34,10 +35,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Stateless
 public class CommunicationService {
@@ -103,80 +103,60 @@ public class CommunicationService {
         return userTemplate;
     }
 
-    public DispatchingResult sendAccountEmailVerification(User user, String verificationToken) {
-        try {
-            Locale locale = user.getLanguage().getLocale();
-            List<Locale> acceptedLocales = Collections.singletonList(locale);
-            Set<DispatchingOption> dispatchingOptions = Collections.singleton(DispatchingOption.MAIL_HTML);
+    public DispatchedMessage sendAccountEmailVerification(User user, String verificationToken) throws PlanCulException {
+        Locale userLocale = user.getLanguage().getLocale();
+        UserTemplate userTemplate = this.createUserTemplate(user);
+        EmailVerificationTemplate emailVerificationTemplate = this.createEmailVerificationTemplate(verificationToken, user);
+        List<TemplateContextObject> templateContexts = templateContextsService.createTemplateContexts(
+                accountEmailVerificationMessage, userTemplate, emailVerificationTemplate);
 
-            UserTemplate userTemplate = this.createUserTemplate(user);
-            EmailVerificationTemplate emailVerificationTemplate = this.createEmailVerificationTemplate(verificationToken, user);
-            List<TemplateContextObject> templateContexts = templateContextsService.createTemplateContexts(accountEmailVerificationMessage, userTemplate, emailVerificationTemplate);
-            MailHeadersTemplate mailMessageHeaders = messageResourcesService.findMailMessageHeaders(accountEmailVerificationMessage, locale);
+        ReadyToBeRenderedMessage readyToBeRenderedMessage = ReadyToBeRenderedMessageBuilder.newBuider(accountEmailVerificationMessage)
+                .withContext(templateContexts)
+                .acceptMailDispatching()
+                .acceptLocale(userLocale)
+                .build();
 
-            ReadyToBeRenderedMessage readyToBeRenderedMessage = new ReadyToBeRenderedMessage();
-            readyToBeRenderedMessage.setAcceptedLocales(acceptedLocales);
-            readyToBeRenderedMessage.setContextObjects(templateContexts);
-            readyToBeRenderedMessage.setDispatchingOptions(dispatchingOptions);
-            readyToBeRenderedMessage.setMailHeadersTemplate(mailMessageHeaders);
-            readyToBeRenderedMessage.setMessage(accountEmailVerificationMessage);
-
-
-            DispatchingResult dispatchingResult = dispatchHtmlMessage(readyToBeRenderedMessage);
-
-            String message = MessageFormat.format("email verification with token {0} for user {1}", verificationToken, user.getId());
-            this.logDispatching(message, dispatchingResult);
-            return dispatchingResult;
-        } catch (DispatcherException e) {
-            throw new PlanCulRuntimeException(e);
-        }
+        DispatchedMessage dispatchedMessage = dispatchMessage(readyToBeRenderedMessage);
+        String message = MessageFormat.format("email verification with token {0} for user {1}", verificationToken, user.getId());
+        this.logDispatchingResult(message, dispatchedMessage);
+        return dispatchedMessage;
     }
 
 
-    public DispatchingResult sendPasswordResetToken(User user, String resetToken) {
-        try {
-            Locale locale = user.getLanguage().getLocale();
-            List<Locale> acceptedLocales = Collections.singletonList(locale);
-            Set<DispatchingOption> dispatchingOptions = Collections.singleton(DispatchingOption.MAIL_HTML);
+    public DispatchedMessage sendPasswordResetToken(User user, String resetToken) throws PlanCulException {
+        Locale userLocale = user.getLanguage().getLocale();
+        UserTemplate userTemplate = this.createUserTemplate(user);
+        PasswordResetTemplate passwordResetTemplate = this.createPasswordResetTemplate(resetToken, user);
+        List<TemplateContextObject> templateContexts = templateContextsService.createTemplateContexts(
+                accountPasswordResetMessage, userTemplate, passwordResetTemplate);
 
-            UserTemplate userTemplate = this.createUserTemplate(user);
-            PasswordResetTemplate passwordResetTemplate = this.createPasswordResetTemplate(resetToken, user);
-            List<TemplateContextObject> templateContexts = templateContextsService.createTemplateContexts(accountPasswordResetMessage, userTemplate, passwordResetTemplate);
-            MailHeadersTemplate mailMessageHeaders = messageResourcesService.findMailMessageHeaders(accountPasswordResetMessage, locale);
+        ReadyToBeRenderedMessage readyToBeRenderedMessage = ReadyToBeRenderedMessageBuilder.newBuider(accountPasswordResetMessage)
+                .withContext(templateContexts)
+                .acceptMailDispatching()
+                .acceptLocale(userLocale)
+                .build();
 
-            ReadyToBeRenderedMessage readyToBeRenderedMessage = new ReadyToBeRenderedMessage();
-            readyToBeRenderedMessage.setAcceptedLocales(acceptedLocales);
-            readyToBeRenderedMessage.setContextObjects(templateContexts);
-            readyToBeRenderedMessage.setDispatchingOptions(dispatchingOptions);
-            readyToBeRenderedMessage.setMailHeadersTemplate(mailMessageHeaders);
-            readyToBeRenderedMessage.setMessage(accountPasswordResetMessage);
-
-
-            DispatchingResult dispatchingResult = dispatchHtmlMessage(readyToBeRenderedMessage);
-
-
-            String message = MessageFormat.format("password reset token for user {0}", user.getId());
-            this.logDispatching(message, dispatchingResult);
-            return dispatchingResult;
-        } catch (DispatcherException e) {
-            throw new PlanCulRuntimeException(e);
-        }
+        DispatchedMessage dispatchedMessage = dispatchMessage(readyToBeRenderedMessage);
+        String message = MessageFormat.format("password reset token for user {0}", user.getId());
+        this.logDispatchingResult(message, dispatchedMessage);
+        return dispatchedMessage;
     }
 
     @NotNull
-    private DispatchingResult dispatchHtmlMessage(ReadyToBeRenderedMessage readyToBeRenderedMessage) {
+    private DispatchedMessage dispatchMessage(ReadyToBeRenderedMessage readyToBeRenderedMessage) throws PlanCulException {
+        RenderedMessage renderedMessage;
         try {
-            RenderedMessage renderedMessage = messageRenderer.renderMessage(readyToBeRenderedMessage);
-
-            DispatchedMessage dispatchedMessage = messageDispatcher.dispatchMessage(renderedMessage);
-            DispatchingResult dispatchingResult = dispatchedMessage.getDispatchingResults().get(DispatchingOption.MAIL_HTML);
-            if (!dispatchingResult.isSuccess()) {
-                throw new PlanCulRuntimeException(dispatchingResult.getError());
-            }
-            return dispatchingResult;
-        } catch (DispatcherException e) {
-            throw new PlanCulRuntimeException(e);
+            renderedMessage = messageRenderer.renderMessage(readyToBeRenderedMessage);
+        } catch (MessageRenderingException e) {
+            throw new PlanCulException("Could not render message", e);
         }
+
+        DispatchedMessage dispatchedMessage = messageDispatcher.dispatchMessage(renderedMessage);
+        boolean anySucceeded = dispatchedMessage.isAnySucceeded();
+        if (!anySucceeded) {
+            throw new PlanCulException("Could not dispatch message", dispatchedMessage.getMultiErrorsException());
+        }
+        return dispatchedMessage;
     }
 
     private EmailVerificationTemplate createEmailVerificationTemplate(String token, User user) {
@@ -226,15 +206,29 @@ public class CommunicationService {
     }
 
 
-    private void logDispatching(String message, DispatchingResult dispatchingResult) {
-        boolean success = dispatchingResult.isSuccess();
-        DispatchingOption dispatchingOption = dispatchingResult.getDispatchingOption();
+    private void logDispatchingResult(String messageName, DispatchedMessage dispatchedMessage) {
+        boolean success = dispatchedMessage.isAnySucceeded();
+        DispatcherMessage dispatcherMessage = dispatchedMessage.getMessage();
+        String sucessDispatchedOptionsNames = dispatchedMessage.getDispatchingResultList().stream()
+                .filter(DispatchingResult::isSuccess)
+                .map(DispatchingResult::getDispatchingOption)
+                .map(Enum::name)
+                .collect(Collectors.joining(","));
+        String failuresDispatchingOptionsNames = dispatchedMessage.getDispatchingResultList().stream()
+                .filter(d -> !d.isSuccess())
+                .map(DispatchingResult::getDispatchingOption)
+                .map(Enum::name)
+                .collect(Collectors.joining(","));
+
         if (success) {
-            LOG.info("Sucessfully dispatched {} message {}", dispatchingOption.name(), message);
+            String infoMessage = MessageFormat.format("Sucessfully dispatched message {0} '{1}' by {2}",
+                    dispatcherMessage.getName(), messageName, sucessDispatchedOptionsNames);
+            LOG.info(infoMessage);
         } else {
-            Exception error = dispatchingResult.getError();
-            String errorMessage = error.getMessage();
-            LOG.warn("Failed to dispatch {} message {}: {}", dispatchingOption.name(), message, errorMessage);
+            Exception error = dispatchedMessage.getMultiErrorsException();
+            String warnMessage = MessageFormat.format("Failed to dispatch message {0} '{1}' by {2}",
+                    dispatcherMessage.getName(), messageName, failuresDispatchingOptionsNames);
+            LOG.warn(warnMessage, error);
         }
     }
 }

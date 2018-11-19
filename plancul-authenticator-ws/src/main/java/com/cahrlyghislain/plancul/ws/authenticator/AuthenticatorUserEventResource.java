@@ -4,6 +4,8 @@ import com.charlyghislain.authenticator.application.api.UserEventResource;
 import com.charlyghislain.authenticator.application.api.domain.WsApplicationUser;
 import com.charlyghislain.plancul.authenticator.client.AuthenticatorUserClient;
 import com.charlyghislain.plancul.domain.User;
+import com.charlyghislain.plancul.domain.exception.PlanCulException;
+import com.charlyghislain.plancul.domain.exception.PlanCulRuntimeException;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.service.CommunicationService;
 import com.charlyghislain.plancul.service.UserQueryService;
@@ -56,8 +58,16 @@ public class AuthenticatorUserEventResource implements UserEventResource {
             if (admin) {
                 authenticatorUserClient.validateUserEmail(user.getAuthenticatorUid(), emailVerificationToken);
             } else {
-                communicationService.sendAccountEmailVerification(user, emailVerificationToken);
+                sendAccountEmailVerificationMessage(user, emailVerificationToken);
             }
+        }
+    }
+
+    private void sendAccountEmailVerificationMessage(User user, String emailVerificationToken) {
+        try {
+            communicationService.sendAccountEmailVerification(user, emailVerificationToken);
+        } catch (PlanCulException e) {
+            throw new PlanCulRuntimeException("Could not send account email verification message", e);
         }
     }
 

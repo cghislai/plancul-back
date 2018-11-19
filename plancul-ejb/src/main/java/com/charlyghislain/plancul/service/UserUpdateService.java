@@ -10,6 +10,7 @@ import com.charlyghislain.plancul.domain.TenantUserRoleInvitation;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.exception.InvalidTokenException;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
+import com.charlyghislain.plancul.domain.exception.PlanCulException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import com.charlyghislain.plancul.domain.validation.ValidEmail;
@@ -128,7 +129,7 @@ public class UserUpdateService {
         authenticatorUserClient.validateUserEmail(authenticatorUid, verificationToken);
     }
 
-    public void sendNewPasswordResetToken(User user) {
+    public void sendNewPasswordResetToken(User user) throws PlanCulException {
         String passwordResetToken = authenticatorUserClient.createNewPasswordResetToken(user.getAuthenticatorUid());
         communicationService.sendPasswordResetToken(user, passwordResetToken);
     }
