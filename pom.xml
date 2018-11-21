@@ -17,6 +17,10 @@
         <module>plancul-authenticator-ws</module>
         <module>plancul-authenticator-client</module>
         <module>plancul-domain</module>
+        <module>astronomy-api</module>
+        <module>astronomy-ws</module>
+        <!--<module>astronomy-cerridwen-client</module>-->
+        <module>astronomy-almanac-client</module>
     </modules>
 
     <distributionManagement>
@@ -89,6 +93,30 @@
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>plancul-api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.charlyghislain.plancul</groupId>
+                <artifactId>astronomy-api</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.charlyghislain.plancul</groupId>
+                <artifactId>astronomy-ws</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <type>war</type>
+            </dependency>
+            <!--<dependency>-->
+                <!--<groupId>com.charlyghislain.plancul</groupId>-->
+                <!--<artifactId>astronomy-cerridwen-client</artifactId>-->
+                <!--<version>1.0.0-SNAPSHOT</version>-->
+                <!--<scope>provided</scope>-->
+            <!--</dependency>-->
+            <dependency>
+                <groupId>com.charlyghislain.plancul</groupId>
+                <artifactId>astronomy-almanac-client</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>

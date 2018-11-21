@@ -1,0 +1,47 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+    <changeSet id="0-sequence" author="cghislai">
+        <createTable tableName="SEQUENCE">
+            <column name="SEQ_NAME" type="VARCHAR(20)"/>
+            <column name="SEQ_COUNT" type="BIGINT(19)"/>
+        </createTable>
+        <insert tableName="SEQUENCE">
+            <column name="SEQ_NAME" value="SEQ_GEN"/>
+            <column name="SEQ_COUNT" value="0"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="1-status-table" author="cghisli">
+        <createTable tableName="CACHED_YEAR">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="YEAR" type="INT">
+                <constraints unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2-cached-event-table" author="cghisli">
+        <createTable tableName="CACHED_EVENT">
+            <column name="ID" type="BIGINT(19)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="EVENTTYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DATETIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NORTH_SIDE" type="BIT"/>
+            <column name="MOONPHASE" type="VARCHAR(255)"/>
+            <column name="ZODIAK" type="VARCHAR(255)"/>
+
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

@@ -60,7 +60,7 @@ public class UserQueryService {
     public Optional<User> findUser(UserFilter userFilter) {
         CriteriaQuery<User> query = searchService.createSearchQuery(User.class, userFilter, this::createPredicates);
         return searchService.getSingleResult(query);
-//                .filter(this::isUserAccessibleToLoggedUser);
+//                .request(this::isUserAccessibleToLoggedUser);
     }
 
     public Optional<User> findUserById(long id) {

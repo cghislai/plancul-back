@@ -221,12 +221,12 @@ public class CommunicationService {
                 .collect(Collectors.joining(","));
 
         if (success) {
-            String infoMessage = MessageFormat.format("Sucessfully dispatched message {0} '{1}' by {2}",
+            String infoMessage = MessageFormat.format("Sucessfully dispatched message {0} \"{1} \"by {2}",
                     dispatcherMessage.getName(), messageName, sucessDispatchedOptionsNames);
             LOG.info(infoMessage);
         } else {
             Exception error = dispatchedMessage.getMultiErrorsException();
-            String warnMessage = MessageFormat.format("Failed to dispatch message {0} '{1}' by {2}",
+            String warnMessage = MessageFormat.format("Failed to dispatch message {0} \"{1}\" by {2}",
                     dispatcherMessage.getName(), messageName, failuresDispatchingOptionsNames);
             LOG.warn(warnMessage, error);
         }

@@ -6,6 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="astronomy-almanac-client" />
+        <module name="astronomy-api" />
+        <module name="astronomy-ws" />
         <module name="plancul-api" />
         <module name="plancul-authenticator-client" />
         <module name="plancul-authenticator-ws" />
@@ -17,7 +20,10 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="astronomy" target="8" />
+      <module name="astronomy-cerridwen-client" target="8" />
       <module name="opendata-client" target="8" />
+      <module name="plancul-astronomy-client" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

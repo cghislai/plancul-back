@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="ejb" url="file://$PROJECT_DIR$/astronomy-ws" />
     <file type="ejb" url="file://$PROJECT_DIR$/plancul-ejb" />
     <file type="javaeeApplication" url="file://$PROJECT_DIR$/plancul-ear" />
+    <file type="web" url="file://$PROJECT_DIR$/astronomy-ws" />
     <file type="web" url="file://$PROJECT_DIR$/plancul-authenticator-ws" />
     <file type="web" url="file://$PROJECT_DIR$/plancul-ws" />
   </component>
@@ -12,6 +14,11 @@
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/astronomy-cerridwen-client/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="NullableNotNullManager">
