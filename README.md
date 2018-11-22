@@ -1,32 +1,31 @@
-# Plancul backend
+# Plancul
 
-You will need the following JNDI resources available in your application server in order to deploy the ear:
+Plan cul is a culture scheduling web application targeted at truck farmers.
 
-- `mail/plancul-mail` a mail resource for smtp server access
-- `jdbc/plancul-db` a jdbc resource for database access
+## Getting started
 
-For instance, on a payara/glassfish server, you could setup something like this:
+### Dependencies
 
-```xml
-<resources>
-    <mail-resource host="localhost" description="" from="it@localhost" user="cghislai" jndi-name="mail/plancul-mail" />
-    <jdbc-resource pool-name="plancul-db-pool" object-type="system-all" jndi-name="jdbc/plancul-db"/>
-    <jdbc-connection-pool is-isolation-level-guaranteed="false" datasource-classname="org.h2.jdbcx.JdbcDataSource" name="plancul-db-pool" res-type="javax.sql.DataSource">
-      <property name="URL" value="jdbc:h2:${com.sun.aas.instanceRoot}/lib/databases/plancul-db;AUTO_SERVER=TRUE"></property>
-    </jdbc-connection-pool>
-</resources>
-<servers>
-    <server config-ref="server-config" name="server">
-      <resource-ref ref="jdbc/plancul-db"></resource-ref>
-      <resource-ref ref="mail/plancul-mail"></resource-ref>
-   </server>
-</servers>
-```
-Refer to your application server documentation to correctly setup those.
+Plancul packages as an ear to deploy on a recent java application server (payar 5.183).
 
-There are some system properties you may want to provide as jcm options as well. They are listed in 
+It relies on the following external resources:
+- A `jdbc/plancul-db` JNDI resource for database access
+- A `jdbc/plancul-astronomy-db` JNDI resource for astronomical event cache database
+- A `mail/plancul-mail` JNDI mail resource for smtp server access
+- An [authenticator](https://github.com/cghislai/authenticator) service for authentication
+- An [almanac](https://github.com/cghislai/almanac) service for astronomical event computation 
+
+Refer to your application server documentation to correctly setup the JNDI resources.
+
+You can also take a look at the provided docker-compose in plancul-stack/
+
+Configuration use the microprofile-config mechanism. Default values are located there: 
 /plancul-ejb/src/main/resources/com/charlyghislain/plancul/configuration/parameters-defaults.properties.
 
+Additionally, modules integrating external services may have additional configuration parameters.
 
+### Startup
 
+On deployment, an admin activation token is logged out if no admin account is active. You need it on first run. 
+Once the admin account is set up, you can create new user account (or log in with your authenticator account).
 
