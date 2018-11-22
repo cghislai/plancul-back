@@ -37,7 +37,7 @@ pipeline {
                     sh '''
                        [ "$NPM_DEPLOY" != "true" ] && exit 0
 
-                       cd plancul-ws/target/npm
+                       cd plancul-api/target/npm
                        npm publish
                        cd ../../..
 
