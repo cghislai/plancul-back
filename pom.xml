@@ -19,7 +19,6 @@
         <module>plancul-domain</module>
         <module>astronomy-api</module>
         <module>astronomy-ws</module>
-        <!--<module>astronomy-cerridwen-client</module>-->
         <module>astronomy-almanac-client</module>
     </modules>
 
@@ -48,25 +47,25 @@
             <dependency>
                 <groupId>com.charlyghislain.authenticator</groupId>
                 <artifactId>authenticator-management-api</artifactId>
-                <version>1.0.1-SNAPSHOT</version>
+                <version>1.0.1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.authenticator</groupId>
                 <artifactId>authenticator-application-api</artifactId>
-                <version>1.0.1-SNAPSHOT</version>
+                <version>1.0.1</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.dispatcher</groupId>
                 <artifactId>dispatcher-api</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.dispatcher</groupId>
                 <artifactId>dispatcher</artifactId>
-                <version>2.0.0-SNAPSHOT</version>
+                <version>2.0.0</version>
                 <type>ejb</type>
                 <scope>provided</scope>
             </dependency>
@@ -108,12 +107,6 @@
                 <version>1.0.0-SNAPSHOT</version>
                 <type>war</type>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>com.charlyghislain.plancul</groupId>-->
-                <!--<artifactId>astronomy-cerridwen-client</artifactId>-->
-                <!--<version>1.0.0-SNAPSHOT</version>-->
-                <!--<scope>provided</scope>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>astronomy-almanac-client</artifactId>

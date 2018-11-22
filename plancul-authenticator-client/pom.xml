@@ -16,10 +16,6 @@
             <groupId>com.charlyghislain.authenticator</groupId>
             <artifactId>authenticator-management-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.charlyghislain.plancul</groupId>
-            <artifactId>plancul-authenticator-client</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.charlyghislain.plancul</groupId>
