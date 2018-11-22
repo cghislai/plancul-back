@@ -27,12 +27,12 @@
         <repository>
             <id>nexus</id>
             <name>Nexus</name>
-            <url>https://tools.charlyghislain.com/nexus/repository/maven-release/</url>
+            <url>https://nexus.valuya.be/nexus/repository/maven-release/</url>
         </repository>
         <snapshotRepository>
             <id>nexus</id>
             <name>Nexus</name>
-            <url>https://tools.charlyghislain.com/nexus/repository/maven-snapshots/</url>
+            <url>https://nexus.valuya.be/nexus/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
