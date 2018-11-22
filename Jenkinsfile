@@ -38,11 +38,11 @@ pipeline {
                        [ "$NPM_DEPLOY" != "true" ] && exit 0
 
                        cd plancul-api/target/npm
-                       npm publish
+                       npm publish --access public
                        cd ../../..
 
                        cd astronomy-api/target/npm
-                       npm publish
+                       npm publish --access public
                        cd ../../..
                         '''
                   }
