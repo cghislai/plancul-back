@@ -23,6 +23,10 @@ pipeline {
                     if (params.ALT_DEPLOYMENT_REPOSITORY != '') {
                         env.MVN_ARGS="-DaltDeploymentRepository=${params.ALT_DEPLOYMENT_REPOSITORY}"
                     }
+                    if (env.BRANCH_NAME == 'master') {
+                        env.MVN_ARGS="${env.MVN_ARGS} -Possrh-deploy"
+                        env.NPM_DEPLOY="true"
+                    }
                 }
                 withMaven(maven: 'maven', mavenSettingsConfig: 'nexus-mvn-settings',
                           mavenOpts: '-DskipTests=true') {
@@ -31,8 +35,15 @@ pipeline {
                 nodejs(nodeJSInstallationName: 'node 10', configId: 'npm-global-config') {  catchError {
                   ansiColor('xterm') {
                     sh '''
+                       [ "$NPM_DEPLOY" != "true" ] && exit 0
+
                        cd plancul-ws/target/npm
                        npm publish
+                       cd ../../..
+
+                       cd astronomy-api/target/npm
+                       npm publish
+                       cd ../../..
                         '''
                   }
                 }}
