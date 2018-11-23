@@ -99,6 +99,11 @@
             <artifactId>javaee-web-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>8.0</version>
+        </dependency>
 
     </dependencies>
 

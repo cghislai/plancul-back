@@ -9,7 +9,11 @@ import com.charlyghislain.plancul.domain.TenantUserRole;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.User_;
 import com.charlyghislain.plancul.domain.exception.PlanCulRuntimeException;
+import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.UserFilter;
+import com.charlyghislain.plancul.domain.request.sort.Sort;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import org.eclipse.microprofile.jwt.Claim;
@@ -62,6 +66,16 @@ public class UserQueryService {
         return searchService.getSingleResult(query);
 //                .request(this::isUserAccessibleToLoggedUser);
     }
+
+
+    public SearchResult<User> findUsers(UserFilter userFilter, Pagination pagination, Language language) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
+        Root<User> userRoot = query.from(User.class);
+        List<Predicate> predicates = createPredicates(userRoot, userFilter);
+        return searchService.search(pagination, getDefaultSorts(), language, query, userRoot, predicates);
+    }
+
 
     public Optional<User> findUserById(long id) {
         UserFilter userFilter = new UserFilter();
@@ -194,6 +208,10 @@ public class UserQueryService {
 
         return predicates;
 
+    }
+
+    private List<Sort<User>> getDefaultSorts() {
+        return new ArrayList<>();
     }
 
 

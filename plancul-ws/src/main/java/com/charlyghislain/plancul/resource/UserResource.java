@@ -1,20 +1,30 @@
 package com.charlyghislain.plancul.resource;
 
+import com.charlyghislain.plancul.api.domain.WsTenant;
 import com.charlyghislain.plancul.api.domain.WsUser;
 import com.charlyghislain.plancul.api.domain.request.WsPasswordReset;
 import com.charlyghislain.plancul.api.domain.request.WsUserEmailVerification;
 import com.charlyghislain.plancul.api.domain.request.WsUserRegistration;
+import com.charlyghislain.plancul.api.domain.response.WsSearchResult;
 import com.charlyghislain.plancul.converter.AuthenticatorUserConverter;
+import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.converter.UserConverter;
 import com.charlyghislain.plancul.converter.WsUserConverter;
+import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.exception.InvalidTokenException;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.exception.PlanCulException;
+import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
+import com.charlyghislain.plancul.domain.request.filter.UserFilter;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import com.charlyghislain.plancul.service.UserQueryService;
 import com.charlyghislain.plancul.service.UserUpdateService;
+import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.exception.InvalidPasswordException;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.exception.WsException;
@@ -50,6 +60,13 @@ public class UserResource {
     private WsUserConverter wsUserConverter;
     @Inject
     private AuthenticatorUserConverter authenticatorUserConverter;
+    @Inject
+    private SearchResultConverter searchResultConverter;
+    @Inject
+    private Pagination pagination;
+    @Inject
+    @AcceptedLanguage
+    private Language acceptedLanguage;
 
     @Inject
     @Claim("uid")
@@ -151,6 +168,17 @@ public class UserResource {
 
         WsUser wsUser = wsUserConverter.toWsEntity(user);
         return wsUser;
+    }
+
+
+    @POST
+    @RolesAllowed(ApplicationGroupNames.ADMIN)
+    @Path("/search")
+    public WsSearchResult<WsUser> searchUsers() {
+        UserFilter userFilter = new UserFilter();
+        SearchResult<User> userResults = userQueryService.findUsers(userFilter, pagination, acceptedLanguage);
+        WsSearchResult<WsUser> wsSearchResult = searchResultConverter.convertSearchResults(userResults, wsUserConverter);
+        return wsSearchResult;
     }
 
     private AuthenticatorUser getLoggedUser() {

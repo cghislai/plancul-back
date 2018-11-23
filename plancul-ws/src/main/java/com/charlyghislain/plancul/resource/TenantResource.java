@@ -1,18 +1,26 @@
 package com.charlyghislain.plancul.resource;
 
+import com.charlyghislain.plancul.api.domain.WsCulture;
 import com.charlyghislain.plancul.api.domain.WsTenant;
+import com.charlyghislain.plancul.api.domain.response.WsSearchResult;
 import com.charlyghislain.plancul.api.domain.util.WsRef;
+import com.charlyghislain.plancul.converter.SearchResultConverter;
 import com.charlyghislain.plancul.converter.TenantConverter;
 import com.charlyghislain.plancul.converter.TenantRoleConverter;
 import com.charlyghislain.plancul.converter.WsTenantConverter;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
+import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
+import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.validation.ValidEmail;
 import com.charlyghislain.plancul.service.TenantService;
 import com.charlyghislain.plancul.service.TenantUpdateService;
 import com.charlyghislain.plancul.service.UserUpdateService;
+import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.exception.WsException;
 
@@ -51,7 +59,13 @@ public class TenantResource {
     private TenantUpdateService tenantUpdateService;
     @Inject
     private TenantRoleConverter tenantRoleConverter;
-
+    @Inject
+    private SearchResultConverter searchResultConverter;
+    @Inject
+    private Pagination pagination;
+    @Inject
+    @AcceptedLanguage
+    private Language acceptedLanguage;
 
     @POST
     public WsTenant createTenant(WsTenant wsTenant) {
@@ -97,5 +111,16 @@ public class TenantResource {
 
         userUpdateService.inviteUser(userEmail, tenant, tenantRole);
     }
+
+    @POST
+    @RolesAllowed(ApplicationGroupNames.ADMIN)
+    @Path("/search")
+    public WsSearchResult<WsTenant> searchTenants() {
+        TenantFilter tenantFilter = new TenantFilter();
+        SearchResult<Tenant> tenantResults = tenantService.findTenants(tenantFilter, pagination, acceptedLanguage);
+        WsSearchResult<WsTenant> wsSearchResult = searchResultConverter.convertSearchResults(tenantResults, wsTenantConverter);
+        return wsSearchResult;
+    }
+
 
 }
