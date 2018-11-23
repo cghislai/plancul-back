@@ -47,13 +47,13 @@
             <dependency>
                 <groupId>com.charlyghislain.authenticator</groupId>
                 <artifactId>authenticator-management-api</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.3</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.authenticator</groupId>
                 <artifactId>authenticator-application-api</artifactId>
-                <version>1.0.1</version>
+                <version>1.0.3</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
