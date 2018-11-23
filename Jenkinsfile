@@ -32,7 +32,7 @@ pipeline {
                           mavenOpts: '-DskipTests=true') {
                     sh "mvn deploy $MVN_ARGS"
                 }
-                nodejs(nodeJSInstallationName: 'node 10', configId: 'npm-global-config') {  catchError {
+                nodejs(nodeJSInstallationName: 'node 10', configId: 'npmrc-@charlyghislain') {  catchError {
                   ansiColor('xterm') {
                     sh '''
                        [ "$NPM_DEPLOY" != "true" ] && exit 0
