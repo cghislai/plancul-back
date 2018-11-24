@@ -55,6 +55,8 @@ public class UserUpdateService {
     private TenantUpdateService tenantUpdateService;
     @Inject
     private CommunicationService communicationService;
+    @Inject
+    private UserCreationQueue userCreationQueue;
 
     @Inject
     @Claim("uid")
@@ -73,6 +75,13 @@ public class UserUpdateService {
 
         boolean adminAccount = this.checkAdminAccountCreation(adminToken);
         Optional<TenantUserRoleInvitation> tenantUserRoleInvitation = this.checkTenantInvitationToken(tenantInvitationToken);
+        String email = newAuthenticatorUser.getEmail();
+
+        // We might be called back by authenticator while waiting for its response to the POST request.
+        // As such, we need to persist a reference to the user being added to be able to correlate the added authenticator
+        // user in the callback.
+        newUser.setAdmin(adminAccount);
+        userCreationQueue.putUser(email, newUser);
 
 //        newAuthenticatorUser.setActive(true);
         try {
@@ -94,6 +103,8 @@ public class UserUpdateService {
             throw new OperationNotAllowedException("Invalid password");
         } catch (AuthenticatorClientError authenticatorClientError) {
             throw new OperationNotAllowedException(authenticatorClientError.getMessage());
+        } finally {
+            userCreationQueue.removeUser(email);
         }
     }
 

@@ -221,7 +221,7 @@ public class CommunicationService {
                 .collect(Collectors.joining(","));
 
         if (success) {
-            String infoMessage = MessageFormat.format("Sucessfully dispatched message {0} \"{1} \"by {2}",
+            String infoMessage = MessageFormat.format("Sucessfully dispatched message {0} \"{1}\" by {2}",
                     dispatcherMessage.getName(), messageName, sucessDispatchedOptionsNames);
             LOG.info(infoMessage);
         } else {

@@ -1,0 +1,11 @@
+<div style="font-size: x-small; opacity: .7">
+    <div>
+        <span>
+            ${app.name} est une application libre pour planifier les cultures maraichaires.
+            Pour plus d'info, consulter la page du projet: <a href="${app.projectUrl}">${app.projectUrl}</a>.
+        </span>
+        <a href="mailto:${app.contactMail}">
+            Contacter les adminstrateurs
+        </a>
+    </div>
+</div>

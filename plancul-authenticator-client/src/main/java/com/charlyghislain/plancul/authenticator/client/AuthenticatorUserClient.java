@@ -80,8 +80,7 @@ public class AuthenticatorUserClient {
         userResource.resetUserPassword(userId, wsPasswordReset);
     }
 
-    public String createNewEmailVerificationToken(User user) {
-        Long authenticatorUid = user.getAuthenticatorUid();
+    public String createNewEmailVerificationToken(long authenticatorUid) {
         WsEmailVerificationToken emailVerificationToken = userResource.getEmailVerificationToken(authenticatorUid);
         String token = emailVerificationToken.getToken();
         return token;

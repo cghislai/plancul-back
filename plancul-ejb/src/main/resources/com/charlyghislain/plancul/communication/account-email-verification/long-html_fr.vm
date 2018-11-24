@@ -1,0 +1,20 @@
+<h1>Bienvenue sur ${app.name}!</h1>
+<p>
+    Vous avez créé récemment le compte "${user.login}" sur <a href="${app.frontendUrl}">${app.frontendUrl}</a>.
+    <br/>
+    Pour activer votre compte, cliquez sur le lien suivant:
+</p>
+<div style="font-size: 1.1em; margin: 2em; ">
+    <a href="${emailVerification.frontendUrl}">
+        Activer mon compte
+    </a>
+</div>
+<p>
+    Si le lien ne fonctionne pas, vous pouvez toujours copier-coller le code d'activation dans le formulaire.
+    <br/>
+    Votre code d'activation est:
+</p>
+<pre>${emailVerification.token}</pre>
+<p>
+    À bientôt sur <a href="${app.frontendUrl}">${app.name}</a> !
+</p>
