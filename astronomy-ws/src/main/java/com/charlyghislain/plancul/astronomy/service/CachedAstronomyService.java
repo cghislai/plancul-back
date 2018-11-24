@@ -18,9 +18,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -37,7 +35,7 @@ public class CachedAstronomyService implements AstronomyService {
     private AstronomyEventPagerService pagerService;
     @Resource
     private ManagedExecutorService managedExecutorService;
-    private final List<Integer> loadingYears = Collections.synchronizedList(new ArrayList<>());
+    private final Set<Integer> loadingYears = Collections.synchronizedSet(new HashSet<Integer>());
 
     @Override
     public List<AstronomyEvent> searchEvents(AstronomyEventFilter filter) {
@@ -68,16 +66,20 @@ public class CachedAstronomyService implements AstronomyService {
         return eventResults;
     }
 
-    private void loadAndCacheEventsAsync(int year) {
+    public void loadAndCacheEvents(int year) {
+        this.loadAndCacheEventsAsync(year).join();
+    }
+
+    public CompletableFuture<Void> loadAndCacheEventsAsync(int year) {
         synchronized (loadingYears) {
             if (loadingYears.contains(year)) {
-                return;
+                return CompletableFuture.completedFuture(null);
             }
             loadingYears.add(year);
         }
         LOG.info("Caching events for year {} asynchronously", year);
         TimePagination yearpagination = createyearpagination(year);
-        CompletableFuture.supplyAsync(() -> pagerService.fetchEvents(yearpagination), managedExecutorService)
+        return CompletableFuture.supplyAsync(() -> pagerService.fetchEvents(yearpagination), managedExecutorService)
                 .thenAccept(yearEvents -> cacheDao.cacheEvents(year, yearEvents))
                 .thenRun(() -> {
                     synchronized (loadingYears) {
@@ -85,12 +87,6 @@ public class CachedAstronomyService implements AstronomyService {
                         loadingYears.remove(year);
                     }
                 });
-    }
-
-    public void loadAndCacheEvents(int year) {
-        TimePagination yearpagination = createyearpagination(year);
-        List<AstronomyEvent> yearEvents = pagerService.fetchEvents(yearpagination);
-        cacheDao.cacheEvents(year, yearEvents);
     }
 
     private TimePagination createyearpagination(int year) {
