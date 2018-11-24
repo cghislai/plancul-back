@@ -7,7 +7,7 @@
     <groupId>com.charlyghislain.plancul</groupId>
     <artifactId>plancul</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <modules>
         <module>plancul-ejb</module>
         <module>plancul-ws</module>
@@ -73,44 +73,44 @@
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>plancul-authenticator-client</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>plancul-domain</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>plancul-ejb</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <type>ejb</type>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>plancul-api</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <scope>provided</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>astronomy-api</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>astronomy-ws</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <type>war</type>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.plancul</groupId>
                 <artifactId>astronomy-almanac-client</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <scope>provided</scope>
             </dependency>
 
