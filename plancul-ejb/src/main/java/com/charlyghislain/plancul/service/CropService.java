@@ -19,7 +19,6 @@ import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.opendata.agrovoc.domain.AgrovocPlantData;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -54,6 +53,8 @@ public class CropService {
     private ValidationService validationService;
     @Inject
     private UserQueryService userQueryService;
+    @Inject
+    private CultureService cultureService;
 
     public Optional<Crop> findCropById(long id) {
         Crop found = entityManager.find(Crop.class, id);
@@ -182,6 +183,27 @@ public class CropService {
     }
 
 
+    public void removeTenantCrops(Tenant tenant) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Crop> query = criteriaBuilder.createQuery(Crop.class);
+        Root<Crop> rootCrop = query.from(Crop.class);
+
+        CropFilter cropFilter = new CropFilter();
+        cropFilter.setTenant(tenant);
+        List<Predicate> predicates = this.createCropPredicates(cropFilter, rootCrop);
+        query.where(predicates.toArray(new Predicate[0]));
+
+        List<Crop> crops = searchService.getAllResults(query);
+        crops.forEach(this::removeCrop);
+    }
+
+    private void removeCrop(Crop crop) {
+        Crop managedCrop = entityManager.merge(crop);
+        cultureService.removeCropCultures(managedCrop);
+
+        entityManager.remove(managedCrop);
+    }
+
     private AgrovocPlant getOrCreateAgrovocPlant(String agrovocPlantUri) {
         AgrovocPlantFilter plantFilter = new AgrovocPlantFilter();
         plantFilter.setUri(agrovocPlantUri);
@@ -296,4 +318,5 @@ public class CropService {
         speciesName.ifPresent(crop::setSpecies);
         subSpeciesName.ifPresent(crop::setSubSpecies);
     }
+
 }

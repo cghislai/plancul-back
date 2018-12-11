@@ -12,11 +12,14 @@ import com.charlyghislain.plancul.domain.exception.InvalidTokenException;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.exception.PlanCulException;
 import com.charlyghislain.plancul.domain.i18n.Language;
+import com.charlyghislain.plancul.domain.request.filter.TenantUserRoleFilter;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
 import com.charlyghislain.plancul.domain.validation.ValidEmail;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.microprofile.jwt.Claim;
 import org.eclipse.microprofile.jwt.ClaimValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -24,11 +27,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Stateless
 public class UserUpdateService {
 
+    private final static Logger LOG = LoggerFactory.getLogger(UserUpdateService.class);
 
     private static final String ACCOUNT_INIT_FRONTEND_PATH = "/account/init";
     private static final String ACCOUNT_INIT_UID_PARAM = "uid";
@@ -57,6 +63,9 @@ public class UserUpdateService {
     private CommunicationService communicationService;
     @Inject
     private UserCreationQueue userCreationQueue;
+    @Inject
+    private TenantService tenantService;
+
 
     @Inject
     @Claim("uid")
@@ -163,6 +172,45 @@ public class UserUpdateService {
         existingUser.setFirstName(firstName);
         existingUser.setLastName(lastName);
         return saveUser(existingUser);
+    }
+
+
+    public void removeUser(User user) {
+        Long authenticatorUid = user.getAuthenticatorUid();
+        this.forgetAuthenticatorUser(authenticatorUid);
+
+        List<TenantUserRole> tenantUserRoles = tenantUserRolesQueryService.findAllTenantUserRoles(user);
+        List<Tenant> distinctTenants = tenantUserRoles.stream()
+                .map(TenantUserRole::getTenant)
+                .distinct()
+                .collect(Collectors.toList());
+        tenantUserRoles.forEach(tenantUserRolesUpdateService::removeTenantUserRole);
+        List<Tenant> tenantsWithoutUsers = distinctTenants.stream()
+                .filter(this::isOrphanTenant)
+                .collect(Collectors.toList());
+
+        tenantsWithoutUsers.forEach(this.tenantService::removeTenant);
+
+
+    }
+
+    public boolean isOrphanTenant(Tenant t) {
+        TenantUserRoleFilter roleFilter = new TenantUserRoleFilter();
+        roleFilter.setTenant(t);
+        List<TenantUserRole> allTenantUserRoles = tenantUserRolesQueryService.findAllTenantUserRoles(roleFilter);
+        return allTenantUserRoles.isEmpty();
+    }
+
+    private void forgetAuthenticatorUser(Long authenticatorUid) {
+        if (authenticatorUid == null) {
+            return;
+        }
+        try {
+            AuthenticatorUser authenticatorUser = authenticatorUserClient.getUser(authenticatorUid);
+            authenticatorUserClient.forgetUser(authenticatorUid);
+        } catch (AuthenticatorClientError authenticatorClientError) {
+            LOG.warn("Could not forget authenticator user " + authenticatorUid, authenticatorClientError);
+        }
     }
 
 

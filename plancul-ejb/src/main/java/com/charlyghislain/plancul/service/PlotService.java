@@ -1,11 +1,13 @@
 package com.charlyghislain.plancul.service;
 
+import com.charlyghislain.plancul.domain.Crop;
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Plot_;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.request.filter.PlotFilter;
 import com.charlyghislain.plancul.domain.request.sort.PlotSortField;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
@@ -35,6 +37,8 @@ public class PlotService {
     private ValidationService validationService;
     @Inject
     private SearchService searchService;
+    @Inject
+    private BedService bedService;
 
 
     public Plot savePlot(Plot plot) throws OperationNotAllowedException {
@@ -46,13 +50,28 @@ public class PlotService {
         return managedPlot;
     }
 
+
+    public void removeTenantPlots(Tenant tenant) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Plot> query = criteriaBuilder.createQuery(Plot.class);
+        Root<Plot> rootPlot = query.from(Plot.class);
+
+        PlotFilter plotFilter = new PlotFilter();
+        plotFilter.setTenant(tenant);
+        List<Predicate> predicates = this.createPlotPredicates(plotFilter, rootPlot);
+        query.where(predicates.toArray(new Predicate[0]));
+
+        List<Plot> plots = searchService.getAllResults(query);
+        plots.forEach(this::removePlot);
+    }
+
     public void deletePlot(Plot plot) throws OperationNotAllowedException {
         validationService.validateNonNullId(plot);
         validationService.validateLoggedUserHasTenantRole(plot.getTenant());
 
-        Plot managedPlot = entityManager.merge(plot);
-        entityManager.remove(managedPlot);
+        removePlot(plot);
     }
+
 
     public Optional<Plot> findPlotById(long id) {
         Plot foundPlot = entityManager.find(Plot.class, id);
@@ -112,4 +131,11 @@ public class PlotService {
         return predicate;
     }
 
+    private void removePlot(Plot plot) {
+        Plot managedPlot = entityManager.merge(plot);
+
+        bedService.removePlotBeds(managedPlot);
+
+        entityManager.remove(managedPlot);
+    }
 }

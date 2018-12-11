@@ -1,6 +1,7 @@
 package com.charlyghislain.plancul.domain.request.filter;
 
 import com.charlyghislain.plancul.domain.BedPreparationType;
+import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -148,5 +149,6 @@ public class CultureFilter {
     public void setNotesQuery(String notesQuery) {
         this.notesQuery = notesQuery;
     }
+
 }
 

@@ -47,6 +47,11 @@ public class TenantUserRolesUpdateService {
         return managedTenantUserRole;
     }
 
+    public void removeTenantUserRole(TenantUserRole tenantUserRole) {
+        TenantUserRole managedUserRole = entityManager.merge(tenantUserRole);
+        entityManager.remove(managedUserRole);
+    }
+
 
     private void removeInvitation(TenantUserRoleInvitation tenantUserRoleInvitation) {
         TenantUserRoleInvitation managedInvitation = entityManager.merge(tenantUserRoleInvitation);

@@ -10,6 +10,7 @@ import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.service.CommunicationService;
 import com.charlyghislain.plancul.service.UserCreationQueue;
 import com.charlyghislain.plancul.service.UserQueryService;
+import com.charlyghislain.plancul.service.UserUpdateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,8 @@ public class AuthenticatorUserEventResource implements UserEventResource {
     private CommunicationService communicationService;
     @Inject
     private UserQueryService userQueryService;
+    @Inject
+    private UserUpdateService userUpdateService;
     @Inject
     private UserCreationQueue userCreationQueue;
 
@@ -67,6 +70,9 @@ public class AuthenticatorUserEventResource implements UserEventResource {
     @Override
     public CompletionStage<Void> userRemoved(Long id) {
         LOG.debug("userRemoved callback for authenticator userId {} ", id);
+
+        userQueryService.findUserByAuthenticatorUid(id)
+                .ifPresent(userUpdateService::removeUser);
 
         return CompletableFuture.completedFuture(null);
     }

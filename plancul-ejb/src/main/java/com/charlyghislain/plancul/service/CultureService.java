@@ -1,20 +1,13 @@
 package com.charlyghislain.plancul.service;
 
-import com.charlyghislain.plancul.domain.Bed;
-import com.charlyghislain.plancul.domain.BedPreparation;
-import com.charlyghislain.plancul.domain.BedPreparationType;
-import com.charlyghislain.plancul.domain.BedPreparation_;
-import com.charlyghislain.plancul.domain.Crop;
-import com.charlyghislain.plancul.domain.Culture;
-import com.charlyghislain.plancul.domain.CultureNursing;
-import com.charlyghislain.plancul.domain.CultureNursing_;
-import com.charlyghislain.plancul.domain.Culture_;
-import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.*;
 import com.charlyghislain.plancul.domain.exception.NoBedPreparationException;
 import com.charlyghislain.plancul.domain.exception.NoNursingException;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.BedFilter;
+import com.charlyghislain.plancul.domain.request.filter.CropFilter;
 import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.request.filter.DateFilter;
 import com.charlyghislain.plancul.domain.request.sort.CultureSortField;
@@ -23,7 +16,6 @@ import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.util.CulturePhase;
 import com.charlyghislain.plancul.domain.util.CulturePhaseType;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -71,12 +63,34 @@ public class CultureService {
         return managedCulture;
     }
 
+    public void removeCropCultures(Crop crop) {
+        CropFilter cropFilter = new CropFilter();
+        cropFilter.setExactCrop(crop);
+        CultureFilter cultureFilter = new CultureFilter();
+        cultureFilter.setCropFilter(cropFilter);
+        removeAllCultures(cultureFilter);
+    }
+
+    public void removeTenantCultures(Tenant tenant) {
+        CultureFilter cultureFilter = new CultureFilter();
+        cultureFilter.setTenant(tenant);
+        removeAllCultures(cultureFilter);
+    }
+
+
+    public void removeBedCultures(Bed bed) {
+        BedFilter bedFilter = new BedFilter();
+        bedFilter.setExactBed(bed);
+        CultureFilter cultureFilter = new CultureFilter();
+        cultureFilter.setBedFilter(bedFilter);
+        removeAllCultures(cultureFilter);
+    }
+
     public void deleteCulture(Culture culture) throws OperationNotAllowedException {
         validationService.validateNonNullId(culture);
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());
 
-        Culture managedCulture = entityManager.merge(culture);
-        entityManager.remove(managedCulture);
+        removeCulture(culture);
     }
 
     public void prepareCultureValidation(Culture culture) {
@@ -494,4 +508,29 @@ public class CultureService {
         culturePhase.setEndDate(nursing.getEndDate());
         return culturePhase;
     }
+
+
+    private void removeAllCultures(CultureFilter cultureFilter) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Culture> query = criteriaBuilder.createQuery(Culture.class);
+        Root<Culture> rootCulture = query.from(Culture.class);
+
+        List<Predicate> predicates = this.createCulturePredicates(cultureFilter, rootCulture);
+        query.where(predicates.toArray(new Predicate[0]));
+
+        List<Culture> cultures = searchService.getAllResults(query);
+        cultures.forEach(this::removeCulture);
+    }
+
+    private void removeCulture(Culture culture) {
+        Culture managedCulture = entityManager.merge(culture);
+
+        managedCulture.getCultureNursing()
+                .ifPresent(entityManager::remove);
+        managedCulture.getBedPreparation()
+                .ifPresent(entityManager::remove);
+
+        entityManager.remove(managedCulture);
+    }
+
 }

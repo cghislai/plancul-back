@@ -1,10 +1,6 @@
 package com.charlyghislain.plancul.service;
 
-import com.charlyghislain.plancul.domain.Bed;
-import com.charlyghislain.plancul.domain.Bed_;
-import com.charlyghislain.plancul.domain.Plot;
-import com.charlyghislain.plancul.domain.Plot_;
-import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.*;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
@@ -41,6 +37,8 @@ public class BedService {
     private ValidationService validationService;
     @Inject
     private SearchService searchService;
+    @Inject
+    private CultureService cultureService;
 
 
     public Bed saveBed(Bed bed) throws OperationNotAllowedException {
@@ -55,13 +53,18 @@ public class BedService {
     }
 
 
+    public void removePlotBeds(Plot plot) {
+        BedFilter bedFilter = new BedFilter();
+        bedFilter.setPlot(plot);
+        removeAllBeds(bedFilter);
+    }
+
     public void deleteBed(Bed bed) throws OperationNotAllowedException {
         validationService.validateNonNullId(bed);
         Tenant tenant = getBedTenant(bed);
         validationService.validateLoggedUserHasTenantRole(tenant);
 
-        Bed managedBed = entityManager.merge(bed);
-        entityManager.remove(managedBed);
+        removeBed(bed);
     }
 
     public Optional<Bed> findBedById(long id) {
@@ -181,6 +184,27 @@ public class BedService {
     private Tenant getBedTenant(Bed bed) {
         Plot plot = bed.getPlot();
         return plot.getTenant();
+    }
+
+
+    private void removeAllBeds(BedFilter bedFilter) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Bed> query = criteriaBuilder.createQuery(Bed.class);
+        Root<Bed> rootBed = query.from(Bed.class);
+
+        List<Predicate> predicates = this.createBedPredicates(bedFilter, rootBed);
+        query.where(predicates.toArray(new Predicate[0]));
+
+        List<Bed> beds = searchService.getAllResults(query);
+        beds.forEach(this::removeBed);
+    }
+
+    public void removeBed(Bed bed) {
+        Bed managedBed = entityManager.merge(bed);
+
+        cultureService.removeBedCultures(managedBed);
+
+        entityManager.remove(managedBed);
     }
 
 }

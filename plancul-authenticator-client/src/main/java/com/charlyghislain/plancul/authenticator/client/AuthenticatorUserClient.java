@@ -104,6 +104,10 @@ public class AuthenticatorUserClient {
         return authenticatorUserConverter.toAuthenticatorUser(wsApplicationUser);
     }
 
+    public void forgetUser(long id) throws AuthenticatorClientError {
+        userResource.forgetUser(id);
+    }
+
     public Optional<AuthenticatorUser> findUserUserWithMail(String email) {
         WsUserApplicationFilter wsUserApplicationFilter = new WsUserApplicationFilter();
         wsUserApplicationFilter.setUserEmail(email);
