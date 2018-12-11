@@ -10,11 +10,14 @@ services:
       - "MYSQL_DATABASE=plancul"
     volumes:
       - db-data:/var/lib/mysql
+      - ./astronomy-db-init.sql:/docker-entrypoint-initdb.d/astronomy-db-init.sql
     ports:
       - 3310:3306
 
   almanac:
     image: cghislai/almanac
+    ports:
+      - 8000:2828
 
   app:
     image: payara/server-full:5.183
@@ -28,6 +31,7 @@ services:
     environment:
       - 'mp.jwt.verify.publickey.location=https://localhost:8443/info/app/plancul/publicKey'
       - 'mp.jwt.verify.issuer=localhost:8443'
+      - 'com_charlyghislain_plancul_almanac_api_url=http://almanac:2828'
     volumes:
       - ./post-boot.sh:/opt/payara/deployments/post-boot.sh
       - ./secrets/authenticator.managementApi.secret:/opt/payara/secrets/com.charlyghislain.plancul.authenticator.managementApi.secret
