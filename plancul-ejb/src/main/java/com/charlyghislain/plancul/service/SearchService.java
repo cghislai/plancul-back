@@ -13,25 +13,14 @@ import com.charlyghislain.plancul.domain.request.sort.SortMappingResult;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
-import org.eclipse.microprofile.jwt.Claim;
-import org.eclipse.microprofile.jwt.ClaimValue;
-import org.eclipse.microprofile.jwt.Claims;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Order;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.security.enterprise.SecurityContext;
 import java.security.Principal;
 import java.time.LocalDate;
@@ -110,6 +99,17 @@ public class SearchService {
         return result;
     }
 
+    <T extends DomainEntity> Long count(Root<T> root, List<Predicate> predicates) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+        Expression<Long> count = criteriaBuilder.countDistinct(root);
+        countQuery.select(count);
+        countQuery.where(predicates.toArray(new Predicate[0]));
+        TypedQuery<Long> countTypedQuery = entityManager.createQuery(countQuery);
+        Long countResult = countTypedQuery.getSingleResult();
+        return countResult;
+    }
+
     private <T extends DomainEntity> Order createOrder(Sort<T> sort, Language language, Root<T> root, List<Predicate> predicateList) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         SortMappingContext mappingContext = new SortMappingContext(language, criteriaBuilder);
@@ -159,11 +159,15 @@ public class SearchService {
     }
 
     public Optional<Predicate> createLoggedUserTenantsPredicate(Path<Tenant> rootTenant, boolean allowNull) {
-        boolean adminLogged = false;
         // FIXME: should be able to use SecurityContext@isUserInRole
-        JsonWebToken jsonWebToken = (JsonWebToken) securityContext.getCallerPrincipal();
+        Principal callerPrincipal = securityContext.getCallerPrincipal();
+        if (callerPrincipal == null) {
+            return Optional.empty();
+        }
+
+        JsonWebToken jsonWebToken = (JsonWebToken) callerPrincipal;
         Set<String> groups = jsonWebToken.getGroups();
-        adminLogged = groups.contains(ApplicationGroupNames.ADMIN);
+        boolean adminLogged = groups.contains(ApplicationGroupNames.ADMIN);
         if (adminLogged) {
             return Optional.empty();
         }

@@ -20,12 +20,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -110,12 +105,21 @@ public class CultureService {
         return this.findCultures(cultureFilter, pagination, defaultSorts, language);
     }
 
+    public Long countCultures(CultureFilter cultureFilter) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Culture> query = criteriaBuilder.createQuery(Culture.class);
+        Root<Culture> rootCulture = query.from(Culture.class);
+
+        List<Predicate> predicates = this.createCulturePredicates(cultureFilter, rootCulture, false);
+        return searchService.count(rootCulture, predicates);
+    }
+
     public SearchResult<Culture> findCultures(CultureFilter cultureFilter, Pagination pagination, List<Sort<Culture>> sorts, Language language) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Culture> query = criteriaBuilder.createQuery(Culture.class);
         Root<Culture> rootCulture = query.from(Culture.class);
 
-        List<Predicate> predicates = this.createCulturePredicates(cultureFilter, rootCulture);
+        List<Predicate> predicates = this.createCulturePredicates(cultureFilter, rootCulture, true);
 
         return searchService.search(pagination, sorts, language, query, rootCulture, predicates);
     }
@@ -378,13 +382,15 @@ public class CultureService {
         bedPreparation.setEndDate(cultureOnBedStartDate);
     }
 
-    private List<Predicate> createCulturePredicates(CultureFilter cultureFilter, Root<Culture> cultureSource) {
+    private List<Predicate> createCulturePredicates(CultureFilter cultureFilter, Root<Culture> cultureSource, boolean restrictUserAccess) {
         List<Predicate> predicateList = new ArrayList<>();
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 
         Path<Tenant> tenantPath = cultureSource.get(Culture_.tenant);
-        searchService.createLoggedUserTenantsPredicate(tenantPath)
-                .ifPresent(predicateList::add);
+        if (restrictUserAccess) {
+            searchService.createLoggedUserTenantsPredicate(tenantPath)
+                    .ifPresent(predicateList::add);
+        }
 
         cultureFilter.getTenant()
                 .map(tenant -> criteriaBuilder.equal(tenantPath, tenant))
@@ -515,7 +521,7 @@ public class CultureService {
         CriteriaQuery<Culture> query = criteriaBuilder.createQuery(Culture.class);
         Root<Culture> rootCulture = query.from(Culture.class);
 
-        List<Predicate> predicates = this.createCulturePredicates(cultureFilter, rootCulture);
+        List<Predicate> predicates = this.createCulturePredicates(cultureFilter, rootCulture, true);
         query.where(predicates.toArray(new Predicate[0]));
 
         List<Culture> cultures = searchService.getAllResults(query);

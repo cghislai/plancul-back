@@ -1,13 +1,10 @@
 package com.charlyghislain.plancul.resource;
 
-import com.charlyghislain.plancul.api.domain.WsCulture;
 import com.charlyghislain.plancul.api.domain.WsTenant;
+import com.charlyghislain.plancul.api.domain.WsTenantStats;
 import com.charlyghislain.plancul.api.domain.response.WsSearchResult;
 import com.charlyghislain.plancul.api.domain.util.WsRef;
-import com.charlyghislain.plancul.converter.SearchResultConverter;
-import com.charlyghislain.plancul.converter.TenantConverter;
-import com.charlyghislain.plancul.converter.TenantRoleConverter;
-import com.charlyghislain.plancul.converter.WsTenantConverter;
+import com.charlyghislain.plancul.converter.*;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
@@ -16,6 +13,7 @@ import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
+import com.charlyghislain.plancul.domain.stat.TenantStat;
 import com.charlyghislain.plancul.domain.validation.ValidEmail;
 import com.charlyghislain.plancul.service.TenantService;
 import com.charlyghislain.plancul.service.TenantUpdateService;
@@ -29,14 +27,7 @@ import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -59,6 +50,8 @@ public class TenantResource {
     private TenantUpdateService tenantUpdateService;
     @Inject
     private TenantRoleConverter tenantRoleConverter;
+    @Inject
+    private WsTenantStatConverter wsTenantStatConverter;
     @Inject
     private SearchResultConverter searchResultConverter;
     @Inject
@@ -84,6 +77,17 @@ public class TenantResource {
 
         WsTenant wsTenant = wsTenantConverter.toWsEntity(tenant);
         return wsTenant;
+    }
+
+
+    @GET
+    @Path("/{id}/stats")
+    public WsTenantStats getTenantStats(@PathParam("id") long id) {
+        Tenant tenant = tenantService.findTenantById(id)
+                .orElseThrow(ReferenceNotFoundException::new);
+        TenantStat tenantStat = tenantService.calcTenantStat(tenant);
+        WsTenantStats wsTenantStats = wsTenantStatConverter.toWsTenantStat(tenantStat);
+        return wsTenantStats;
     }
 
     @PUT
@@ -121,6 +125,5 @@ public class TenantResource {
         WsSearchResult<WsTenant> wsSearchResult = searchResultConverter.convertSearchResults(tenantResults, wsTenantConverter);
         return wsSearchResult;
     }
-
 
 }

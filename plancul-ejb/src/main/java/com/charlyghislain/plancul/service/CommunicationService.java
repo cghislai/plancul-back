@@ -2,7 +2,6 @@ package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.dispatcher.api.context.TemplateContextObject;
 import com.charlyghislain.dispatcher.api.dispatching.DispatchedMessage;
-import com.charlyghislain.dispatcher.api.dispatching.DispatchingOption;
 import com.charlyghislain.dispatcher.api.dispatching.DispatchingResult;
 import com.charlyghislain.dispatcher.api.exception.MessageRenderingException;
 import com.charlyghislain.dispatcher.api.message.DispatcherMessage;
@@ -123,7 +122,7 @@ public class CommunicationService {
     }
 
 
-    public DispatchedMessage sendPasswordResetToken(User user, String resetToken) throws PlanCulException {
+    public void sendPasswordResetToken(User user, String resetToken) throws PlanCulException {
         Locale userLocale = user.getLanguage().getLocale();
         UserTemplate userTemplate = this.createUserTemplate(user);
         PasswordResetTemplate passwordResetTemplate = this.createPasswordResetTemplate(resetToken, user);
@@ -136,10 +135,14 @@ public class CommunicationService {
                 .acceptLocale(userLocale)
                 .build();
 
-        DispatchedMessage dispatchedMessage = dispatchMessage(readyToBeRenderedMessage);
         String message = MessageFormat.format("password reset token for user {0}", user.getId());
-        this.logDispatchingResult(message, dispatchedMessage);
-        return dispatchedMessage;
+        try {
+            DispatchedMessage dispatchedMessage = dispatchMessage(readyToBeRenderedMessage);
+            this.logDispatchingResult(message, dispatchedMessage);
+        } catch (PlanCulException e) {
+            String warnMessage = MessageFormat.format("Failed to dispatch message \"{0}\" ", message);
+            LOG.warn(warnMessage, e);
+        }
     }
 
     @NotNull

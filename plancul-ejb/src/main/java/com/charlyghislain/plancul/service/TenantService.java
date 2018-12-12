@@ -4,25 +4,21 @@ import com.charlyghislain.plancul.domain.*;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
+import com.charlyghislain.plancul.domain.request.filter.CultureFilter;
 import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
 import com.charlyghislain.plancul.domain.request.filter.TenantUserRoleFilter;
-import com.charlyghislain.plancul.domain.result.SearchResult;
-import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.request.sort.TenantSortField;
+import com.charlyghislain.plancul.domain.result.SearchResult;
+import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
+import com.charlyghislain.plancul.domain.stat.TenantStat;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,6 +64,18 @@ public class TenantService {
     }
 
 
+    public TenantStat calcTenantStat(Tenant tenant) {
+        CultureFilter cultureFilter = new CultureFilter();
+        cultureFilter.setTenant(tenant);
+        Long cultureCount = cultureService.countCultures(cultureFilter);
+
+        TenantStat tenantStat = new TenantStat();
+        tenantStat.setTenant(tenant);
+        tenantStat.setCultureCount(cultureCount);
+        return tenantStat;
+    }
+
+
     public SearchResult<Tenant> findTenants(TenantFilter tenantFilter, Pagination pagination, Language language) {
         List<Sort<Tenant>> defaultSorts = this.getDefaultSorts();
         return this.findTenants(tenantFilter, pagination, defaultSorts, language);
@@ -78,9 +86,19 @@ public class TenantService {
         CriteriaQuery<Tenant> query = criteriaBuilder.createQuery(Tenant.class);
         Root<Tenant> rootTenant = query.from(Tenant.class);
 
-        List<Predicate> predicates = this.createTenantPredicates(tenantFilter, rootTenant);
+        List<Predicate> predicates = this.createTenantPredicates(tenantFilter, rootTenant, true);
 
         return searchService.search(pagination, sorts, language, query, rootTenant, predicates);
+    }
+
+    public Long countTenants(TenantFilter tenantFilter) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tenant> query = criteriaBuilder.createQuery(Tenant.class);
+        Root<Tenant> rootTenant = query.from(Tenant.class);
+
+        List<Predicate> predicates = this.createTenantPredicates(tenantFilter, rootTenant, false);
+
+        return searchService.count(rootTenant, predicates);
     }
 
     public void removeTenant(Tenant tenant) {
@@ -111,11 +129,13 @@ public class TenantService {
     }
 
 
-    private List<Predicate> createTenantPredicates(TenantFilter tenantFilter, Root<Tenant> rootTenant) {
+    private List<Predicate> createTenantPredicates(TenantFilter tenantFilter, Root<Tenant> rootTenant, boolean restrictUserAccess) {
         List<Predicate> predicateList = new ArrayList<>();
 
-        searchService.createLoggedUserTenantsPredicate(rootTenant)
-                .ifPresent(predicateList::add);
+        if (restrictUserAccess) {
+            searchService.createLoggedUserTenantsPredicate(rootTenant)
+                    .ifPresent(predicateList::add);
+        }
 
         tenantFilter.getNameContains()
                 .map(query -> this.createContainsPredicate(query, rootTenant))

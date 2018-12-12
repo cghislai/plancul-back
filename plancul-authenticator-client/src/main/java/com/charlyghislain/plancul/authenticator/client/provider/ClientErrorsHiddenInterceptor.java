@@ -1,31 +1,24 @@
 package com.charlyghislain.plancul.authenticator.client.provider;
 
-import com.charlyghislain.authenticator.management.api.domain.WsError;
-import com.charlyghislain.authenticator.management.api.domain.WsValidationError;
-import com.charlyghislain.authenticator.management.api.domain.WsViolationError;
-import com.charlyghislain.plancul.authenticator.client.converter.ValidationViolationConverter;
 import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientError;
-import com.charlyghislain.plancul.authenticator.client.exception.InvalidPasswordException;
-import com.charlyghislain.plancul.authenticator.client.exception.UserNotFoundException;
 import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientValidationErrorException;
+import com.charlyghislain.plancul.authenticator.client.exception.UserNotFoundException;
 import com.charlyghislain.plancul.domain.exception.ValidationViolation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
-import javax.json.*;
-import javax.json.bind.Jsonb;
-import javax.json.bind.JsonbBuilder;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
 import javax.ws.rs.WebApplicationException;
 import java.io.InputStream;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @ClientErrorsHidden
@@ -33,9 +26,6 @@ import java.util.stream.Collectors;
 public class ClientErrorsHiddenInterceptor {
 
     private final static Logger LOG = LoggerFactory.getLogger(ClientErrorsHiddenInterceptor.class);
-
-    @Inject
-    private ValidationViolationConverter validationViolationConverter;
 
     @AroundInvoke
     public Object hideClientErrors(InvocationContext invocationContext) throws Exception {

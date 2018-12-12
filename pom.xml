@@ -40,7 +40,7 @@
     <properties>
         <typescript.api.npm.version>${project.version}</typescript.api.npm.version>
         <authenticator.version>1.0.4-SNAPSHOT</authenticator.version>
-        <dispatcher.version>2.0.0</dispatcher.version>
+        <dispatcher.version>2.0.1-SNAPSHOT</dispatcher.version>
     </properties>
 
 
