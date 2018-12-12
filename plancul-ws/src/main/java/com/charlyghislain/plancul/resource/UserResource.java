@@ -181,6 +181,15 @@ public class UserResource {
         return wsSearchResult;
     }
 
+    @DELETE
+    @RolesAllowed(ApplicationGroupNames.ADMIN)
+    @Path("/{id}")
+    public void deleteUser(@PathParam("id") long id) {
+        User user = userQueryService.findUserById(id)
+                .orElseThrow(ReferenceNotFoundException::new);
+        userUpdateService.removeUser(user);
+    }
+
     private AuthenticatorUser getLoggedUser() {
         return userQueryService.getLoggedAuthenticatorUser();
     }

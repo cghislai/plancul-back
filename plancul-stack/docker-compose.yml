@@ -8,16 +8,16 @@ services:
       - "MYSQL_USER=plancul"
       - "MYSQL_PASSWORD=db-password"
       - "MYSQL_DATABASE=plancul"
+    networks:
+      default:
+        aliases:
+          - plancul-db
     volumes:
       - db-data:/var/lib/mysql
       - ./astronomy-db-init.sql:/docker-entrypoint-initdb.d/astronomy-db-init.sql
     ports:
       - 3310:3306
 
-  almanac:
-    image: cghislai/almanac
-    ports:
-      - 8000:2828
 
   app:
     image: payara/server-full:5.183
@@ -28,20 +28,58 @@ services:
       - '--postbootcommandfile'
       - '/opt/payara/deployments/post-boot.sh'
       - 'domain1'
+    networks:
+      default: {}
+      auth:
+        aliases:
+          - plancul
     environment:
-      - 'mp.jwt.verify.publickey.location=https://localhost:8443/info/app/plancul/publicKey'
-      - 'mp.jwt.verify.issuer=localhost:8443'
+      - 'mp_jwt_verify_issuer=localhost:8443'
+      - 'com_charlyghislain_plancul_authenticator_managementApi_url=https://authenticator:8443/authenticator-web/management'
       - 'com_charlyghislain_plancul_almanac_api_url=http://almanac:2828'
     volumes:
       - ./post-boot.sh:/opt/payara/deployments/post-boot.sh
       - ./secrets/authenticator.managementApi.secret:/opt/payara/secrets/com.charlyghislain.plancul.authenticator.managementApi.secret
-      - ./auth-public-key.pem:/opt/payara/auth-public-key.pem
+      - ./secrets/auth-public-key.pem:/opt/payara/secrets/mp.jwt.verify.publickey
       - ./mariadb-java-client.jar:/opt/payara/glassfish/domains/domain1/lib/mariadb-java-client.jar
       - ./plancul-ear.ear:/opt/payara/deployments/plancul-ear.ear
       - ./keystore.jks:/opt/payara/glassfish/domains/domain1/config/keystore.jks
       - ./cacerts.jks:/opt/payara/glassfish/domains/domain1/config/cacerts.jks
     ports:
-      - 8183:8181
+      - 8444:8181
+      - 9002:9009
+
+
+#  front-en:
+#    image: docker.valuya.be/plancul-front:3
+#    environment:
+#     - 'LANG=en'
+#     - 'ARCHIVE_REF=rc.en.latest'
+#     - 'OVERWRITE_TARGET_DIR=true'
+#     - 'CONTEXT_PATH=/'
+#     - 'PLANCUL_WS_URL=https://localhost:8444/ws'
+#     - 'PLANCUL_AUTHENTICATOR_API_URL=https://localhost:0443/ws'
+#     - 'PLANCUL_ASTRONOMY_API_URL=https://localhost:8444/astronomy-ws'
+#     - 'PLANCUL_AUTHENTICATOR_APP_NAME=plancul'
+#     - 'PLANCUL_PUBLIC_URL_BASE=https://localhost:8002'
+#    volumes:
+#      - ./secrets/nexus-basic-auth:/var/run/secrets/nexus-basic-auth
+#    ports:
+#      - 8002:80
+
+
+  almanac:
+    image: cghislai/almanac
+    ports:
+      - 8000:2828
+
 
 volumes:
   db-data: {}
+
+networks:
+  default: {}
+  auth:
+    external:
+      name: authenticator-stack_default
+
