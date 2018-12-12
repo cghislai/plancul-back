@@ -9,8 +9,11 @@ import java.util.Optional;
 
 public class CultureNursingDurationValidator implements ConstraintValidator<ValidNursingDuration, Culture> {
 
+    private ValidNursingDuration validNursingDurationAnnotation;
+
     @Override
-    public void initialize(ValidNursingDuration validNursingDuration) {
+    public void initialize(ValidNursingDuration validNursingDurationAnnotation) {
+        this.validNursingDurationAnnotation = validNursingDurationAnnotation;
     }
 
     @Override
@@ -28,10 +31,10 @@ public class CultureNursingDurationValidator implements ConstraintValidator<Vali
         int daysUntilGermination = culture.getDaysUntilGermination();
 
         if (nursingDuration <= daysUntilGermination) {
-            constraintValidatorContext.buildConstraintViolationWithTemplate("must be less than nursing duration") //TODO i18n
+            constraintValidatorContext.buildConstraintViolationWithTemplate(validNursingDurationAnnotation.daysUntilGerminationMessage()) //TODO i18n
                     .addPropertyNode("daysUntilGermination")
                     .addConstraintViolation();
-            constraintValidatorContext.buildConstraintViolationWithTemplate("must be more than germination duration")
+            constraintValidatorContext.buildConstraintViolationWithTemplate(validNursingDurationAnnotation.nursingDurationMessage())
                     .addPropertyNode("cultureNursing")
                     .addPropertyNode("dayDuration")
                     .addConstraintViolation();

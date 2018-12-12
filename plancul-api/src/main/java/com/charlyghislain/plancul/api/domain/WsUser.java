@@ -21,6 +21,9 @@ public class WsUser implements WsDomainEntity {
     private String lastName;
     @NotNull
     private WsLanguage language;
+    @Nullable
+    @NullableField
+    private Long authenticatorUid;
 
     @Override
     public Long getId() {
@@ -58,4 +61,11 @@ public class WsUser implements WsDomainEntity {
         this.language = language;
     }
 
+    public Long getAuthenticatorUid() {
+        return authenticatorUid;
+    }
+
+    public void setAuthenticatorUid(Long authenticatorUid) {
+        this.authenticatorUid = authenticatorUid;
+    }
 }

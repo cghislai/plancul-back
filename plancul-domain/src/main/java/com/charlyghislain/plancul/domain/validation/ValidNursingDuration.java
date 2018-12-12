@@ -15,6 +15,10 @@ import java.lang.annotation.Target;
 public @interface ValidNursingDuration {
     String message() default "com.charlyghislain.plancul.validation.ValidNursingDuration.message";
 
+    String daysUntilGerminationMessage() default "com.charlyghislain.plancul.validation.ValidNursingDuration.daysUntilGermination.message";
+
+    String nursingDurationMessage() default "com.charlyghislain.plancul.validation.ValidNursingDuration.nursingDuration.message";
+
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};

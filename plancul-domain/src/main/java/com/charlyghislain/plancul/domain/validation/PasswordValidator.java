@@ -6,10 +6,12 @@ import javax.validation.ConstraintValidatorContext;
 public class PasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
     public static final int MIN_PASSWORD_SIZE = 8;
+    private ValidPassword constraintAnnotation;
 
     @Override
     public void initialize(ValidPassword constraintAnnotation) {
 
+        this.constraintAnnotation = constraintAnnotation;
     }
 
     @Override
@@ -18,7 +20,7 @@ public class PasswordValidator implements ConstraintValidator<ValidPassword, Str
             return false;
         }
         if (value.length() < MIN_PASSWORD_SIZE) {
-            context.buildConstraintViolationWithTemplate("Password is too short (8 characers minimum)")
+            context.buildConstraintViolationWithTemplate(constraintAnnotation.lengthMessage())
                     .addConstraintViolation();
             return false;
         }

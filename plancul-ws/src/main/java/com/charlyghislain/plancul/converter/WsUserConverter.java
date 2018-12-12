@@ -16,6 +16,8 @@ public class WsUserConverter implements ToWsDomainObjectConverter<User, WsUser> 
 
     @Override
     public WsUser toWsEntity(User entity) {
+        Long id = entity.getId();
+        Long authenticatorUid = entity.getAuthenticatorUid();
         String firstName = entity.getFirstName();
         String lastName = entity.getLastName();
         Language language = entity.getLanguage();
@@ -23,6 +25,8 @@ public class WsUserConverter implements ToWsDomainObjectConverter<User, WsUser> 
         Optional<WsLanguage> wsLanguage = WsLanguage.fromCode(language.getCode());
 
         WsUser wsUser = new WsUser();
+        wsUser.setId(id);
+        wsUser.setAuthenticatorUid(authenticatorUid);
         wsUser.setFirstName(firstName);
         wsUser.setLastName(lastName);
         wsUser.setLanguage(wsLanguage.orElse(WsLanguage.ENGLISH));

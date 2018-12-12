@@ -4,6 +4,7 @@ import com.charlyghislain.plancul.api.domain.response.WsContraintViolation;
 import com.charlyghislain.plancul.api.domain.response.WsValidationError;
 import com.charlyghislain.plancul.api.domain.util.WsDomainEntity;
 import com.charlyghislain.plancul.api.domain.util.WsError;
+import com.charlyghislain.plancul.domain.exception.ValidationViolation;
 import com.charlyghislain.plancul.util.exception.WsValidationException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,8 +26,8 @@ public class WsErrorConverter {
     }
 
     public WsValidationError fromValidationException(WsValidationException exception) {
-        List<WsContraintViolation> violations = exception.getErrors().stream()
-                .map(this::fromConstraintViolation)
+        List<WsContraintViolation> violations = exception.getViolations().stream()
+                .map(this::fromValidationViolation)
                 .collect(Collectors.toList());
         WsDomainEntity wsDomainEntity = exception.getWsDomainEntity();
 
@@ -36,14 +37,14 @@ public class WsErrorConverter {
         return validationError;
     }
 
-    private WsContraintViolation fromConstraintViolation(ConstraintViolation<?> constraintViolation) {
-        Path propertyPath = constraintViolation.getPropertyPath();
-        String messageTemplate = constraintViolation.getMessageTemplate();
+
+    private WsContraintViolation fromValidationViolation(ValidationViolation constraintViolation) {
+        String fieldName = constraintViolation.getFieldName();
         String message = constraintViolation.getMessage();
         // TODO i18n
 
         WsContraintViolation wsContraintViolation = new WsContraintViolation();
-        wsContraintViolation.setPropertyPath(propertyPath.toString());
+        wsContraintViolation.setPropertyPath(fieldName);
         wsContraintViolation.setMessage(message);
         return wsContraintViolation;
     }

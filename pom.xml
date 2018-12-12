@@ -39,6 +39,8 @@
 
     <properties>
         <typescript.api.npm.version>${project.version}</typescript.api.npm.version>
+        <authenticator.version>1.0.4-SNAPSHOT</authenticator.version>
+        <dispatcher.version>2.0.0</dispatcher.version>
     </properties>
 
 
@@ -47,25 +49,25 @@
             <dependency>
                 <groupId>com.charlyghislain.authenticator</groupId>
                 <artifactId>authenticator-management-api</artifactId>
-                <version>1.0.3</version>
+                <version>${authenticator.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.authenticator</groupId>
                 <artifactId>authenticator-application-api</artifactId>
-                <version>1.0.3</version>
+                <version>${authenticator.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.dispatcher</groupId>
                 <artifactId>dispatcher-api</artifactId>
-                <version>2.0.0</version>
+                <version>${dispatcher.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.charlyghislain.dispatcher</groupId>
                 <artifactId>dispatcher</artifactId>
-                <version>2.0.0</version>
+                <version>${dispatcher.version}</version>
                 <type>ejb</type>
                 <scope>provided</scope>
             </dependency>

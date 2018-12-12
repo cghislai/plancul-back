@@ -3,6 +3,7 @@ package com.charlyghislain.plancul.service;
 import com.charlyghislain.plancul.authenticator.client.AuthenticatorUserClient;
 import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientError;
 import com.charlyghislain.plancul.authenticator.client.exception.InvalidPasswordException;
+import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientValidationErrorException;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.TenantUserRole;
@@ -11,6 +12,7 @@ import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.exception.InvalidTokenException;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.exception.PlanCulException;
+import com.charlyghislain.plancul.domain.exception.ValidationErrorException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.filter.TenantUserRoleFilter;
 import com.charlyghislain.plancul.domain.security.AuthenticatorUser;
@@ -73,13 +75,13 @@ public class UserUpdateService {
 
 
     public User createUser(@NotNull User newUser, @NotNull AuthenticatorUser newAuthenticatorUser,
-                           @NotNull String password) throws OperationNotAllowedException, InvalidTokenException {
+                           @NotNull String password) throws OperationNotAllowedException, InvalidTokenException, ValidationErrorException {
         return this.createUser(newUser, newAuthenticatorUser, password, null, null);
     }
 
     public User createUser(@NotNull User newUser, @NotNull AuthenticatorUser newAuthenticatorUser,
                            @NotNull String password, @Nullable String adminToken, @Nullable String tenantInvitationToken)
-            throws InvalidTokenException, OperationNotAllowedException {
+            throws InvalidTokenException, OperationNotAllowedException, ValidationErrorException {
         newAuthenticatorUser.setActive(false);
 
         boolean adminAccount = this.checkAdminAccountCreation(adminToken);
@@ -110,6 +112,8 @@ public class UserUpdateService {
             return savedUser;
         } catch (InvalidPasswordException invalidPasswordException) {
             throw new OperationNotAllowedException("Invalid password");
+        } catch (AuthenticatorClientValidationErrorException validationError) {
+            throw new ValidationErrorException(validationError.getViolationList());
         } catch (AuthenticatorClientError authenticatorClientError) {
             throw new OperationNotAllowedException(authenticatorClientError.getMessage());
         } finally {
@@ -176,10 +180,12 @@ public class UserUpdateService {
 
 
     public void removeUser(User user) {
-        Long authenticatorUid = user.getAuthenticatorUid();
+        User managedUser = entityManager.merge(user);
+
+        Long authenticatorUid = managedUser.getAuthenticatorUid();
         this.forgetAuthenticatorUser(authenticatorUid);
 
-        List<TenantUserRole> tenantUserRoles = tenantUserRolesQueryService.findAllTenantUserRoles(user);
+        List<TenantUserRole> tenantUserRoles = tenantUserRolesQueryService.findAllTenantUserRoles(managedUser);
         List<Tenant> distinctTenants = tenantUserRoles.stream()
                 .map(TenantUserRole::getTenant)
                 .distinct()
@@ -190,8 +196,7 @@ public class UserUpdateService {
                 .collect(Collectors.toList());
 
         tenantsWithoutUsers.forEach(this.tenantService::removeTenant);
-
-
+        entityManager.remove(managedUser);
     }
 
     public boolean isOrphanTenant(Tenant t) {

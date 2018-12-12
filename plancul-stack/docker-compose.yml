@@ -25,6 +25,7 @@ services:
       - '/opt/payara/bin/asadmin'
       - 'start-domain'
       - '-v'
+      - '--debug'
       - '--postbootcommandfile'
       - '/opt/payara/deployments/post-boot.sh'
       - 'domain1'

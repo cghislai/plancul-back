@@ -13,8 +13,13 @@ import com.charlyghislain.plancul.domain.request.sort.SortMappingResult;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
+import org.eclipse.microprofile.jwt.Claim;
+import org.eclipse.microprofile.jwt.ClaimValue;
+import org.eclipse.microprofile.jwt.Claims;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -28,10 +33,12 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.security.enterprise.SecurityContext;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -152,7 +159,11 @@ public class SearchService {
     }
 
     public Optional<Predicate> createLoggedUserTenantsPredicate(Path<Tenant> rootTenant, boolean allowNull) {
-        boolean adminLogged = securityContext.isCallerInRole(ApplicationGroupNames.ADMIN);
+        boolean adminLogged = false;
+        // FIXME: should be able to use SecurityContext@isUserInRole
+        JsonWebToken jsonWebToken = (JsonWebToken) securityContext.getCallerPrincipal();
+        Set<String> groups = jsonWebToken.getGroups();
+        adminLogged = groups.contains(ApplicationGroupNames.ADMIN);
         if (adminLogged) {
             return Optional.empty();
         }

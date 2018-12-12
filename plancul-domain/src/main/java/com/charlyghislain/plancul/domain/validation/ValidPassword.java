@@ -13,6 +13,7 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
     String message() default "com.charlyghislain.plancul.validation.ValidPassword.message";
+    String lengthMessage() default "com.charlyghislain.plancul.validation.ValidPassword.length.message";
 
     Class<?>[] groups() default {};
 

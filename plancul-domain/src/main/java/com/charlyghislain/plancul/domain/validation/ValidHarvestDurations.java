@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ValidHarvestDurations {
     String message() default "com.charlyghislain.plancul.validation.ValidHarvestDurations.message";
+    String daysUntilFirstHarvestMessage() default "com.charlyghislain.plancul.validation.ValidHarvestDurations.daysUntilFirstHarvest.message";
+    String daysUntilGerminationMessage() default "com.charlyghislain.plancul.validation.ValidHarvestDurations.daysUntilGermination.message";
 
     Class<?>[] groups() default {};
 

@@ -15,6 +15,7 @@ import com.charlyghislain.plancul.domain.User;
 import com.charlyghislain.plancul.domain.exception.InvalidTokenException;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 import com.charlyghislain.plancul.domain.exception.PlanCulException;
+import com.charlyghislain.plancul.domain.exception.ValidationErrorException;
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.request.Pagination;
 import com.charlyghislain.plancul.domain.request.filter.TenantFilter;
@@ -28,6 +29,7 @@ import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.exception.InvalidPasswordException;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.exception.WsException;
+import com.charlyghislain.plancul.util.exception.WsValidationException;
 import org.eclipse.microprofile.jwt.Claim;
 import org.eclipse.microprofile.jwt.ClaimValue;
 
@@ -92,6 +94,8 @@ public class UserResource {
             return wsUserConverter.toWsEntity(createdUser);
         } catch (InvalidTokenException | OperationNotAllowedException e) {
             throw new WsException(Response.Status.NOT_ACCEPTABLE, e.getMessage());
+        } catch (ValidationErrorException e) {
+            throw new WsValidationException(e.getViolationList());
         }
     }
 
