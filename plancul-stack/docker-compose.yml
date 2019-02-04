@@ -51,28 +51,30 @@ services:
       - 9002:9009
 
 
-#  front-en:
-#    image: docker.valuya.be/plancul-front:3
-#    environment:
-#     - 'LANG=en'
-#     - 'ARCHIVE_REF=rc.en.latest'
-#     - 'OVERWRITE_TARGET_DIR=true'
-#     - 'CONTEXT_PATH=/'
-#     - 'PLANCUL_WS_URL=https://localhost:8444/ws'
-#     - 'PLANCUL_AUTHENTICATOR_API_URL=https://localhost:0443/ws'
-#     - 'PLANCUL_ASTRONOMY_API_URL=https://localhost:8444/astronomy-ws'
-#     - 'PLANCUL_AUTHENTICATOR_APP_NAME=plancul'
-#     - 'PLANCUL_PUBLIC_URL_BASE=https://localhost:8002'
-#    volumes:
-#      - ./secrets/nexus-basic-auth:/var/run/secrets/nexus-basic-auth
-#    ports:
-#      - 8002:80
+  front-en:
+    image: cghislai/plancul-front:dev
+    environment:
+     - 'ENABLE_SSL=true'
+     - 'PLANCUL_WS_URL=https://localhost:8444/plancul-ws'
+     - 'PLANCUL_AUTHENTICATOR_API_URL=https://localhost:8443/authenticator-web'
+     - 'PLANCUL_ASTRONOMY_API_URL=https://localhost:8444/astronomy-ws'
+     - 'PLANCUL_AUTHENTICATOR_APP_NAME=plancul'
+     - 'PLANCUL_PUBLIC_URL_BASE=https://localhost:8002/en/'
+    volumes:
+      - './certs-dev/localhost.key:/usr/local/apache2/conf/server.key'
+      - './certs-dev/localhost.pem:/usr/local/apache2/conf/server.crt'
+    ports:
+      - 8002:443
 
 
   almanac:
     image: cghislai/almanac
     ports:
       - 8000:2828
+    networks:
+      default:
+        aliases:
+          - almanac
 
 
 volumes:
