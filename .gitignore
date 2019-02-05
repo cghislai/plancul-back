@@ -1,7 +1,7 @@
 # These files are copied by the build system
 plancul-stack/*.jar
 plancul-stack/*.ear
-
+authenticator-stack
 
 # Created by .ignore support plugin (hsz.mobi)
 ### JetBrains template

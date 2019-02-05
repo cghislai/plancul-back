@@ -1,9 +1,9 @@
 package com.charlyghislain.plancul.api.domain.request;
 
+
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-// TODO: validator end > start
 public class WsDateRange {
     @NotNull
     private LocalDate start;

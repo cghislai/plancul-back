@@ -20,6 +20,7 @@ import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
 import com.charlyghislain.plancul.domain.util.CulturePhaseType;
+import com.charlyghislain.plancul.domain.util.DateRange;
 import com.charlyghislain.plancul.service.CultureService;
 import com.charlyghislain.plancul.util.AcceptedLanguage;
 import com.charlyghislain.plancul.util.EntityValidator;
@@ -35,7 +36,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -145,27 +145,26 @@ public class CultureResource {
         Culture culture = cultureService.findCultureById(id)
                 .orElseThrow(ReferenceNotFoundException::new);
         CulturePhaseType phaseType = culturePhaseConverter.fromWsCulturePhaseTypeName(culturePhaseName);
-        LocalDate startDate = wsDateRange.getStart();
-        LocalDate endDate = wsDateRange.getEnd();
+        DateRange dateRange = new DateRange(wsDateRange.getStart(), wsDateRange.getEnd());
 
         Culture managedCulture;
         try {
             switch (phaseType) {
                 case PREPARATION_COVER:
                 case PREPARATION_PRESOWING:
-                    managedCulture = cultureService.updateBedPreparationDates(culture, startDate, endDate);
+                    managedCulture = cultureService.updateBedPreparationDates(culture, dateRange);
                     break;
                 case NURSING:
-                    managedCulture = cultureService.updateNursingDates(culture, startDate, endDate);
+                    managedCulture = cultureService.updateNursingDates(culture, dateRange);
                     break;
                 case GERMINATION:
-                    managedCulture = cultureService.updateGerminationDates(culture, startDate, endDate);
+                    managedCulture = cultureService.updateGerminationDates(culture, dateRange);
                     break;
                 case GROWTH:
-                    managedCulture = cultureService.updateGrowthDates(culture, startDate, endDate);
+                    managedCulture = cultureService.updateGrowthDates(culture, dateRange);
                     break;
                 case HARVEST:
-                    managedCulture = cultureService.updateHarvestDates(culture, startDate, endDate);
+                    managedCulture = cultureService.updateHarvestDates(culture, dateRange);
                     break;
                 default:
                     throw new WsException(Response.Status.NOT_IMPLEMENTED);
@@ -173,7 +172,7 @@ public class CultureResource {
             WsRef<WsCulture> cultureWsRef = cultureConverter.reference(managedCulture);
             return cultureWsRef;
         } catch (NoBedPreparationException e) {
-            throw new WsException(Response.Status.BAD_REQUEST, "No bed prepartaion for this culture");
+            throw new WsException(Response.Status.BAD_REQUEST, "No bed preparation for this culture");
         } catch (OperationNotAllowedException e) {
             throw new WsException(Response.Status.FORBIDDEN);
         } catch (NoNursingException e) {

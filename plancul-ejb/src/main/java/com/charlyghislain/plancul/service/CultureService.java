@@ -15,6 +15,7 @@ import com.charlyghislain.plancul.domain.request.sort.Sort;
 import com.charlyghislain.plancul.domain.result.SearchResult;
 import com.charlyghislain.plancul.domain.util.CulturePhase;
 import com.charlyghislain.plancul.domain.util.CulturePhaseType;
+import com.charlyghislain.plancul.domain.util.DateRange;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -22,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -168,9 +170,11 @@ public class CultureService {
         return phases;
     }
 
-    public Culture updateBedPreparationDates(Culture culture, LocalDate start, LocalDate end) throws NoBedPreparationException, OperationNotAllowedException {
+    public Culture updateBedPreparationDates(Culture culture, @Valid DateRange dateRange) throws NoBedPreparationException, OperationNotAllowedException {
         BedPreparation bedPreparation = culture.getBedPreparation()
                 .orElseThrow(NoBedPreparationException::new);
+        LocalDate start = dateRange.getStart();
+        LocalDate end = dateRange.getEnd();
 
         int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
         bedPreparation.setStartDate(start);
@@ -190,15 +194,17 @@ public class CultureService {
         culture.getCultureNursing()
                 .ifPresent(nursing -> this.shiftNursingEndDate(nursing, culture, end));
 
-        this.shiftHarvestDates(culture, sowingDate);
+        this.shiftHarvestDates(culture, sowingDate, end);
 
         return saveCulture(culture);
     }
 
 
-    public Culture updateNursingDates(Culture culture, LocalDate start, LocalDate end) throws NoNursingException, OperationNotAllowedException {
+    public Culture updateNursingDates(Culture culture, @Valid DateRange dateRange) throws NoNursingException, OperationNotAllowedException {
         CultureNursing nursing = culture.getCultureNursing()
                 .orElseThrow(NoNursingException::new);
+        LocalDate start = dateRange.getStart();
+        LocalDate end = dateRange.getEnd();
 
         int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
 
@@ -208,18 +214,22 @@ public class CultureService {
         culture.setSowingDate(start);
 
         int daysUntilGermination = culture.getDaysUntilGermination();
+        daysUntilGermination = Math.min(dayDuration - 1, daysUntilGermination);
         LocalDate germinationDate = start.plusDays(daysUntilGermination);
         culture.setGerminationDate(germinationDate);
+        culture.setDaysUntilGermination(daysUntilGermination);
 
         culture.getBedPreparation()
                 .ifPresent(prep -> this.shiftBedPreparationEndDate(prep, culture, end));
 
-        shiftHarvestDates(culture, start);
+        shiftHarvestDates(culture, start, end);
 
         return saveCulture(culture);
     }
 
-    public Culture updateGerminationDates(Culture culture, LocalDate start, LocalDate end) throws OperationNotAllowedException {
+    public Culture updateGerminationDates(Culture culture, @Valid DateRange dateRange) throws OperationNotAllowedException {
+        LocalDate start = dateRange.getStart();
+        LocalDate end = dateRange.getEnd();
         int dayDuration = (int) start.until(end, ChronoUnit.DAYS);
         culture.setSowingDate(start);
         culture.setGerminationDate(end);
@@ -236,12 +246,14 @@ public class CultureService {
         culture.getCultureNursing()
                 .ifPresent(nursing -> this.shiftNursingEndDate(nursing, culture, growthOnBedStartDate));
 
-        shiftHarvestDates(culture, start);
+        shiftHarvestDates(culture, start, end);
 
         return saveCulture(culture);
     }
 
-    public Culture updateGrowthDates(Culture culture, LocalDate start, LocalDate end) throws OperationNotAllowedException {
+    public Culture updateGrowthDates(Culture culture, @Valid DateRange dateRange) throws OperationNotAllowedException {
+        LocalDate start = dateRange.getStart();
+        LocalDate end = dateRange.getEnd();
         culture.getCultureNursing()
                 .ifPresent(nursing -> shiftNursingEndDate(nursing, culture, start));
 
@@ -260,12 +272,14 @@ public class CultureService {
         int daysUntilFirstHarvest = (int) sowingDate.until(end, ChronoUnit.DAYS);
         culture.setDaysUntilFirstHarvest(daysUntilFirstHarvest);
 
-        shiftHarvestDates(culture, sowingDate);
+        shiftHarvestDates(culture, sowingDate, start);
 
         return saveCulture(culture);
     }
 
-    public Culture updateHarvestDates(Culture culture, LocalDate start, LocalDate end) throws OperationNotAllowedException {
+    public Culture updateHarvestDates(Culture culture, @Valid DateRange dateRange) throws OperationNotAllowedException {
+        LocalDate start = dateRange.getStart();
+        LocalDate end = dateRange.getEnd();
         int daysUntilFirstHarvest = culture.getDaysUntilFirstHarvest();
         LocalDate sowingDate = start.minusDays(daysUntilFirstHarvest);
         culture.setSowingDate(sowingDate);
@@ -309,14 +323,17 @@ public class CultureService {
         culture.setSowingDate(startDate);
     }
 
-    private void shiftHarvestDates(Culture culture, LocalDate sowingDate) {
+    private void shiftHarvestDates(Culture culture, LocalDate sowingDate, LocalDate minDate) {
         int harvestDaysDuration = culture.getHarvestDaysDuration();
         int daysUntilFirstHarvest = culture.getDaysUntilFirstHarvest();
+        int minDaysUntilFirstHarvest = (int) sowingDate.until(minDate, ChronoUnit.DAYS) + 1;
+        daysUntilFirstHarvest = Math.max(daysUntilFirstHarvest, minDaysUntilFirstHarvest);
         LocalDate harvestStart = sowingDate.plusDays(daysUntilFirstHarvest);
         LocalDate harvestEnd = harvestStart.plusDays(harvestDaysDuration);
 
         culture.setFirstHarvestDate(harvestStart);
         culture.setLastHarvestDate(harvestEnd);
+        culture.setDaysUntilFirstHarvest(daysUntilFirstHarvest);
     }
 
 
