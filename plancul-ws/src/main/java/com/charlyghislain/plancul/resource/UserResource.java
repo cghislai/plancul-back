@@ -141,7 +141,13 @@ public class UserResource {
                 .flatMap(userQueryService::findUserByAuthenticatorUid)
                 .orElseThrow(ReferenceNotFoundException::new);
 
-        userUpdateService.resetUserPassword(user, resetToken, password);
+        try {
+            userUpdateService.resetUserPassword(user, resetToken, password);
+        } catch (ValidationErrorException e) {
+            throw new WsValidationException(e.getViolationList());
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.NOT_ACCEPTABLE);
+        }
     }
 
     @POST

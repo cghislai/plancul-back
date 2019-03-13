@@ -73,7 +73,7 @@ public class AuthenticatorUserClient {
     }
 
 
-    public void resetUserPassword(Long userId, String resetToken, String password) {
+    public void resetUserPassword(Long userId, String resetToken, String password) throws AuthenticatorClientError {
         WsPasswordReset wsPasswordReset = new WsPasswordReset();
         wsPasswordReset.setPassword(password);
         wsPasswordReset.setResetToken(resetToken);
@@ -91,12 +91,8 @@ public class AuthenticatorUserClient {
     }
 
     public AuthenticatorUser setUserPassword(Long userId, String password) throws AuthenticatorClientError {
-        try {
-            WsApplicationUser wsApplicationUser = userResource.updateUserPassword(userId, password);
-            return authenticatorUserConverter.toAuthenticatorUser(wsApplicationUser);
-        } catch (WebApplicationException e) {
-            throw new AuthenticatorClientError(e);
-        }
+        WsApplicationUser wsApplicationUser = userResource.updateUserPassword(userId, password);
+        return authenticatorUserConverter.toAuthenticatorUser(wsApplicationUser);
     }
 
     public AuthenticatorUser getUser(long id) throws AuthenticatorClientError {

@@ -2,7 +2,6 @@ package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.authenticator.client.AuthenticatorUserClient;
 import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientError;
-import com.charlyghislain.plancul.authenticator.client.exception.InvalidPasswordException;
 import com.charlyghislain.plancul.authenticator.client.exception.AuthenticatorClientValidationErrorException;
 import com.charlyghislain.plancul.domain.Tenant;
 import com.charlyghislain.plancul.domain.TenantRole;
@@ -110,8 +109,6 @@ public class UserUpdateService {
                 this.applicationInitializationService.checkInitializationStatus();
             }
             return savedUser;
-        } catch (InvalidPasswordException invalidPasswordException) {
-            throw new OperationNotAllowedException("Invalid password");
         } catch (AuthenticatorClientValidationErrorException validationError) {
             throw new ValidationErrorException(validationError.getViolationList());
         } catch (AuthenticatorClientError authenticatorClientError) {
@@ -159,9 +156,15 @@ public class UserUpdateService {
     }
 
 
-    public void resetUserPassword(User user, String resetToken, String password) {
+    public void resetUserPassword(User user, String resetToken, String password) throws OperationNotAllowedException, ValidationErrorException {
         Long authenticatorUid = user.getAuthenticatorUid();
-        authenticatorUserClient.resetUserPassword(authenticatorUid, resetToken, password);
+        try {
+            authenticatorUserClient.resetUserPassword(authenticatorUid, resetToken, password);
+        } catch (AuthenticatorClientValidationErrorException validationError) {
+            throw new ValidationErrorException(validationError.getViolationList());
+        } catch (AuthenticatorClientError e) {
+            throw new OperationNotAllowedException(e.getMessage());
+        }
     }
 
     public User updateLoggedUser(@NotNull User existingUser, @NotNull User userUpdate) throws OperationNotAllowedException {
