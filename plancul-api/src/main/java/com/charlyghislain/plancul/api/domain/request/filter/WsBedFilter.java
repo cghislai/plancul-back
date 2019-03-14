@@ -7,6 +7,7 @@ import com.charlyghislain.plancul.api.domain.util.WsRef;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public class WsBedFilter implements Serializable {
@@ -23,6 +24,8 @@ public class WsBedFilter implements Serializable {
     private WsRef<WsPlot> plotWsRef;
     @Nullable
     private WsRef<WsBed> exactBedWsRef;
+    @Nullable
+    private BigDecimal minSurface;
 
     public Optional<WsRef<WsTenant>> getTenantWsRef() {
         return Optional.ofNullable(tenantWsRef);
@@ -70,5 +73,13 @@ public class WsBedFilter implements Serializable {
 
     public void setPatchQuery(String patchQuery) {
         this.patchQuery = patchQuery;
+    }
+
+    public Optional<BigDecimal> getMinSurface() {
+        return Optional.ofNullable(minSurface);
+    }
+
+    public void setMinSurface(BigDecimal minSurface) {
+        this.minSurface = minSurface;
     }
 }

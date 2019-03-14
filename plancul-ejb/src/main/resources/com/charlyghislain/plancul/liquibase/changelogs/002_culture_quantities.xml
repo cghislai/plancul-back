@@ -1,0 +1,26 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+    <changeSet id="0-bed-surface" author="cghislai">
+        <addColumn tableName="BED">
+            <column name="SURFACE" type="DECIMAL UNSIGNED" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="1-culture-quatities" author="cghislai">
+        <addColumn tableName="CULTURE">
+            <column name="SEEDSURFACEQUANTITY" type="DECIMAL UNSIGNED" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="HARVESTSURFACEQUANTITY" type="DECIMAL UNSIGNED" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

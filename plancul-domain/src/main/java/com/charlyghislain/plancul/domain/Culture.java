@@ -14,6 +14,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -43,6 +44,10 @@ public class Culture implements DomainEntity {
     private int daysUntilFirstHarvest;
     @Min(1)
     private int harvestDaysDuration;
+    @NotNull
+    private BigDecimal seedSurfaceQuantity;
+    @NotNull
+    private BigDecimal harvestSurfaceQuantity;
 
     @NotNull
     @ServiceManaged
@@ -208,5 +213,21 @@ public class Culture implements DomainEntity {
 
     public void setHarvestDaysDuration(int harvestDaysDuration) {
         this.harvestDaysDuration = harvestDaysDuration;
+    }
+
+    public BigDecimal getSeedSurfaceQuantity() {
+        return seedSurfaceQuantity;
+    }
+
+    public void setSeedSurfaceQuantity(BigDecimal seedSurfaceQuantity) {
+        this.seedSurfaceQuantity = seedSurfaceQuantity;
+    }
+
+    public BigDecimal getHarvestSurfaceQuantity() {
+        return harvestSurfaceQuantity;
+    }
+
+    public void setHarvestSurfaceQuantity(BigDecimal harvestSurfaceQuantity) {
+        this.harvestSurfaceQuantity = harvestSurfaceQuantity;
     }
 }

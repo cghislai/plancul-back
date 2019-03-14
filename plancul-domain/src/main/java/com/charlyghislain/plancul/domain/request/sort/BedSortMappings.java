@@ -6,6 +6,7 @@ import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Plot_;
 
 import javax.persistence.criteria.Path;
+import java.math.BigDecimal;
 
 class BedSortMappings {
 
@@ -17,5 +18,10 @@ class BedSortMappings {
         Path<Plot> plotPath = bed.get(Bed_.plot);
         Path<String> namePath = plotPath.get(Plot_.name);
         return new SortMappingResult<>(namePath);
+    };
+
+    static SortMapping<Bed, BigDecimal> SURFACE = (bed, context) -> {
+        Path<BigDecimal> surfacePath = bed.get(Bed_.surface);
+        return new SortMappingResult<>(surfacePath);
     };
 }

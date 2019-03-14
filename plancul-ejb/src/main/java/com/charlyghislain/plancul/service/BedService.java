@@ -22,6 +22,7 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -146,7 +147,18 @@ public class BedService {
                 .map(query -> this.createPatchQueryPredicate(rootBed, query))
                 .ifPresent(predicateList::add);
 
+        bedFilter.getMinSurface()
+                .map(surface -> this.createMinSurfacePredicate(rootBed, surface))
+                .ifPresent(predicateList::add);
+
         return predicateList;
+    }
+
+    private Predicate createMinSurfacePredicate(From<?, Bed> rootBed, BigDecimal minSurface) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        Path<BigDecimal> surfacePath = rootBed.get(Bed_.surface);
+        Predicate minSurfacePredicate = criteriaBuilder.greaterThanOrEqualTo(surfacePath, minSurface);
+        return minSurfacePredicate;
     }
 
     private Predicate createPatchPredicate(From<?, Bed> rootBed, String patch) {

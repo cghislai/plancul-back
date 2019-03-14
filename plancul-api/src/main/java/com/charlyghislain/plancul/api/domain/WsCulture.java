@@ -6,7 +6,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class WsCulture implements WsDomainEntity {
 
@@ -26,6 +28,10 @@ public class WsCulture implements WsDomainEntity {
     private int daysUntilFirstHarvest;
     @Min(1)
     private int harvestDaysDuration;
+    @NotNull
+    private BigDecimal seedSurfaceQuantity;
+    @NotNull
+    private BigDecimal harvestSurfaceQuantity;
 
     @Nullable
     private LocalDate firstHarvestDate;
@@ -181,5 +187,23 @@ public class WsCulture implements WsDomainEntity {
 
     public void setHarvestDaysDuration(int harvestDaysDuration) {
         this.harvestDaysDuration = harvestDaysDuration;
+    }
+
+    @NotNull
+    public BigDecimal getSeedSurfaceQuantity() {
+        return seedSurfaceQuantity;
+    }
+
+    public void setSeedSurfaceQuantity(@NotNull BigDecimal seedSurfaceQuantity) {
+        this.seedSurfaceQuantity = seedSurfaceQuantity;
+    }
+
+    @NotNull
+    public BigDecimal getHarvestSurfaceQuantity() {
+        return harvestSurfaceQuantity;
+    }
+
+    public void setHarvestSurfaceQuantity(@NotNull BigDecimal harvestSurfaceQuantity) {
+        this.harvestSurfaceQuantity = harvestSurfaceQuantity;
     }
 }

@@ -26,6 +26,7 @@ import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -66,6 +67,8 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         int daysUntilFirstHarvest = entity.getDaysUntilFirstHarvest();
         int harvestDaysDuration = entity.getHarvestDaysDuration();
         int daysUntilGermination = entity.getDaysUntilGermination();
+        BigDecimal seedSurfaceQuantity = entity.getSeedSurfaceQuantity();
+        BigDecimal harvestSurfaceQuantity = entity.getHarvestSurfaceQuantity();
         LocalDate germinationDate = entity.getGerminationDate();
         LocalDate firstHarvestDate = entity.getFirstHarvestDate();
         LocalDate lastHarvestDate = entity.getLastHarvestDate();
@@ -92,6 +95,8 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         wsCulture.setSowingDate(sowingDate);
         wsCulture.setDaysUntilGermination(daysUntilGermination);
         wsCulture.setDaysUntilFirstHarvest(daysUntilFirstHarvest);
+        wsCulture.setSeedSurfaceQuantity(seedSurfaceQuantity);
+        wsCulture.setHarvestSurfaceQuantity(harvestSurfaceQuantity);
         wsCulture.setHarvestDaysDuration(harvestDaysDuration);
         wsCulture.setGerminationDate(germinationDate);
         wsCulture.setFirstHarvestDate(firstHarvestDate);
@@ -129,6 +134,8 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         int daysUntilGermination = wsEntity.getDaysUntilGermination();
         int daysUntilFirstHarvest = wsEntity.getDaysUntilFirstHarvest();
         int harvestDaysDuration = wsEntity.getHarvestDaysDuration();
+        BigDecimal seedSurfaceQuantity = wsEntity.getSeedSurfaceQuantity();
+        BigDecimal harvestSurfaceQuantity = wsEntity.getHarvestSurfaceQuantity();
 //        LocalDate germinationDate = wsEntity.getGerminationDate();
 //        LocalDate firstHarvestDate = wsEntity.getFirstHarvestDate();
 //        LocalDate lastHarvestDate = wsEntity.getLastHarvestDate();
@@ -156,6 +163,8 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         entity.setDaysUntilGermination(daysUntilGermination);
         entity.setDaysUntilFirstHarvest(daysUntilFirstHarvest);
         entity.setHarvestDaysDuration(harvestDaysDuration);
+        entity.setSeedSurfaceQuantity(seedSurfaceQuantity);
+        entity.setHarvestSurfaceQuantity(harvestSurfaceQuantity);
         entity.setHtmlNotes(htmlNotes);
         entity.setCultureNursing(cultureNursing.orElse(null));
         entity.setBedPreparation(bedPreparation.orElse(null));

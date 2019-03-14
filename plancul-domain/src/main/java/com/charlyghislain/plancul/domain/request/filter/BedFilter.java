@@ -5,6 +5,7 @@ import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public class BedFilter {
@@ -21,6 +22,8 @@ public class BedFilter {
     private String patchQuery;
     @Nullable
     private String patch;
+    @Nullable
+    private BigDecimal minSurface;
 
     public Optional<Tenant> getTenant() {
         return Optional.ofNullable(tenant);
@@ -68,5 +71,13 @@ public class BedFilter {
 
     public void setPatchQuery(String patchQuery) {
         this.patchQuery = patchQuery;
+    }
+
+    public Optional<BigDecimal> getMinSurface() {
+        return Optional.ofNullable(minSurface);
+    }
+
+    public void setMinSurface(BigDecimal minSurface) {
+        this.minSurface = minSurface;
     }
 }

@@ -5,6 +5,7 @@ import com.charlyghislain.plancul.api.domain.util.WsRef;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 
 public class WsBed implements WsDomainEntity {
 
@@ -12,6 +13,8 @@ public class WsBed implements WsDomainEntity {
     @NotNull
     @Size(max = 255)
     private String name;
+    @NotNull
+    private BigDecimal surface;
     @Size(max = 255)
     private String patch;
     @NotNull
@@ -50,5 +53,14 @@ public class WsBed implements WsDomainEntity {
 
     public void setPatch(String patch) {
         this.patch = patch;
+    }
+
+    @NotNull
+    public BigDecimal getSurface() {
+        return surface;
+    }
+
+    public void setSurface(@NotNull BigDecimal surface) {
+        this.surface = surface;
     }
 }

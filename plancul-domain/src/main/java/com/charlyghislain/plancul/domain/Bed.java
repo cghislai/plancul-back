@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Entity
@@ -19,6 +20,8 @@ public class Bed implements DomainEntity {
     @NotNull
     @Size(max = 255)
     private String name;
+    @NotNull
+    private BigDecimal surface;
     @Size(max = 255)
     private String patch;
     @NotNull
@@ -58,5 +61,13 @@ public class Bed implements DomainEntity {
 
     public void setPatch(String patch) {
         this.patch = patch;
+    }
+
+    public BigDecimal getSurface() {
+        return surface;
+    }
+
+    public void setSurface(BigDecimal surface) {
+        this.surface = surface;
     }
 }

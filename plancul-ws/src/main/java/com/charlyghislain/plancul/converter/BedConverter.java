@@ -14,9 +14,9 @@ import com.charlyghislain.plancul.service.BedService;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 import com.charlyghislain.plancul.util.UntypedSort;
 
-import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -42,6 +42,7 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
         String name = entity.getName();
         Plot plot = entity.getPlot();
         Optional<String> patch = entity.getPatch();
+        BigDecimal surface = entity.getSurface();
 
         WsRef<WsPlot> plotWsRef = plotConverter.reference(plot);
 
@@ -50,6 +51,7 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
         wsBed.setName(name);
         wsBed.setPlotWsRef(plotWsRef);
         wsBed.setPatch(patch.orElse(null));
+        wsBed.setSurface(surface);
         return wsBed;
     }
 
@@ -69,12 +71,14 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
         String name = wsEntity.getName();
         WsRef<WsPlot> plotWsRef = wsEntity.getPlotWsRef();
         String patch = wsEntity.getPatch();
+        BigDecimal surface = wsEntity.getSurface();
 
         Plot plot = plotConverter.load(plotWsRef);
 
         entity.setName(name);
         entity.setPlot(plot);
         entity.setPatch(patch);
+        entity.setSurface(surface);
     }
 
     public BedFilter fromWsBedFilter(WsBedFilter wsBedFilter) {
@@ -100,6 +104,9 @@ public class BedConverter implements WsDomainObjectConverter<Bed, WsBed> {
 
         wsBedFilter.getPatchQuery()
                 .ifPresent(bedFilter::setPatchQuery);
+
+        wsBedFilter.getMinSurface()
+                .ifPresent(bedFilter::setMinSurface);
 
         return bedFilter;
     }
