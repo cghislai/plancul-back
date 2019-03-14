@@ -26,6 +26,7 @@ import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -341,6 +342,10 @@ public class CultureService {
     }
 
     private Culture createCulture(Culture culture) throws OperationNotAllowedException {
+        culture.setCreated(LocalDateTime.now());
+
+        culture.getBedPreparation().ifPresent(prep -> prep.setCreated(LocalDateTime.now()));
+        culture.getCultureNursing().ifPresent(prep -> prep.setCreated(LocalDateTime.now()));
         return validateAndPersistCulture(culture);
     }
 
@@ -578,6 +583,10 @@ public class CultureService {
         validationService.validateLoggedUserHasTenantRole(culture.getTenant());
         computeCultureDates(culture);
         computeCultureQuantities(culture);
+
+        culture.setUpdated(LocalDateTime.now());
+        culture.getBedPreparation().ifPresent(prep -> prep.setUpdated(LocalDateTime.now()));
+        culture.getCultureNursing().ifPresent(prep -> prep.setUpdated(LocalDateTime.now()));
 
         Culture managedCulture = entityManager.merge(culture);
         return managedCulture;

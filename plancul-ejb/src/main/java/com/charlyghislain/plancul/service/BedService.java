@@ -23,6 +23,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +50,7 @@ public class BedService {
         Tenant tenant = getBedTenant(bed);
         validationService.validateLoggedUserHasTenantRole(tenant);
 
+        bed.setUpdated(LocalDateTime.now());
         Bed managedBed = entityManager.merge(bed);
         return managedBed;
     }
@@ -180,6 +182,8 @@ public class BedService {
         Tenant bedTenant = this.getBedTenant(bed);
         validationService.validateLoggedUserHasTenantRole(bedTenant);
 
+        bed.setCreated(LocalDateTime.now());
+        bed.setUpdated(LocalDateTime.now());
         Bed managedBed = entityManager.merge(bed);
         return managedBed;
     }

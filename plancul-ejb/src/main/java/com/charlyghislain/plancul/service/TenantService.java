@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,16 +47,6 @@ public class TenantService {
     @Inject
     private ValidationService validationService;
 
-
-    public Tenant saveTenant(Tenant tenant) throws OperationNotAllowedException {
-        if (tenant.getId() == null) {
-            return this.createTenant(tenant);
-        }
-        validationService.validateLoggedUserHasTenantRole(tenant, TenantRole.ADMIN);
-
-        Tenant managedTenant = entityManager.merge(tenant);
-        return managedTenant;
-    }
 
     public Optional<Tenant> findTenantById(long id) {
         Tenant foundTenant = entityManager.find(Tenant.class, id);
@@ -116,14 +107,6 @@ public class TenantService {
         entityManager.remove(managedTenant);
     }
 
-    @RolesAllowed({ApplicationGroupNames.ADMIN})
-    private Tenant createTenant(Tenant tenant) throws OperationNotAllowedException {
-        Tenant managedTenant = entityManager.merge(tenant);
-
-        this.createDefaultPlot(managedTenant);
-        return managedTenant;
-    }
-
     private List<Sort<Tenant>> getDefaultSorts() {
         return Collections.singletonList(new Sort<>(true, TenantSortField.NAME));
     }
@@ -150,11 +133,4 @@ public class TenantService {
         return predicate;
     }
 
-
-    private void createDefaultPlot(Tenant managedTenant) throws OperationNotAllowedException {
-        Plot plot = new Plot();
-        plot.setTenant(managedTenant);
-        plot.setName("Default");
-        plotService.savePlot(plot);
-    }
 }

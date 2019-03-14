@@ -64,9 +64,12 @@ public class TenantResource {
     public WsTenant createTenant(WsTenant wsTenant) {
         Tenant tenant = tenantConverter.fromWsEntity(wsTenant);
 
-        Tenant createdTenant = tenantUpdateService.createTenant(tenant);
-
-        return wsTenantConverter.toWsEntity(createdTenant);
+        try {
+            Tenant createdTenant = tenantUpdateService.createTenant(tenant);
+            return wsTenantConverter.toWsEntity(createdTenant);
+        } catch (OperationNotAllowedException e) {
+            throw new WsException(Response.Status.FORBIDDEN);
+        }
     }
 
     @GET
@@ -95,7 +98,7 @@ public class TenantResource {
     public WsRef<WsTenant> updateTenant(@PathParam("id") long id, @NotNull @Valid WsTenant wsTenant) {
         Tenant tenant = tenantConverter.fromWsEntity(wsTenant);
         try {
-            Tenant savedTenant = tenantService.saveTenant(tenant);
+            Tenant savedTenant = tenantUpdateService.saveTenant(tenant);
             WsRef<WsTenant> reference = wsTenantConverter.reference(savedTenant);
             return reference;
         } catch (OperationNotAllowedException e) {

@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -91,6 +92,7 @@ public class UserUpdateService {
         // As such, we need to persist a reference to the user being added to be able to correlate the added authenticator
         // user in the callback.
         newUser.setAdmin(adminAccount);
+        newUser.setCreated(LocalDateTime.now());
         userCreationQueue.putUser(email, newUser);
 
 //        newAuthenticatorUser.setActive(true);
@@ -132,6 +134,7 @@ public class UserUpdateService {
 
         newUser.setAdmin(adminAccount);
         newUser.setAuthenticatorUid(loggedAuthenticatorUserId);
+        newUser.setCreated(LocalDateTime.now());
         User savedUser = saveUser(newUser);
 
         tenantUserRoleInvitation.ifPresent(invitation -> this.createTenantRole(savedUser, invitation));
@@ -264,7 +267,7 @@ public class UserUpdateService {
     }
 
 
-    private void initializeNewUserAccount(User savedUser) {
+    private void initializeNewUserAccount(User savedUser) throws OperationNotAllowedException {
         boolean hasNoTenant = tenantUserRolesQueryService.findAllTenantUserRoles(savedUser).isEmpty();
         if (hasNoTenant) {
             String newTenantName = savedUser.getFirstName() + " " + savedUser.getLastName();
@@ -314,6 +317,7 @@ public class UserUpdateService {
     }
 
     private User saveUser(@Valid User user) {
+        user.setUpdated(LocalDateTime.now());
         User managedUser = entityManager.merge(user);
         return managedUser;
     }

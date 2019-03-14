@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Stateless
@@ -25,10 +26,12 @@ public class TenantUserRoleInvitationUpdateService {
         invitation.setTenant(tenant);
         invitation.setTenantRole(tenantRole);
         invitation.setToken(token);
+        invitation.setCreated(LocalDateTime.now());
         return this.saveInvitation(invitation);
     }
 
     private TenantUserRoleInvitation saveInvitation(@Valid TenantUserRoleInvitation invitation) {
+        invitation.setUpdated(LocalDateTime.now());
         return entityManager.merge(invitation);
     }
 

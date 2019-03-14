@@ -79,7 +79,6 @@ public class CropService {
 
         validationService.validateLoggedUserHasTenantRole(tenant);
         User user = userQueryService.getLoggedUser().orElseThrow(IllegalStateException::new);
-        LocalDateTime creationTime = LocalDateTime.now();
 
         Crop crop = new Crop();
         crop.setFamily(family);
@@ -87,7 +86,8 @@ public class CropService {
         subSpecies.ifPresent(crop::setSubSpecies);
         cultivar.ifPresent(crop::setCultivar);
         crop.setCreationUser(user);
-        crop.setCreationDateTime(creationTime);
+        crop.setCreated(LocalDateTime.now());
+        crop.setUpdated(LocalDateTime.now());
 
         agrovocPlantURI.map(this::getOrCreateAgrovocPlant)
                 .ifPresent(plant -> this.setCropAgrovocPlant(crop, plant));

@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.service;
 
 import com.charlyghislain.plancul.domain.Plot;
 import com.charlyghislain.plancul.domain.Tenant;
+import com.charlyghislain.plancul.domain.TenantRole;
 import com.charlyghislain.plancul.domain.exception.OperationNotAllowedException;
 
 import javax.ejb.Stateless;
@@ -9,6 +10,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 @Stateless
 public class TenantUpdateService {
@@ -28,13 +30,22 @@ public class TenantUpdateService {
     @Inject
     private ValidationService validationService;
 
-    public Tenant createTenant(Tenant tenant) {
-        Tenant createdTenant = saveTenant(tenant);
-        try {
-            this.createDefaultPlot(createdTenant);
-        } catch (OperationNotAllowedException e) {
-            throw new IllegalStateException(e);
+    public Tenant saveTenant(Tenant tenant) throws OperationNotAllowedException {
+        if (tenant.getId() == null) {
+            return this.createTenant(tenant);
         }
+
+        validationService.validateLoggedUserHasTenantRole(tenant, TenantRole.ADMIN);
+        return this.persistTenant(tenant);
+    }
+
+    public Tenant createTenant(Tenant tenant) throws OperationNotAllowedException {
+        validationService.validateLoggedUserHasTenantRole(tenant, TenantRole.ADMIN);
+
+        tenant.setCreated(LocalDateTime.now());
+        Tenant createdTenant = saveTenant(tenant);
+
+        this.createDefaultPlot(createdTenant);
         return createdTenant;
     }
 
@@ -45,7 +56,8 @@ public class TenantUpdateService {
         plotService.savePlot(plot);
     }
 
-    private Tenant saveTenant(@Valid Tenant tenant) {
+    private Tenant persistTenant(@Valid Tenant tenant) {
+        tenant.setUpdated(LocalDateTime.now());
         return entityManager.merge(tenant);
     }
 }

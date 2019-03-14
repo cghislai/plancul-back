@@ -1,0 +1,109 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.7"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.7
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.7.xsd">
+
+    <changeSet id="BED" author="cghislai">
+        <addColumn tableName="BED">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="BEDPREPARATION" author="cghislai">
+        <addColumn tableName="BEDPREPARATION">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="CULTURENURSING" author="cghislai">
+        <addColumn tableName="CULTURENURSING">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="CROP" author="cghislai">
+        <renameColumn tableName="CROP" oldColumnName="CREATIONDATETIME" newColumnName="CREATED"
+                      columnDataType="DATETIME"/>
+        <addColumn tableName="CROP">
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="PLANCULUSER" author="cghislai">
+        <addColumn tableName="PLANCULUSER">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="PLOT" author="cghislai">
+        <addColumn tableName="PLOT">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="TENANT" author="cghislai">
+        <addColumn tableName="TENANT">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="TENANTUSERROLE" author="cghislai">
+        <addColumn tableName="TENANTUSERROLE">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="TENANTUSERROLEINVITATION" author="cghislai">
+        <addColumn tableName="TENANTUSERROLEINVITATION">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+
+</databaseChangeLog>

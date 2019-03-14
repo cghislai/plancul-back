@@ -2,6 +2,7 @@ package com.charlyghislain.plancul.domain;
 
 import com.charlyghislain.plancul.domain.util.DomainEntity;
 import com.charlyghislain.plancul.domain.util.ServiceManaged;
+import com.charlyghislain.plancul.domain.util.WithAccessTimes;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,9 +10,10 @@ import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-public class CultureNursing implements DomainEntity {
+public class CultureNursing implements DomainEntity, WithAccessTimes {
 
     @Id
     @GeneratedValue
@@ -24,6 +26,13 @@ public class CultureNursing implements DomainEntity {
     @NotNull
     @ServiceManaged
     private LocalDate endDate;
+
+    @NotNull
+    @ServiceManaged
+    private LocalDateTime created = LocalDateTime.now();
+    @NotNull
+    @ServiceManaged
+    private LocalDateTime updated = LocalDateTime.now();
 
     @Override
     public Long getId() {
@@ -58,5 +67,21 @@ public class CultureNursing implements DomainEntity {
 
     public void setEndDate(@NotNull LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
     }
 }

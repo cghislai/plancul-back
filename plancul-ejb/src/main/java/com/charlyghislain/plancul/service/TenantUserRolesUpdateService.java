@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 @Stateless
 public class TenantUserRolesUpdateService {
@@ -33,6 +34,7 @@ public class TenantUserRolesUpdateService {
         tenantUserRole.setTenant(tenant);
         tenantUserRole.setTenantRole(tenantRole);
         tenantUserRole.setUser(user);
+        tenantUserRole.setCreated(LocalDateTime.now());
         TenantUserRole managedTenantUserRole = this.saveTenantUserRole(tenantUserRole);
         this.removeInvitation(tenantUserRoleInvitation);
         return managedTenantUserRole;
@@ -43,6 +45,7 @@ public class TenantUserRolesUpdateService {
         tenantUserRole.setTenant(tenant);
         tenantUserRole.setTenantRole(tenantRole);
         tenantUserRole.setUser(user);
+        tenantUserRole.setCreated(LocalDateTime.now());
         TenantUserRole managedTenantUserRole = this.saveTenantUserRole(tenantUserRole);
         return managedTenantUserRole;
     }
@@ -59,6 +62,7 @@ public class TenantUserRolesUpdateService {
     }
 
     private TenantUserRole saveTenantUserRole(@Valid TenantUserRole tenantUserRole) {
+        tenantUserRole.setUpdated(LocalDateTime.now());
         return entityManager.merge(tenantUserRole);
     }
 }

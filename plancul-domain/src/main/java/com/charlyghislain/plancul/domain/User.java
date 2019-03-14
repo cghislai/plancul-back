@@ -2,6 +2,8 @@ package com.charlyghislain.plancul.domain;
 
 import com.charlyghislain.plancul.domain.i18n.Language;
 import com.charlyghislain.plancul.domain.util.DomainEntity;
+import com.charlyghislain.plancul.domain.util.ServiceManaged;
+import com.charlyghislain.plancul.domain.util.WithAccessTimes;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,10 +13,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "PLANCULUSER")
-public class User implements DomainEntity {
+public class User implements DomainEntity, WithAccessTimes {
 
     @Id
     @GeneratedValue
@@ -31,6 +34,13 @@ public class User implements DomainEntity {
     @Enumerated(EnumType.STRING)
     private Language language;
     private boolean admin;
+
+    @NotNull
+    @ServiceManaged
+    private LocalDateTime created = LocalDateTime.now();
+    @NotNull
+    @ServiceManaged
+    private LocalDateTime updated = LocalDateTime.now();
 
     @Override
     public Long getId() {
@@ -83,4 +93,19 @@ public class User implements DomainEntity {
         this.admin = admin;
     }
 
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
+    }
 }

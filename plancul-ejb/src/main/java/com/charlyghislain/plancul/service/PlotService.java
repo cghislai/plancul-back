@@ -22,6 +22,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +47,7 @@ public class PlotService {
             return this.createPlot(plot);
         }
 
+        plot.setUpdated(LocalDateTime.now());
         Plot managedPlot = entityManager.merge(plot);
         return managedPlot;
     }
@@ -101,6 +103,9 @@ public class PlotService {
 
 
     private Plot createPlot(Plot plot) throws OperationNotAllowedException {
+        plot.setCreated(LocalDateTime.now());
+        plot.setUpdated(LocalDateTime.now());
+
         Plot managedPlot = entityManager.merge(plot);
         return managedPlot;
     }

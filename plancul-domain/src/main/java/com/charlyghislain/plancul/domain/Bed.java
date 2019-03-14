@@ -1,6 +1,8 @@
 package com.charlyghislain.plancul.domain;
 
 import com.charlyghislain.plancul.domain.util.DomainEntity;
+import com.charlyghislain.plancul.domain.util.ServiceManaged;
+import com.charlyghislain.plancul.domain.util.WithAccessTimes;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,10 +11,11 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Entity
-public class Bed implements DomainEntity {
+public class Bed implements DomainEntity, WithAccessTimes {
 
     @Id
     @GeneratedValue
@@ -27,6 +30,13 @@ public class Bed implements DomainEntity {
     @NotNull
     @ManyToOne
     private Plot plot;
+
+    @NotNull
+    @ServiceManaged
+    private LocalDateTime created = LocalDateTime.now();
+    @NotNull
+    @ServiceManaged
+    private LocalDateTime updated = LocalDateTime.now();
 
     @Override
     public Long getId() {
@@ -69,5 +79,21 @@ public class Bed implements DomainEntity {
 
     public void setSurface(BigDecimal surface) {
         this.surface = surface;
+    }
+
+    public LocalDateTime getCreated() {
+        return created;
+    }
+
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
     }
 }

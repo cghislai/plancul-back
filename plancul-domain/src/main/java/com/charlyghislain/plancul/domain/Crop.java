@@ -1,6 +1,8 @@
 package com.charlyghislain.plancul.domain;
 
 import com.charlyghislain.plancul.domain.util.DomainEntity;
+import com.charlyghislain.plancul.domain.util.ServiceManaged;
+import com.charlyghislain.plancul.domain.util.WithAccessTimes;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import javax.persistence.CascadeType;
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Entity
-public class Crop implements DomainEntity {
+public class Crop implements DomainEntity, WithAccessTimes {
 
     @Id
     @GeneratedValue
@@ -43,7 +45,11 @@ public class Crop implements DomainEntity {
     @ManyToOne
     private User creationUser;
     @NotNull
-    private LocalDateTime creationDateTime;
+    @ServiceManaged
+    private LocalDateTime created = LocalDateTime.now();
+    @NotNull
+    @ServiceManaged
+    private LocalDateTime updated = LocalDateTime.now();
 
     @Nullable
     @Size(max = 255)
@@ -151,12 +157,20 @@ public class Crop implements DomainEntity {
         this.creationUser = creationUser;
     }
 
-    @NotNull
-    public LocalDateTime getCreationDateTime() {
-        return creationDateTime;
+
+    public LocalDateTime getCreated() {
+        return created;
     }
 
-    public void setCreationDateTime(@NotNull LocalDateTime creationTime) {
-        this.creationDateTime = creationTime;
+    public void setCreated(LocalDateTime created) {
+        this.created = created;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
     }
 }
