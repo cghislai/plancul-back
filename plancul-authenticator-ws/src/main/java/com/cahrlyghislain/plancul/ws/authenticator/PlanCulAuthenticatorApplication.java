@@ -16,6 +16,7 @@ public class PlanCulAuthenticatorApplication extends ResourceConfig {
     public PlanCulAuthenticatorApplication() {
         registerClasses(
                 AuthenticatorAuthorizationResource.class,
+                AuthenticatorHealthResource.class,
                 AuthenticatorUserEventResource.class
         );
     }
