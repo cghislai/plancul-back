@@ -3,6 +3,7 @@ package com.charlyghislain.plancul.domain.request.sort;
 import com.charlyghislain.plancul.domain.Culture;
 
 public enum CultureSortField implements SortField<Culture> {
+
     CROP_PLANT_NAME(CultureSortMappings.CROP_PLANT_NAME),
     CROP_PRODUCT_NAME(CultureSortMappings.CROP_PRODUCT_NAME),
     CROP_CULTIVAR(CultureSortMappings.CROP_CULTIVAR),
@@ -17,7 +18,9 @@ public enum CultureSortField implements SortField<Culture> {
     NURSERING_DURATION(CultureSortMappings.NURSING_DURATION),
     NURSERING_START_DATE(CultureSortMappings.NURSING_START_DATE),
     CULTURE_PREPARATION_DURATION(CultureSortMappings.CULTURE_PREPARATION_DURATION),
-    CULTURE_PREPARATION_START_DATE(CultureSortMappings.CULTURE_PREPARATION_START_DATE);
+    CULTURE_PREPARATION_START_DATE(CultureSortMappings.CULTURE_PREPARATION_START_DATE),
+    CREATED(CultureSortMappings.CREATED_TIME),
+    UPDATED(CultureSortMappings.UPDATED_TIME);
 
     private final SortMapping<Culture, ?> mappingFunction;
 

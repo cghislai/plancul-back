@@ -21,6 +21,7 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Path;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 class CultureSortMappings {
 
@@ -74,5 +75,14 @@ class CultureSortMappings {
     static SortMapping<Culture, LocalDate> CULTURE_PREPARATION_START_DATE = (culture, context) -> {
         Join<Culture, BedPreparation> bedPreparationJoin = culture.join(Culture_.bedPreparation, JoinType.LEFT);
         return new SortMappingResult<>(bedPreparationJoin.get(BedPreparation_.startDate));
+    };
+
+    static SortMapping<Culture, LocalDateTime> CREATED_TIME = (culture, context) -> {
+        Path<LocalDateTime> dateTimePath = culture.get(Culture_.created);
+        return new SortMappingResult<>(dateTimePath);
+    };
+    static SortMapping<Culture, LocalDateTime> UPDATED_TIME = (culture, context) -> {
+        Path<LocalDateTime> dateTimePath = culture.get(Culture_.updated);
+        return new SortMappingResult<>(dateTimePath);
     };
 }

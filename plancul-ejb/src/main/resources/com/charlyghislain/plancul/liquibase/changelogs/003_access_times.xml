@@ -26,6 +26,18 @@
         </addColumn>
     </changeSet>
 
+
+    <changeSet id="CULTURE" author="cghislai">
+        <addColumn tableName="CULTURE">
+            <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
     <changeSet id="CULTURENURSING" author="cghislai">
         <addColumn tableName="CULTURENURSING">
             <column name="CREATED" type="DATETIME" defaultValueDate="CURRENT_TIMESTAMP()">
