@@ -473,6 +473,15 @@ public class CultureService {
                 .map(date -> this.createCulturreDatePredicate(cultureSource, Culture_.bedOccupancyEndDate, date))
                 .ifPresent(predicateList::add);
 
+        cultureFilter.getStartDateOptional()
+                .map(date -> this.createCultureStartDatePredicate(cultureSource, date))
+                .ifPresent(predicateList::add);
+
+        cultureFilter.getEndDateOptional()
+                .map(date -> this.createCultureEndDatePredicate(cultureSource, date))
+                .ifPresent(predicateList::add);
+
+
         cultureFilter.getNursing()
                 .map(hasNursing -> this.createHasNursingPredicate(cultureSource, hasNursing))
                 .ifPresent(predicateList::add);
@@ -488,8 +497,23 @@ public class CultureService {
         cultureFilter.getNotesQuery()
                 .map(notes -> this.createNotesQueryPredicate(cultureSource, notes))
                 .ifPresent(predicateList::add);
-
         return predicateList;
+    }
+
+    private Predicate createCultureStartDatePredicate(Root<Culture> cultureSource, DateFilter date) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
+        Predicate bedOccupancyStartMatch = this.createCulturreDatePredicate(cultureSource, Culture_.bedOccupancyStartDate, date);
+        Predicate sowingDateMatch = this.createCulturreDatePredicate(cultureSource, Culture_.sowingDate, date);
+        return criteriaBuilder.or(bedOccupancyStartMatch, sowingDateMatch);
+    }
+
+    private Predicate createCultureEndDatePredicate(Root<Culture> cultureSource, DateFilter date) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
+        Predicate bedOccupancyEndMatch = this.createCulturreDatePredicate(cultureSource, Culture_.bedOccupancyEndDate, date);
+        Predicate lastHarvestDateMatch = this.createCulturreDatePredicate(cultureSource, Culture_.lastHarvestDate, date);
+        return criteriaBuilder.or(bedOccupancyEndMatch, lastHarvestDateMatch);
     }
 
     private Predicate createNotesQueryPredicate(Root<Culture> cultureSource, String query) {

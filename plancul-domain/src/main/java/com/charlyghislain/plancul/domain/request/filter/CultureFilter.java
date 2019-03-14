@@ -30,6 +30,10 @@ public class CultureFilter {
     @Nullable
     private DateFilter bedOccupancyEndDate;
     @Nullable
+    private DateFilter startDate;
+    @Nullable
+    private DateFilter endDate;
+    @Nullable
     private Boolean nursing;
     @Nullable
     private Boolean bedPreparation;
@@ -150,5 +154,20 @@ public class CultureFilter {
         this.notesQuery = notesQuery;
     }
 
+    public Optional<DateFilter> getStartDateOptional() {
+        return Optional.ofNullable(startDate);
+    }
+
+    public void setStartDate(DateFilter startDate) {
+        this.startDate = startDate;
+    }
+
+    public Optional<DateFilter> getEndDateOptional() {
+        return Optional.ofNullable(endDate);
+    }
+
+    public void setEndDate(DateFilter endDate) {
+        this.endDate = endDate;
+    }
 }
 

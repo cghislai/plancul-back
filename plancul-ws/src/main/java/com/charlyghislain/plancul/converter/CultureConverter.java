@@ -23,7 +23,6 @@ import com.charlyghislain.plancul.service.CultureService;
 import com.charlyghislain.plancul.util.UntypedSort;
 import com.charlyghislain.plancul.util.exception.ReferenceNotFoundException;
 
-import javax.ejb.EJB;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.math.BigDecimal;
@@ -216,6 +215,14 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         wsCultureFilter.getBedOccupancyEndDate()
                 .map(dateFilterConverter::fromWsDateFilter)
                 .ifPresent(cultureFilter::setBedOccupancyEndDate);
+
+        wsCultureFilter.getStartDate()
+                .map(dateFilterConverter::fromWsDateFilter)
+                .ifPresent(cultureFilter::setStartDate);
+
+        wsCultureFilter.getEndDate()
+                .map(dateFilterConverter::fromWsDateFilter)
+                .ifPresent(cultureFilter::setEndDate);
 
         wsCultureFilter.getNursing()
                 .ifPresent(cultureFilter::setNursing);

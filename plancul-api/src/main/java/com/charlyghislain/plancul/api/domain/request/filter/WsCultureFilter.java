@@ -30,6 +30,10 @@ public class WsCultureFilter implements Serializable {
     @Nullable
     private WsDateFilter bedOccupancyEndDate;
     @Nullable
+    private WsDateFilter startDate;
+    @Nullable
+    private WsDateFilter endDate;
+    @Nullable
     private Boolean nursing;
     @Nullable
     private Boolean bedPreparation;
@@ -148,5 +152,21 @@ public class WsCultureFilter implements Serializable {
 
     public void setNotesQuery(String notesQuery) {
         this.notesQuery = notesQuery;
+    }
+
+    public Optional<WsDateFilter> getStartDate() {
+        return Optional.ofNullable(startDate);
+    }
+
+    public void setStartDate(WsDateFilter startDate) {
+        this.startDate = startDate;
+    }
+
+    public Optional<WsDateFilter> getEndDate() {
+        return Optional.ofNullable(endDate);
+    }
+
+    public void setEndDate(WsDateFilter endDate) {
+        this.endDate = endDate;
     }
 }
