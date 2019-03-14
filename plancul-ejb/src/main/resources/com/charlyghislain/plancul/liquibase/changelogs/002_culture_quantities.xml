@@ -23,4 +23,15 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="2-culture-computed-quantities" author="cghislai">
+        <addColumn tableName="CULTURE">
+            <column name="SEEDTOTALQUANTITY" type="DECIMAL UNSIGNED" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="HARVESTTOTALQUANTITY" type="DECIMAL UNSIGNED" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>

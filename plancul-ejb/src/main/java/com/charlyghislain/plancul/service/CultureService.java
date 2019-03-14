@@ -24,6 +24,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import javax.persistence.metamodel.SingularAttribute;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -53,12 +54,9 @@ public class CultureService {
             return this.createCulture(culture);
         }
 
-        validationService.validateLoggedUserHasTenantRole(culture.getTenant());
-        computeCultureDates(culture);
-
-        Culture managedCulture = entityManager.merge(culture);
-        return managedCulture;
+        return validateAndPersistCulture(culture);
     }
+
 
     public void removeCropCultures(Crop crop) {
         CropFilter cropFilter = new CropFilter();
@@ -92,6 +90,7 @@ public class CultureService {
 
     public void prepareCultureValidation(Culture culture) {
         computeCultureDates(culture);
+        computeCultureQuantities(culture);
     }
 
 
@@ -342,11 +341,7 @@ public class CultureService {
     }
 
     private Culture createCulture(Culture culture) throws OperationNotAllowedException {
-        validationService.validateLoggedUserHasTenantRole(culture.getTenant());
-        computeCultureDates(culture);
-
-        Culture managedCulture = entityManager.merge(culture);
-        return managedCulture;
+        return validateAndPersistCulture(culture);
     }
 
     private void computeCultureDates(Culture culture) {
@@ -384,6 +379,28 @@ public class CultureService {
         culture.setBedOccupancyEndDate(lastHarvestDate);
     }
 
+    private void computeCultureQuantities(Culture culture) {
+        Bed bed = culture.getBed();
+        if (bed == null) {
+            culture.setSeedTotalQuantity(BigDecimal.ZERO);
+            culture.setHarvestTotalQuantity(BigDecimal.ZERO);
+            return;
+        }
+        BigDecimal surface = bed.getSurface();
+        BigDecimal seedSurfaceQuantity = culture.getSeedSurfaceQuantity();
+        BigDecimal harvestSurfaceQuantity = culture.getHarvestSurfaceQuantity();
+        if (surface == null || seedSurfaceQuantity == null || harvestSurfaceQuantity == null) {
+            culture.setSeedTotalQuantity(BigDecimal.ZERO);
+            culture.setHarvestTotalQuantity(BigDecimal.ZERO);
+            return;
+        }
+
+        BigDecimal seedTotalQuantity = surface.multiply(seedSurfaceQuantity);
+        BigDecimal harvestTotalQuantity = surface.multiply(harvestSurfaceQuantity);
+
+        culture.setSeedTotalQuantity(seedTotalQuantity);
+        culture.setHarvestTotalQuantity(harvestTotalQuantity);
+    }
 
     private void setNursingDates(Culture culture, LocalDate sowingDate, LocalDate transplantingDate) {
         CultureNursing cultureNursing = culture.getCultureNursing().orElseThrow(IllegalStateException::new);
@@ -554,6 +571,16 @@ public class CultureService {
                 .ifPresent(entityManager::remove);
 
         entityManager.remove(managedCulture);
+    }
+
+
+    private Culture validateAndPersistCulture(Culture culture) throws OperationNotAllowedException {
+        validationService.validateLoggedUserHasTenantRole(culture.getTenant());
+        computeCultureDates(culture);
+        computeCultureQuantities(culture);
+
+        Culture managedCulture = entityManager.merge(culture);
+        return managedCulture;
     }
 
 }

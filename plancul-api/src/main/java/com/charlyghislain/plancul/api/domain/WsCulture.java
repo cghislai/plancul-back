@@ -1,5 +1,6 @@
 package com.charlyghislain.plancul.api.domain;
 
+import com.charlyghislain.plancul.api.domain.util.NullableField;
 import com.charlyghislain.plancul.api.domain.util.WsDomainEntity;
 import com.charlyghislain.plancul.api.domain.util.WsRef;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -8,7 +9,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Optional;
 
 public class WsCulture implements WsDomainEntity {
 
@@ -34,22 +34,36 @@ public class WsCulture implements WsDomainEntity {
     private BigDecimal harvestSurfaceQuantity;
 
     @Nullable
+    @NullableField
     private LocalDate firstHarvestDate;
     @Nullable
+    @NullableField
     private LocalDate lastHarvestDate;
     @Nullable
+    @NullableField
     private LocalDate germinationDate;
     @Nullable
+    @NullableField
     private LocalDate bedOccupancyStartDate;
     @Nullable
+    @NullableField
     private LocalDate bedOccupancyEndDate;
+    @Nullable
+    @NullableField
+    private BigDecimal seedTotalQuantity;
+    @Nullable
+    @NullableField
+    private BigDecimal harvestTotalQuantity;
 
     @Nullable
+    @NullableField
     private String htmlNotes;
 
     @Nullable
+    @NullableField
     private WsCultureNursing cultureNursing;
     @Nullable
+    @NullableField
     private WsBedPreparation bedPreparation;
 
     @Override
@@ -205,5 +219,21 @@ public class WsCulture implements WsDomainEntity {
 
     public void setHarvestSurfaceQuantity(@NotNull BigDecimal harvestSurfaceQuantity) {
         this.harvestSurfaceQuantity = harvestSurfaceQuantity;
+    }
+
+    public BigDecimal getSeedTotalQuantity() {
+        return seedTotalQuantity;
+    }
+
+    public void setSeedTotalQuantity(BigDecimal seedTotalQuantity) {
+        this.seedTotalQuantity = seedTotalQuantity;
+    }
+
+    public BigDecimal getHarvestTotalQuantity() {
+        return harvestTotalQuantity;
+    }
+
+    public void setHarvestTotalQuantity(BigDecimal harvestTotalQuantity) {
+        this.harvestTotalQuantity = harvestTotalQuantity;
     }
 }

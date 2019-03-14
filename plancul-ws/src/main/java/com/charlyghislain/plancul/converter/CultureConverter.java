@@ -77,6 +77,8 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         Optional<String> htmlNotes = entity.getHtmlNotes();
         Optional<CultureNursing> cultureNursing = entity.getCultureNursing();
         Optional<BedPreparation> bedPreparation = entity.getBedPreparation();
+        BigDecimal seedTotalQuantity = entity.getSeedTotalQuantity();
+        BigDecimal harvestTotalQuantity = entity.getHarvestTotalQuantity();
 
         Optional<WsRef<WsTenant>> tenantWsRef = Optional.ofNullable(tenant)
                 .map(wsTenantConverter::reference);
@@ -104,6 +106,8 @@ public class CultureConverter implements WsDomainObjectConverter<Culture, WsCult
         wsCulture.setBedOccupancyStartDate(bedOccupancyStartDate);
         wsCulture.setBedOccupancyEndDate(bedOccupancyEndDate);
         wsCulture.setHtmlNotes(htmlNotes.orElse(null));
+        wsCulture.setSeedTotalQuantity(seedTotalQuantity);
+        wsCulture.setHarvestTotalQuantity(harvestTotalQuantity);
         wsCultureNursing.ifPresent(wsCulture::setCultureNursing);
         wsBedPreparation.ifPresent(wsCulture::setBedPreparation);
         return wsCulture;

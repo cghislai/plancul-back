@@ -65,6 +65,12 @@ public class Culture implements DomainEntity {
     @NotNull
     @ServiceManaged
     private LocalDate bedOccupancyEndDate;
+    @NotNull
+    @ServiceManaged
+    private BigDecimal seedTotalQuantity;
+    @NotNull
+    @ServiceManaged
+    private BigDecimal harvestTotalQuantity;
 
     @Nullable
     private String htmlNotes = "";
@@ -165,6 +171,22 @@ public class Culture implements DomainEntity {
 
     public void setBedOccupancyEndDate(@NotNull LocalDate bedOccupancyEndDate) {
         this.bedOccupancyEndDate = bedOccupancyEndDate;
+    }
+
+    public BigDecimal getSeedTotalQuantity() {
+        return seedTotalQuantity;
+    }
+
+    public void setSeedTotalQuantity(BigDecimal seedTotalQuantity) {
+        this.seedTotalQuantity = seedTotalQuantity;
+    }
+
+    public BigDecimal getHarvestTotalQuantity() {
+        return harvestTotalQuantity;
+    }
+
+    public void setHarvestTotalQuantity(BigDecimal harvestTotalQuantity) {
+        this.harvestTotalQuantity = harvestTotalQuantity;
     }
 
     public Optional<CultureNursing> getCultureNursing() {
