@@ -39,10 +39,9 @@
 
     <properties>
         <typescript.api.npm.version>${project.version}</typescript.api.npm.version>
-        <authenticator.version>1.0.4-SNAPSHOT</authenticator.version>
+        <authenticator.version>1.0.6</authenticator.version>
         <dispatcher.version>2.0.1</dispatcher.version>
     </properties>
-
 
     <dependencyManagement>
         <dependencies>
