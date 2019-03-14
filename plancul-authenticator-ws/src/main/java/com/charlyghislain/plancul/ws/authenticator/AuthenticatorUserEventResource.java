@@ -1,4 +1,4 @@
-package com.cahrlyghislain.plancul.ws.authenticator;
+package com.charlyghislain.plancul.ws.authenticator;
 
 import com.charlyghislain.authenticator.application.api.UserEventResource;
 import com.charlyghislain.authenticator.application.api.domain.WsApplicationUser;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 

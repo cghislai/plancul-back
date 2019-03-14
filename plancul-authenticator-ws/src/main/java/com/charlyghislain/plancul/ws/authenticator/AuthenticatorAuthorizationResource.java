@@ -1,6 +1,6 @@
-package com.cahrlyghislain.plancul.ws.authenticator;
+package com.charlyghislain.plancul.ws.authenticator;
 
-import com.cahrlyghislain.plancul.ws.authenticator.converter.WsApplicationRoleConverter;
+import com.charlyghislain.plancul.ws.authenticator.converter.WsApplicationRoleConverter;
 import com.charlyghislain.authenticator.application.api.AuthorizationResource;
 import com.charlyghislain.authenticator.application.api.domain.WsApplicationRole;
 import com.charlyghislain.authenticator.application.api.domain.WsHealthCheckStatus;

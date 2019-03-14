@@ -1,4 +1,4 @@
-package com.cahrlyghislain.plancul.ws.authenticator;
+package com.charlyghislain.plancul.ws.authenticator;
 
 
 import com.charlyghislain.plancul.domain.security.ApplicationGroupNames;
