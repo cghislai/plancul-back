@@ -43,7 +43,7 @@ public class TenantUpdateService {
         validationService.validateNullId(tenant);
 
         tenant.setCreated(LocalDateTime.now());
-        Tenant createdTenant = saveTenant(tenant);
+        Tenant createdTenant = persistTenant(tenant);
 
         this.createDefaultPlot(createdTenant);
         return createdTenant;
