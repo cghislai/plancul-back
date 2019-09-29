@@ -40,7 +40,7 @@ public class TenantUpdateService {
     }
 
     public Tenant createTenant(Tenant tenant) throws OperationNotAllowedException {
-        validationService.validateLoggedUserHasTenantRole(tenant, TenantRole.ADMIN);
+        validationService.validateNullId(tenant);
 
         tenant.setCreated(LocalDateTime.now());
         Tenant createdTenant = saveTenant(tenant);

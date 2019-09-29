@@ -30,6 +30,13 @@ public class ValidationService {
         }
     }
 
+    void validateNullId(WithId entity) {
+        Optional<Long> idOptional = entity.getIdOptional();
+        if (idOptional.isPresent()) {
+            throw new IllegalStateException();
+        }
+    }
+
     boolean hasLoggedUserTenantRole(Tenant tenant) {
         boolean adminLogged = isAdminLogged();
         boolean hasTenantRole = userQueryService.getLoggedUser()
